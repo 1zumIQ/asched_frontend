@@ -1,18 +1,64 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import type { DayCard, TagType } from '@/types/schedule'
-import { tagMeta, weeklyPlan } from '@/data/schedule'
+import type { WeekIdentifier } from '@/data/utils/scheduleUtils'
+import { tagMeta, memberTags, energyTags } from '@/data/schedule'
+import { getAvailableWeeks, getWeeklyPlanByWeek } from '@/data/schedule'
+import { getCurrentWeekIdentifier, getWeekStartDate } from '@/data/utils/scheduleUtils'
 import { ScheduleHero, ScheduleLegend, WeekGrid } from '@/components/schedule'
 
 const now = new Date()
 
+// 当前选中的周
+const currentWeek = ref<WeekIdentifier>(getCurrentWeekIdentifier())
+
+// 有数据的周列表
+const availableWeeks = ref<WeekIdentifier[]>([])
+
+// 当前周的数据
+const weeklyPlan = ref<Record<string, any[]>>({})
+
+// 加载状态
+const isLoading = ref(false)
+
+// 选中的标签（用于筛选）
+const selectedTags = ref<TagType[]>([])
+
+// 加载有数据的周列表
+const loadAvailableWeeks = async () => {
+  try {
+    availableWeeks.value = await getAvailableWeeks()
+  } catch (error) {
+    console.error('Failed to load available weeks:', error)
+  }
+}
+
+// 加载指定周的数据
+const loadWeekData = async (weekId: WeekIdentifier) => {
+  isLoading.value = true
+  try {
+    weeklyPlan.value = await getWeeklyPlanByWeek(weekId)
+  } catch (error) {
+    console.error('Failed to load week data:', error)
+    weeklyPlan.value = {}
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 监听周变化
+watch(currentWeek, (newWeek) => {
+  loadWeekData(newWeek)
+})
+
+// 初始化
+onMounted(async () => {
+  await loadAvailableWeeks()
+  await loadWeekData(currentWeek.value)
+})
+
 const startOfWeek = computed(() => {
-  const day = now.getDay()
-  const mondayOffset = day === 0 ? -6 : 1 - day
-  const monday = new Date(now)
-  monday.setHours(0, 0, 0, 0)
-  monday.setDate(now.getDate() + mondayOffset)
-  return monday
+  return getWeekStartDate(currentWeek.value)
 })
 
 const endOfWeek = computed(() => {
@@ -32,6 +78,21 @@ const weekRangeLabel = computed(() => {
   return `${start} - ${end}`
 })
 
+// 筛选后的事件
+const filteredWeeklyPlan = computed(() => {
+  if (selectedTags.value.length === 0) {
+    return weeklyPlan.value
+  }
+
+  const filtered: Record<string, any[]> = {}
+  Object.entries(weeklyPlan.value).forEach(([day, events]) => {
+    filtered[day] = events.filter(event =>
+      event.tags.some((tag: TagType) => selectedTags.value.includes(tag))
+    )
+  })
+  return filtered
+})
+
 const dayCards = computed<DayCard[]>(() => {
   return Array.from({ length: 7 }, (_, index) => {
     const date = new Date(startOfWeek.value)
@@ -40,20 +101,20 @@ const dayCards = computed<DayCard[]>(() => {
     const shortName = date.toLocaleDateString('en-US', { weekday: 'short' })
     const numeric = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     const isToday = date.toDateString() === now.toDateString()
-    const events = weeklyPlan[longName] ?? []
+    const events = filteredWeeklyPlan.value[longName] ?? []
     return { longName, shortName, numeric, isToday, events }
   })
 })
 
 const totalSessions = computed(() =>
-  Object.values(weeklyPlan).reduce((sum, items) => sum + items.length, 0)
+  Object.values(weeklyPlan.value).reduce((sum, items) => sum + items.length, 0)
 )
 
 const tagCounts = computed(() => {
   const counts = {} as Record<TagType, number>
-  Object.values(weeklyPlan).forEach((events) => {
+  Object.values(weeklyPlan.value).forEach((events) => {
     events.forEach((event) => {
-      event.tags.forEach((tag) => {
+      event.tags.forEach((tag: TagType) => {
         counts[tag] = (counts[tag] || 0) + 1
       })
     })
@@ -65,13 +126,23 @@ const tagCounts = computed(() => {
 <template>
   <main class="page">
     <ScheduleHero
+      v-model:current-week="currentWeek"
+      v-model:selected-tags="selectedTags"
+      :available-weeks="availableWeeks"
       :week-range-label="weekRangeLabel"
       :total-sessions="totalSessions"
       :tag-meta="tagMeta"
+      :member-tags="memberTags"
+      :type-tags="energyTags"
       :tag-counts="tagCounts"
+      :is-loading="isLoading"
     />
     <!-- <ScheduleLegend :tag-meta="tagMeta" /> -->
-    <WeekGrid :day-cards="dayCards" :tag-meta="tagMeta" />
+    <WeekGrid v-if="!isLoading" :day-cards="dayCards" :tag-meta="tagMeta" />
+    <div v-else class="loading">
+      <div class="loading__spinner"></div>
+      <div class="loading__text">加载中...</div>
+    </div>
   </main>
 </template>
 
@@ -104,5 +175,73 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* 移动端减少 padding */
+@media (max-width: 768px) {
+  .page {
+    padding: 8px 8px;
+  }
+}
+
+/* 高度受限时减少 padding */
+@media (max-height: 1000px) {
+  .page {
+    padding: 12px clamp(8px, 2vw, 16px);
+  }
+}
+
+@media (max-height: 900px) {
+  .page {
+    padding: 10px clamp(8px, 2vw, 12px);
+  }
+}
+
+@media (max-height: 800px) {
+  .page {
+    padding: 8px clamp(6px, 2vw, 10px);
+  }
+}
+
+@media (max-height: 700px) {
+  .page {
+    padding: 6px 8px;
+  }
+}
+
+@media (max-height: 600px) {
+  .page {
+    padding: 4px 6px;
+  }
+}
+
+.loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.loading__spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading__text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
 }
 </style>

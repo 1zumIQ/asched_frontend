@@ -1,53 +1,65 @@
 <script setup lang="ts">
-import type { TagType, TagMeta } from '@/types/schedule'
-import { memberTags } from '@/data/schedule'
+import type { TagType, TagMeta, MemberTag, TypeTag } from '@/types/schedule'
+import type { WeekIdentifier } from '@/data/utils/scheduleUtils'
+import WeekSelector from './WeekSelector.vue'
+import TagFilter from './TagFilter.vue'
 
 const props = defineProps<{
+  currentWeek: WeekIdentifier
+  availableWeeks: WeekIdentifier[]
   weekRangeLabel: string
   totalSessions: number
   tagMeta: Record<TagType, TagMeta>
+  memberTags: MemberTag[]
+  typeTags: TypeTag[]
   tagCounts: Record<TagType, number>
+  selectedTags: TagType[]
+  isLoading?: boolean
 }>()
+
+const emit = defineEmits<{
+  'update:currentWeek': [weekId: WeekIdentifier]
+  'update:selectedTags': [tags: TagType[]]
+}>()
+
+const updateCurrentWeek = (weekId: WeekIdentifier) => {
+  emit('update:currentWeek', weekId)
+}
+
+const updateSelectedTags = (tags: TagType[]) => {
+  emit('update:selectedTags', tags)
+}
 </script>
 
 <template>
   <section class="hero">
     <div class="hero__titles">
       <div class="pill">Shadcn-inspired weekly view</div>
-      <h1>Flow-first weekly agenda</h1>
+      <h1>Hi A-SOUL story</h1>
       <p>
         Curated blocks that blend deep work, collaboration, and rest. Stay aligned with the plan
         while keeping space for real life.
       </p>
-      <div class="hero__stats">
-        <div class="stat">
-          <div class="stat__label">Week</div>
-          <div class="stat__value">{{ weekRangeLabel }}</div>
-        </div>
-        <div class="stat">
-          <div class="stat__label">Sessions</div>
-          <div class="stat__value">{{ totalSessions }}</div>
-        </div>
-        <div class="stat">
-          <div class="stat__label">Focus mix</div>
-          <div class="stat__value">Deep work · Delivery · Rest</div>
-        </div>
+
+      <!-- 周选择器 -->
+      <div class="hero__week-selector">
+        <WeekSelector
+          :current-week="currentWeek"
+          :available-weeks="availableWeeks"
+          @update:current-week="updateCurrentWeek"
+        />
       </div>
     </div>
-    <div class="hero__glass">
-      <div class="glass__title">This week</div>
-      <div class="glass__grid">
-        <div
-          v-for="tag in memberTags"
-          :key="tag"
-          class="chip"
-        >
-          <span class="chip__dot" :style="{ backgroundColor: tagMeta[tag].color }" />
-          {{ tagMeta[tag].label }}
-          <span class="chip__count">{{ tagCounts[tag] || 0 }}</span>
-        </div>
-      </div>
-    </div>
+
+    <!-- 标签筛选器 -->
+    <TagFilter
+      :tag-meta="tagMeta"
+      :member-tags="memberTags"
+      :type-tags="typeTags"
+      :tag-counts="tagCounts"
+      :selected-tags="selectedTags"
+      @update:selected-tags="updateSelectedTags"
+    />
   </section>
 </template>
 
@@ -67,6 +79,13 @@ const props = defineProps<{
   flex-shrink: 0;
 }
 
+/* 高度受限时隐藏 Hero 部分 */
+@media (max-height: 1000px) {
+  .hero {
+    display: none;
+  }
+}
+
 .hero__titles h1 {
   margin: 8px 0;
   font-size: clamp(24px, 4vw, 32px);
@@ -84,6 +103,10 @@ const props = defineProps<{
   color: #64748b;
   max-width: 520px;
   line-height: 1.6;
+}
+
+.hero__week-selector {
+  margin: 16px 0;
 }
 
 .hero__stats {
@@ -116,27 +139,18 @@ const props = defineProps<{
   font-size: 14px;
 }
 
-.hero__glass {
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 20px;
-  background: #ffffff;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+.stat__loading {
+  color: #94a3b8;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
-.glass__title {
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  color: #6366f1;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-  font-weight: 600;
-}
-
-.glass__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .pill {
@@ -152,36 +166,5 @@ const props = defineProps<{
   font-weight: 500;
   text-transform: capitalize;
   white-space: nowrap;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
-}
-
-.chip__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
-}
-
-.chip__count {
-  margin-left: auto;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #e0e7ff;
-  color: #4338ca;
-  font-size: 11px;
-  font-weight: 600;
 }
 </style>
