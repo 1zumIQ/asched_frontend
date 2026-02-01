@@ -168,7 +168,7 @@ export const mockLiveRecords: LiveRecordItem[] = [
     title: '冰箱，终极易如反掌！',
     guests: ['心宜'],
     type: 2, // 节目
-    start_time: '26-02-06 20:00',
+    start_time: '26-02-01 20:00',
     status: 3 // 未开始
   }
 ]

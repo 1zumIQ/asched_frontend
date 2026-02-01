@@ -6,24 +6,25 @@ const props = defineProps<{
   title?: string
 }>()
 
-const limitedColors = computed(() => props.colors.slice(0, 4))
-const colorCount = computed(() => limitedColors.value.length)
+const rawCount = computed(() => props.colors.length)
+const isRainbow = computed(() => rawCount.value > 4)
+const isEmpty = computed(() => rawCount.value === 0)
+const limitedColors = computed(() => (isRainbow.value ? [] : props.colors.slice(0, 4)))
 
 const layoutClass = computed(() => {
-  if (colorCount.value <= 1) return 'week-day-swatch--single'
-  if (colorCount.value === 2) return 'week-day-swatch--split-2'
-  if (colorCount.value === 3) return 'week-day-swatch--split-3'
-  return 'week-day-swatch--split-4'
+  if (isEmpty.value) return 'week-day-swatch--empty'
+  if (rawCount.value <= 1) return 'week-day-swatch--single'
+  if (rawCount.value === 2) return 'week-day-swatch--split-2'
+  if (rawCount.value === 3) return 'week-day-swatch--split-3'
+  if (rawCount.value === 4) return 'week-day-swatch--split-4'
+  return 'week-day-swatch--rainbow'
 })
 </script>
 
 <template>
-  <div
-    class="week-day-swatch"
-    :class="[layoutClass, { 'week-day-swatch--empty': colorCount === 0 }]"
-    :title="title"
-  >
+  <div class="week-day-swatch" :class="layoutClass" :title="title">
     <span
+      v-if="!isRainbow"
       v-for="(color, index) in limitedColors"
       :key="`${color}-${index}`"
       class="week-day-swatch__cell"
@@ -76,6 +77,21 @@ const layoutClass = computed(() => {
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: var(--swatch-gap, 1px);
+  padding: var(--swatch-gap, 1px);
+}
+
+.week-day-swatch--rainbow {
+  background: linear-gradient(
+    135deg,
+    #ff6b6b 0%,
+    #ffd93d 20%,
+    #6bcb77 40%,
+    #4d96ff 60%,
+    #845ef7 80%,
+    #ff6b6b 100%
+  );
+  border-style: solid;
+  border-color: rgba(90, 77, 67, 0.25);
   padding: var(--swatch-gap, 1px);
 }
 

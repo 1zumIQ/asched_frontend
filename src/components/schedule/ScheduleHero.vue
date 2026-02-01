@@ -34,8 +34,11 @@ const updateSelectedTags = (tags: TagType[]) => {
 <template>
   <section class="hero">
     <div class="hero__titles">
-      <div class="pill">Shadcn-inspired weekly view</div>
-      <h1>Hi A-SOUL story</h1>
+      <div class="pill">枝江娱乐日程表</div>
+      <h1 class="hero-title">
+        <span class="hero-title__text">Hi A-SOUL story</span>
+        <span class="hero-title__spark" aria-hidden="true">✦</span>
+      </h1>
       <p>
         Curated blocks that blend deep work, collaboration, and rest. Stay aligned with the plan
         while keeping space for real life.
@@ -135,17 +138,119 @@ const updateSelectedTags = (tags: TagType[]) => {
   }
 }
 
-.hero__titles h1 {
+.hero-title {
   margin: 8px 0;
   font-size: clamp(28px, 4.6vw, 38px);
   font-weight: 700;
   letter-spacing: 0.01em;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  position: relative;
+}
+
+.hero-title::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  right: 12px;
+  bottom: -4px;
+  height: 14px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.7), rgba(255, 209, 102, 0.6));
+  filter: blur(0.5px);
+  opacity: 0.8;
+  transform: rotate(-1.5deg);
+  z-index: -1;
+}
+
+.hero-title::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  right: 36px;
+  bottom: -10px;
+  height: 6px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 107, 107, 0.65) 0 16px,
+      rgba(255, 209, 102, 0.65) 16px 32px,
+      rgba(6, 214, 160, 0.65) 32px 48px,
+      rgba(77, 150, 255, 0.65) 48px 64px
+    );
+  box-shadow: 2px 2px 0 rgba(31, 27, 22, 0.2);
+  transform: rotate(-0.8deg);
+  animation: underline-wiggle 4.6s ease-in-out infinite;
+}
+
+.hero-title__text {
+  display: inline-block;
   color: var(--ink);
-  background: linear-gradient(135deg, var(--coral) 0%, var(--berry) 45%, var(--sky) 100%);
+  background: linear-gradient(
+    120deg,
+    var(--coral) 0%,
+    var(--berry) 35%,
+    var(--sky) 70%,
+    var(--sun) 100%
+  );
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-shadow: 3px 3px 0 rgba(31, 27, 22, 0.12);
+  animation: title-gradient 6s ease-in-out infinite;
+}
+
+.hero-title__spark {
+  position: absolute;
+  top: -6px;
+  right: -24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff7d6, #ffe3f2);
+  border: 2px solid var(--outline);
+  box-shadow: 2px 2px 0 var(--shadow);
+  font-size: 14px;
+  color: var(--coral);
+  transform: rotate(-8deg);
+  animation: sparkle-pop 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes title-gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes underline-wiggle {
+  0%, 100% {
+    transform: rotate(-0.8deg) translateY(0);
+  }
+  50% {
+    transform: rotate(0.4deg) translateY(2px);
+  }
+}
+
+@keyframes sparkle-pop {
+  0%, 100% {
+    transform: rotate(-8deg) scale(1);
+    box-shadow: 2px 2px 0 var(--shadow);
+  }
+  50% {
+    transform: rotate(8deg) scale(1.08);
+    box-shadow: 4px 4px 0 var(--shadow-strong);
+  }
 }
 
 .hero__titles p {
