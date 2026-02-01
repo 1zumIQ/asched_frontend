@@ -85,9 +85,9 @@ const statusColor = computed(() => {
     case 0: return '#10b981' // 直播中 - 绿色
     case 1: return '#94a3b8' // 已结束 - 灰色
     case 2: return '#ef4444' // 中断 - 红色
-    case 3: return '#6366f1' // 未开始 - 蓝色
+    case 3: return '#4d96ff' // 未开始 - 蓝色
     case 4: return '#f59e0b' // 迟到 - 橙色
-    default: return '#6366f1'
+    default: return '#4d96ff'
   }
 })
 
@@ -212,13 +212,15 @@ const durationText = computed(() => {
 <style scoped>
 .event {
   padding: 14px;
-  border-radius: 14px;
-  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--outline);
   background:
-    linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
+    radial-gradient(circle at 10px 10px, rgba(31, 27, 22, 0.05) 1px, transparent 1px),
+    linear-gradient(145deg, #ffffff 0%, #fff7d6 100%);
+  background-size: 22px 22px, cover;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.05),
-    0 2px 8px rgba(0, 0, 0, 0.04);
+    3px 3px 0 var(--shadow-strong),
+    0 12px 20px rgba(31, 27, 22, 0.16);
   transition:
     all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -244,40 +246,33 @@ const durationText = computed(() => {
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px;
+  width: 6px;
   height: 100%;
-  background: linear-gradient(180deg, var(--primary-color, #6366f1), transparent);
-  opacity: 0;
-  transition: opacity 250ms ease;
+  background: linear-gradient(180deg, var(--primary-color, var(--coral)), transparent);
+  opacity: 0.7;
 }
 
 .event:hover {
-  transform: translateX(4px) scale(1.02);
-  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  transform: translate(-3px, -3px) rotate(-0.4deg) scale(1.01);
+  background: linear-gradient(145deg, #ffffff 0%, #ffe8f3 100%);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 8px 24px rgba(0, 0, 0, 0.06),
-    0 0 0 1px rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.15);
-}
-
-.event:hover::before {
-  opacity: 1;
+    4px 4px 0 var(--shadow-strong),
+    0 16px 26px rgba(31, 27, 22, 0.18);
 }
 
 .event:active {
-  transform: translateX(2px) scale(1.01);
+  transform: translate(0, 0) scale(0.99);
 }
 
 /* 状态样式 */
 .event--starting-soon {
-  border-color: rgba(245, 158, 11, 0.3);
-  background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 20%, #ffffff 60%);
+  border-color: var(--outline);
+  background: linear-gradient(145deg, #fff3c7 0%, #fff7d6 50%, #ffffff 100%);
 }
 
 .event--ongoing {
-  border-color: rgba(16, 185, 129, 0.3);
-  background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 20%, #ffffff 60%);
+  border-color: var(--outline);
+  background: linear-gradient(145deg, #dffaf0 0%, #eafdf6 40%, #ffffff 100%);
   animation: pulse-ongoing 2s ease-in-out infinite;
 }
 
@@ -286,20 +281,20 @@ const durationText = computed(() => {
   0%,
   100% {
     box-shadow:
-      0 2px 8px rgba(16, 185, 129, 0.15),
-      0 4px 16px rgba(16, 185, 129, 0.1);
+      3px 3px 0 var(--shadow-strong),
+      0 12px 20px rgba(6, 214, 160, 0.25);
   }
 
   50% {
     box-shadow:
-      0 4px 12px rgba(16, 185, 129, 0.25),
-      0 8px 24px rgba(16, 185, 129, 0.15);
+      4px 4px 0 var(--shadow-strong),
+      0 16px 28px rgba(6, 214, 160, 0.3);
   }
 }
 
 .event--ended {
-  opacity: 0.7;
-  filter: grayscale(0.3);
+  opacity: 0.65;
+  filter: grayscale(0.2);
 }
 
 .event--expanded {
@@ -321,6 +316,8 @@ const durationText = computed(() => {
   white-space: nowrap;
   animation: status-appear 300ms ease-out;
   flex-shrink: 0;
+  border: 2px solid var(--outline);
+  box-shadow: 2px 2px 0 var(--shadow);
 }
 
 @keyframes status-appear {
@@ -384,8 +381,8 @@ const durationText = computed(() => {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: rgba(0, 0, 0, 0.05);
+  height: 6px;
+  background: rgba(31, 27, 22, 0.12);
   overflow: hidden;
 }
 
@@ -432,17 +429,17 @@ const durationText = computed(() => {
 .avatar {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
+  border-radius: 45% 55% 48% 52%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 800;
-  border: 3px solid;
+  border: 2px solid var(--outline);
   flex-shrink: 0;
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    0 2px 6px rgba(0, 0, 0, 0.08),
+    3px 3px 0 var(--shadow-strong),
+    0 10px 16px rgba(31, 27, 22, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -472,10 +469,10 @@ const durationText = computed(() => {
 }
 
 .event:hover .avatar {
-  transform: scale(1.1) rotate(7.5deg);
+  transform: scale(1.1) rotate(7deg);
   box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.15),
-    0 4px 8px rgba(0, 0, 0, 0.1),
+    4px 4px 0 var(--shadow-strong),
+    0 14px 20px rgba(31, 27, 22, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
@@ -488,18 +485,19 @@ const durationText = computed(() => {
 }
 
 .event__time {
-  color: #64748b;
+  color: var(--ink);
   font-size: 13px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #fff2b3, #fff7d6);
+  border: 2px solid var(--outline);
   transition: all 200ms ease;
   flex-shrink: 0;
+  box-shadow: 2px 2px 0 var(--shadow);
 }
 
 .event__time::before {
@@ -508,14 +506,14 @@ const durationText = computed(() => {
 }
 
 .event:hover .event__time {
-  background: linear-gradient(135deg, #e0e7ff, #ddd6fe);
-  border-color: #a5b4fc;
-  color: #4f46e5;
-  transform: translateX(2px);
+  background: linear-gradient(135deg, #ffd1ef, #fff7d6);
+  border-color: var(--outline);
+  color: var(--ink);
+  transform: translate(-2px, -2px);
 }
 
 .event__duration {
-  color: #94a3b8;
+  color: var(--ink-soft);
   font-size: 12px;
   font-weight: 500;
   animation: fade-in 300ms ease-out;
@@ -556,12 +554,13 @@ const durationText = computed(() => {
 
 .event__name {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   font-size: 15px;
   line-height: 1.5;
   word-break: break-word;
   transition: color 200ms ease;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
+  font-family: var(--font-display);
 }
 
 .event:hover .event__name {
@@ -569,7 +568,7 @@ const durationText = computed(() => {
 }
 
 .event__meta {
-  color: #64748b;
+  color: var(--ink-soft);
   font-size: 13px;
   line-height: 1.6;
   margin-top: 3px;
@@ -587,21 +586,21 @@ const durationText = computed(() => {
   margin-top: 6px;
   margin-bottom: 6px;
   padding: 8px 12px;
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #ffffff, #fff7d6);
+  border-radius: var(--radius-sm);
+  border: 2px dashed rgba(90, 77, 67, 0.25);
   font-size: 12px;
   animation: fade-in 300ms ease-out;
 }
 
 .event__guests-label {
   font-weight: 700;
-  color: #475569;
+  color: var(--ink);
   margin-right: 4px;
 }
 
 .event__guests-list {
-  color: #64748b;
+  color: var(--ink-soft);
   font-weight: 500;
 }
 
@@ -621,9 +620,10 @@ const durationText = computed(() => {
   flex-shrink: 0;
   box-shadow:
     0 0 0 3px rgba(255, 255, 255, 0.9),
-    0 2px 6px rgba(0, 0, 0, 0.15);
+    2px 2px 0 var(--shadow);
   transition: all 200ms ease;
   position: relative;
+  border: 2px solid var(--outline);
 }
 
 .dot::after {
@@ -638,8 +638,8 @@ const durationText = computed(() => {
 
 .dot--ongoing {
   box-shadow:
-    0 0 0 3px rgba(16, 185, 129, 0.18),
-    0 4px 10px rgba(16, 185, 129, 0.25);
+    0 0 0 3px rgba(6, 214, 160, 0.2),
+    2px 2px 0 var(--shadow);
   animation: dot-breathe 1.6s ease-in-out infinite;
 }
 
@@ -653,7 +653,7 @@ const durationText = computed(() => {
   filter: grayscale(0.4);
   box-shadow:
     0 0 0 2px rgba(148, 163, 184, 0.3),
-    0 2px 6px rgba(148, 163, 184, 0.25);
+    2px 2px 0 rgba(31, 27, 22, 0.3);
 }
 
 .dot--ended::after {
@@ -663,8 +663,8 @@ const durationText = computed(() => {
 
 .dot--upcoming {
   box-shadow:
-    0 0 0 2px rgba(99, 102, 241, 0.2),
-    0 2px 6px rgba(99, 102, 241, 0.2);
+    0 0 0 2px rgba(77, 150, 255, 0.2),
+    2px 2px 0 rgba(31, 27, 22, 0.3);
 }
 
 .dot--upcoming::after {
@@ -719,7 +719,7 @@ const durationText = computed(() => {
   transform: scale(1.2);
   box-shadow:
     0 0 0 4px rgba(255, 255, 255, 1),
-    0 3px 8px rgba(0, 0, 0, 0.2);
+    3px 3px 0 var(--shadow-strong);
 }
 
 .chip {
@@ -727,16 +727,16 @@ const durationText = computed(() => {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 11px;
   font-weight: 700;
-  border: 2px solid;
+  border: 2px solid var(--outline);
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 2px 2px 0 var(--shadow);
   position: relative;
   overflow: hidden;
 }
@@ -753,8 +753,8 @@ const durationText = computed(() => {
 }
 
 .chip:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translate(-2px, -2px) scale(1.04);
+  box-shadow: 3px 3px 0 var(--shadow-strong);
 }
 
 .chip:hover::before {
@@ -778,7 +778,7 @@ const durationText = computed(() => {
   bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
-  color: #94a3b8;
+  color: var(--ink-soft);
   transition: all 200ms ease;
   display: flex;
   align-items: center;
@@ -786,7 +786,8 @@ const durationText = computed(() => {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0);
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px dashed rgba(90, 77, 67, 0.3);
 
 }
 
@@ -795,9 +796,9 @@ const durationText = computed(() => {
 }
 
 .event:hover .event__expand-indicator {
-  color: #6366f1;
+  color: var(--ink);
   backdrop-filter: blur(4px);
-  background: rgba(99, 102, 241, 0.1);
+  background: rgba(255, 209, 102, 0.4);
 }
 
 @media (max-width: 720px) {

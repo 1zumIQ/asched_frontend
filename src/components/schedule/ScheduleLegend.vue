@@ -47,19 +47,20 @@ defineProps<{
 
 .legend__card {
   padding: 16px 18px;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--outline);
+  background: linear-gradient(135deg, #ffffff, #fff7d6);
+  box-shadow: 3px 3px 0 var(--shadow);
 }
 
 .legend__title {
   font-size: 11px;
   text-transform: uppercase;
-  color: #6366f1;
+  color: var(--ink);
   letter-spacing: 0.08em;
   margin-bottom: 12px;
-  font-weight: 600;
+  font-weight: 800;
+  font-family: var(--font-display);
 }
 
 .legend__pills,
@@ -75,31 +76,32 @@ defineProps<{
   gap: 4px;
   padding: 3px 8px;
   border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
+  border: 2px solid var(--outline);
+  background: #fff;
+  color: var(--ink);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 700;
   text-transform: capitalize;
   white-space: nowrap;
+  box-shadow: 2px 2px 0 var(--shadow);
 }
 
 .pill--light {
-  color: #0369a1;
-  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
-  border: 1px solid #7dd3fc;
+  color: var(--ink);
+  background: linear-gradient(135deg, #dff1ff, #ffffff);
+  border: 2px solid var(--outline);
 }
 
 .pill--steady {
-  color: #7c3aed;
-  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-  border: 1px solid #c4b5fd;
+  color: var(--ink);
+  background: linear-gradient(135deg, #ffe3f2, #ffffff);
+  border: 2px solid var(--outline);
 }
 
 .pill--intense {
-  color: #dc2626;
-  background: linear-gradient(135deg, #fee2e2, #fecaca);
-  border: 1px solid #fca5a5;
+  color: var(--ink);
+  background: linear-gradient(135deg, #ffd1ef, #ffffff);
+  border: 2px solid var(--outline);
 }
 
 .chip {
@@ -107,12 +109,13 @@ defineProps<{
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 13px;
-  font-weight: 500;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
+  font-weight: 700;
+  border: 2px solid var(--outline);
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 2px 2px 0 var(--shadow);
 }
 
 .chip--soft {

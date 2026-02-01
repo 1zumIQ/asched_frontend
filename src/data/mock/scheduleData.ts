@@ -5,7 +5,7 @@ export const mockTagMeta: Record<TagType, TagMeta> = {
   '思诺': { label: '思诺', color: '#ec4899', tint: 'rgba(236, 72, 153, 0.12)', avatar: 'https://i1.hdslb.com/bfs/face/5c5c2e1220f2a0e4f0b38f5f7e5f5e5f5e5f5e5f.jpg' },
   '心宜': { label: '心宜', color: '#f97316', tint: 'rgba(249, 115, 22, 0.12)', avatar: 'https://i0.hdslb.com/bfs/face/cc9ebd4e6c7e5e5e5e5e5e5e5e5e5e5e5e5e5e5e.jpg' },
   '贝拉': { label: '贝拉', color: '#8b5cf6', tint: 'rgba(139, 92, 246, 0.12)', avatar: 'https://i1.hdslb.com/bfs/face/3a1a7e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e.jpg' },
-  '乃琳': { label: '乃琳', color: '#3b82f6', tint: 'rgba(59, 130, 246, 0.12)', avatar: 'https://i2.hdslb.com/bfs/face/5d5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e.jpg' },
+  '乃琳': { label: '乃琳', color: '#3b82f6', tint: 'rgba(59, 130, 246, 0.12)', avatar: 'nailin.jpg' },
   '嘉然': { label: '嘉然', color: '#ef4444', tint: 'rgba(239, 68, 68, 0.12)', avatar: 'jiaran.jpg' },
   '珈乐': { label: '珈乐', color: '#a855f7', tint: 'rgba(168, 85, 247, 0.12)', avatar: 'https://i0.hdslb.com/bfs/face/jiale-avatar.jpg' },
   '向晚': { label: '向晚', color: '#06b6d4', tint: 'rgba(6, 182, 212, 0.12)', avatar: 'https://i0.hdslb.com/bfs/face/xiangwan-avatar.jpg' },
@@ -145,6 +145,30 @@ export const mockLiveRecords: LiveRecordItem[] = [
     guests: ['心宜'],
     type: 2, // 节目
     start_time: '26-02-02 20:00',
+    status: 3 // 未开始
+  },
+  {
+    name: 'A-SOUL',
+    title: '我来的正是时候吗？',
+    guests: ['嘉然', '乃琳', '贝拉'],
+    type: 2, // 节目
+    start_time: '26-02-07 20:00',
+    status: 3 // 未开始
+  },
+  {
+    name: '思诺',
+    title: '思诺直播',
+    guests: [],
+    type: 1, // 2D
+    start_time: '26-02-05 15:00',
+    status: 3 // 未开始
+  },
+  {
+    name: '思诺',
+    title: '冰箱，终极易如反掌！',
+    guests: ['心宜'],
+    type: 2, // 节目
+    start_time: '26-02-06 20:00',
     status: 3 // 未开始
   }
 ]

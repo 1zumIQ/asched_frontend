@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import type { WeekIdentifier } from '@/data/utils/scheduleUtils'
 import {
   formatWeekIdentifier,
-  getPreviousWeekIdentifier,
-  getNextWeekIdentifier,
   getWeekStartDate
 } from '@/data/utils/scheduleUtils'
-import { getAvailableWeeks } from '@/data/schedule'
 
 const props = defineProps<{
   currentWeek: WeekIdentifier
@@ -19,6 +16,9 @@ const emit = defineEmits<{
 }>()
 
 const isDropdownOpen = ref(false)
+const currentRef = ref<HTMLElement | null>(null)
+const dropdownRef = ref<HTMLElement | null>(null)
+const dropdownStyle = ref<Record<string, string>>({})
 
 // 格式化当前周
 const currentWeekLabel = computed(() => formatWeekIdentifier(props.currentWeek))
@@ -38,31 +38,40 @@ const currentWeekRange = computed(() => {
   return `${start} - ${end}`
 })
 
-// 检查是否可以前进/后退
-const canGoPrevious = computed(() => {
-  const prevWeek = getPreviousWeekIdentifier(props.currentWeek)
-  return props.availableWeeks.includes(prevWeek)
+const sortedWeeks = computed<WeekIdentifier[]>(() => {
+  const merged = new Set<WeekIdentifier>([props.currentWeek, ...props.availableWeeks])
+  return [...merged].sort()
 })
 
-const canGoNext = computed(() => {
-  const nextWeek = getNextWeekIdentifier(props.currentWeek)
-  return props.availableWeeks.includes(nextWeek)
+const currentIndex = computed(() => {
+  return sortedWeeks.value.indexOf(props.currentWeek)
 })
+
+const previousAvailableWeek = computed(() => {
+  const index = currentIndex.value
+  return index > 0 ? sortedWeeks.value[index - 1] : undefined
+})
+
+const nextAvailableWeek = computed(() => {
+  const index = currentIndex.value
+  return index >= 0 && index < sortedWeeks.value.length - 1
+    ? sortedWeeks.value[index + 1]
+    : undefined
+})
+
+const canGoPrevious = computed(() => Boolean(previousAvailableWeek.value))
+const canGoNext = computed(() => Boolean(nextAvailableWeek.value))
 
 // 切换到上一周
 const goToPreviousWeek = () => {
-  if (canGoPrevious.value) {
-    const prevWeek = getPreviousWeekIdentifier(props.currentWeek)
-    emit('update:currentWeek', prevWeek)
-  }
+  const prevWeek = previousAvailableWeek.value
+  if (prevWeek) emit('update:currentWeek', prevWeek)
 }
 
 // 切换到下一周
 const goToNextWeek = () => {
-  if (canGoNext.value) {
-    const nextWeek = getNextWeekIdentifier(props.currentWeek)
-    emit('update:currentWeek', nextWeek)
-  }
+  const nextWeek = nextAvailableWeek.value
+  if (nextWeek) emit('update:currentWeek', nextWeek)
 }
 
 // 选择特定周
@@ -76,16 +85,40 @@ const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value
 }
 
+const updateDropdownPosition = () => {
+  if (!currentRef.value) return
+  const rect = currentRef.value.getBoundingClientRect()
+  dropdownStyle.value = {
+    top: `${rect.bottom + 8}px`,
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+  }
+}
+
 // 点击外部关闭下拉菜单
 const handleClickOutside = (event: MouseEvent) => {
   const target = event.target as HTMLElement
-  if (!target.closest('.week-selector')) {
-    isDropdownOpen.value = false
-  }
+  if (currentRef.value?.contains(target) || dropdownRef.value?.contains(target)) return
+  if (target.closest('.week-selector')) return
+  isDropdownOpen.value = false
 }
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener('resize', updateDropdownPosition)
+  window.addEventListener('scroll', updateDropdownPosition, true)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('resize', updateDropdownPosition)
+  window.removeEventListener('scroll', updateDropdownPosition, true)
+})
+
+watch(isDropdownOpen, (open) => {
+  if (open) {
+    nextTick(updateDropdownPosition)
+  }
 })
 </script>
 
@@ -103,7 +136,7 @@ onMounted(() => {
       </svg>
     </button>
 
-    <div class="week-selector__current" @click="toggleDropdown">
+    <div ref="currentRef" class="week-selector__current" @click="toggleDropdown">
       <div class="week-selector__label">
         <span class="week-selector__week">{{ currentWeekLabel }}</span>
         <span class="week-selector__range">{{ currentWeekRange }}</span>
@@ -119,8 +152,16 @@ onMounted(() => {
         <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
 
-      <!-- 下拉菜单 -->
-      <div v-if="isDropdownOpen" class="week-selector__dropdown">
+    </div>
+
+    <!-- 下拉菜单 -->
+    <Teleport to="body">
+      <div
+        v-if="isDropdownOpen"
+        ref="dropdownRef"
+        class="week-selector__dropdown week-selector__dropdown--portal"
+        :style="dropdownStyle"
+      >
         <div class="week-selector__dropdown-header">选择周</div>
         <div class="week-selector__dropdown-list">
           <button
@@ -135,7 +176,7 @@ onMounted(() => {
           </button>
         </div>
       </div>
-    </div>
+    </Teleport>
 
     <button
       class="week-selector__nav"
@@ -158,33 +199,34 @@ onMounted(() => {
   gap: 12px;
   min-width: 0;
   max-width: 420px;
+  position: relative;
+  z-index: 6;
 }
 
 .week-selector__nav {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
-  border: 2px solid #e2e8f0;
-  background: linear-gradient(135deg, #ffffff, #f8fafc);
-  color: #475569;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--outline);
+  background: linear-gradient(135deg, #fffdf4, #fff2b3);
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 200ms ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 2px 2px 0 var(--shadow);
 }
 
 .week-selector__nav:hover:not(:disabled) {
-  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-  border-color: #a5b4fc;
-  color: #4f46e5;
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.15);
+  background: linear-gradient(135deg, var(--sun), #fff3c7);
+  color: var(--ink);
+  transform: translate(-2px, -2px) rotate(-2deg);
+  box-shadow: 4px 4px 0 var(--shadow-strong);
 }
 
 .week-selector__nav:active:not(:disabled) {
-  transform: scale(0.95);
+  transform: translate(0, 0) scale(0.98);
 }
 
 .week-selector__nav--disabled {
@@ -198,20 +240,20 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
-  border-radius: 12px;
-  border: 2px solid #e2e8f0;
-  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--outline);
+  background: linear-gradient(135deg, #ffffff, #fff7d6);
   cursor: pointer;
   transition: all 200ms ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 3px 3px 0 var(--shadow);
   flex: 1 1 auto;
   min-width: 0;
 }
 
 .week-selector__current:hover {
-  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-  border-color: #a5b4fc;
-  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.15);
+  background: linear-gradient(135deg, #fff, #ffe3f2);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--shadow-strong);
 }
 
 .week-selector__label {
@@ -223,10 +265,11 @@ onMounted(() => {
 }
 
 .week-selector__week {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.01em;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  font-family: var(--font-display);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -235,14 +278,14 @@ onMounted(() => {
 .week-selector__range {
   font-size: 12px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--ink-soft);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .week-selector__dropdown-icon {
-  color: #94a3b8;
+  color: var(--ink-soft);
   transition: transform 200ms ease;
   flex-shrink: 0;
 }
@@ -252,60 +295,64 @@ onMounted(() => {
 }
 
 .week-selector__dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
+  position: fixed;
   background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  border: 2px solid var(--outline);
+  border-radius: var(--radius-md);
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.08);
-  z-index: 100;
+    6px 6px 0 var(--shadow-strong),
+    0 12px 28px rgba(31, 27, 22, 0.2);
+  z-index: 999;
   overflow: hidden;
-  animation: dropdown-appear 200ms ease-out;
+  animation: dropdown-appear 220ms ease-out;
 }
 
 @keyframes dropdown-appear {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-8px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 .week-selector__dropdown-header {
   padding: 12px 16px;
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #fff5c2, #ffe3f2);
+  border-bottom: 2px dashed rgba(90, 77, 67, 0.35);
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: var(--ink);
+  font-family: var(--font-display);
 }
 
 .week-selector__dropdown-list {
   max-height: 300px;
   overflow-y: auto;
   padding: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 77, 67, 0.6) rgba(255, 255, 255, 0.6);
 }
 
 .week-selector__dropdown-list::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .week-selector__dropdown-list::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: linear-gradient(180deg, #ffe3f2, #fff2b3);
   border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(90, 77, 67, 0.35);
 }
 
 .week-selector__dropdown-list::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 999px;
+  border: 1px dashed rgba(90, 77, 67, 0.2);
 }
 
 .week-selector__dropdown-item {
@@ -314,30 +361,32 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  border: none;
+  border: 2px solid transparent;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 150ms ease;
   font-size: 13px;
-  font-weight: 500;
-  color: #475569;
+  font-weight: 600;
+  color: var(--ink);
   text-align: left;
 }
 
 .week-selector__dropdown-item:hover {
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  color: #0f172a;
+  background: linear-gradient(135deg, #fff7d6, #ffffff);
+  border-color: var(--outline);
+  transform: translateX(2px);
 }
 
 .week-selector__dropdown-item--active {
-  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-  color: #4f46e5;
-  font-weight: 700;
+  background: linear-gradient(135deg, #ffe3f2, #fff7d6);
+  color: var(--ink);
+  font-weight: 800;
+  border-color: var(--outline);
 }
 
 .week-selector__dropdown-item--active:hover {
-  background: linear-gradient(135deg, #e0e7ff, #ddd6fe);
+  background: linear-gradient(135deg, #ffd1ef, #fff2b3);
 }
 
 .week-selector__dropdown-item-label {
@@ -346,7 +395,7 @@ onMounted(() => {
 
 .week-selector__dropdown-item-check {
   font-size: 16px;
-  color: #10b981;
+  color: var(--mint);
   font-weight: 700;
 }
 

@@ -147,23 +147,125 @@ const tagCounts = computed(() => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-display: 'Fredoka', 'Noto Sans SC', sans-serif;
+  --font-body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --ink: #2f2721;
+  --ink-soft: #61564d;
+  --outline: #5a4d43;
+  --shadow: rgba(47, 39, 33, 0.26);
+  --shadow-strong: rgba(47, 39, 33, 0.38);
+  --paper: #fff2b3;
+  --paper-2: #fff9db;
+  --sun: #ffd166;
+  --coral: #ff6b6b;
+  --mint: #06d6a0;
+  --sky: #4d96ff;
+  --berry: #ff4fa3;
+  --leaf: #9ee65c;
+  --shadow: rgba(31, 27, 22, 0.25);
+  --radius-xl: 28px 20px 32px 18px;
+  --radius-lg: 22px 16px 26px 14px;
+  --radius-md: 16px 12px 18px 10px;
+  --radius-sm: 12px 10px 14px 8px;
+}
 
 html {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  overflow: hidden;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #faf5ff 100%);
-  color: #1e293b;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  height: 100vh;
-  overflow: hidden;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: var(--ink);
+  font-family: var(--font-body);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 12px 12px, rgba(31, 27, 22, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 6px 6px, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(135deg, #fff1a6 0%, #b9f3ff 48%, #ffd1e8 100%);
+  background-size: 24px 24px, 18px 18px, cover;
+  background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: -20% -10%;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 45%),
+    radial-gradient(circle at 82% 8%, rgba(255, 209, 102, 0.35) 0%, rgba(255, 209, 102, 0) 50%),
+    radial-gradient(circle at 86% 82%, rgba(6, 214, 160, 0.3) 0%, rgba(6, 214, 160, 0) 50%);
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: -10%;
+  background-image:
+    repeating-linear-gradient(
+      120deg,
+      rgba(31, 27, 22, 0.08) 0px,
+      rgba(31, 27, 22, 0.08) 1px,
+      transparent 1px,
+      transparent 12px
+    ),
+    repeating-linear-gradient(
+      60deg,
+      rgba(31, 27, 22, 0.05) 0px,
+      rgba(31, 27, 22, 0.05) 1px,
+      transparent 1px,
+      transparent 14px
+    );
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#app {
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background: rgba(255, 107, 107, 0.35);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 </style>
 
@@ -172,9 +274,38 @@ body {
   height: 100vh;
   padding: 20px clamp(16px, 3vw, 32px);
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  position: relative;
+  isolation: isolate;
+}
+
+.page::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: 10%;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(2px);
+  z-index: -1;
+}
+
+.page::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  left: 6%;
+  width: 180px;
+  height: 180px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 107, 107, 0.3), transparent 55%),
+    radial-gradient(circle at 70% 70%, rgba(77, 150, 255, 0.3), transparent 55%);
+  filter: blur(4px);
+  z-index: -1;
 }
 
 /* 移动端减少 padding */
@@ -222,15 +353,24 @@ body {
   align-items: center;
   justify-content: center;
   gap: 16px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--outline);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow:
+    6px 6px 0 var(--shadow-strong),
+    0 16px 30px rgba(31, 27, 22, 0.18);
+  padding: 24px;
 }
 
 .loading__spinner {
   width: 48px;
   height: 48px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #6366f1;
-  border-radius: 50%;
+  border: 4px solid var(--outline);
+  border-top-color: var(--coral);
+  border-right-color: var(--sun);
+  border-radius: 40% 60% 50% 50%;
   animation: spin 1s linear infinite;
+  box-shadow: 3px 3px 0 var(--shadow);
 }
 
 @keyframes spin {
@@ -240,8 +380,9 @@ body {
 }
 
 .loading__text {
-  font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.04em;
 }
 </style>

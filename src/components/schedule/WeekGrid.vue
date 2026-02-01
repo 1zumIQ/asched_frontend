@@ -21,7 +21,7 @@ const calculateCardHeight = () => {
   const computedStyle = window.getComputedStyle(gridRef.value)
   const gridPaddingTop = parseFloat(computedStyle.paddingTop)
   const gridPaddingBottom = parseFloat(computedStyle.paddingBottom)
-  const bottomMargin = 20 // 为汉堡按钮和圆角留出的额外空间
+  const bottomMargin = 28 // 为阴影与汉堡按钮留出空间
 
   const calculatedHeight = gridHeight - gridPaddingTop - gridPaddingBottom - bottomMargin
 
@@ -154,15 +154,31 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   align-items: stretch;
+  z-index: 1;
 
   /* 增加overflow: visible确保阴影不被裁剪 */
   overflow: visible;
 }
 
+.week-grid-container::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  right: 8%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px dashed rgba(31, 27, 22, 0.25);
+  background: rgba(255, 255, 255, 0.4);
+  transform: rotate(12deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(320px, 1fr));
-  gap: 12px;
+  gap: 16px;
   overflow-x: auto;
   overflow-y: hidden;
   flex: 1;
@@ -172,12 +188,53 @@ onUnmounted(() => {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   /* 增加padding防止hover时卡片阴影被裁剪，底部留出足够空间显示汉堡按钮和圆角 */
-  padding: 30px 0 0px 0;
+  padding: 32px 18px 28px;
+  scroll-padding: 0 18px;
   align-items: stretch;
+  position: relative;
+  z-index: 1;
 }
 
 .grid > * {
   scroll-snap-align: start;
+  animation: card-rise 600ms ease-out both;
+}
+
+.grid > *:nth-child(1) {
+  animation-delay: 60ms;
+}
+
+.grid > *:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.grid > *:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.grid > *:nth-child(4) {
+  animation-delay: 240ms;
+}
+
+.grid > *:nth-child(5) {
+  animation-delay: 300ms;
+}
+
+.grid > *:nth-child(6) {
+  animation-delay: 360ms;
+}
+
+.grid > *:nth-child(7) {
+  animation-delay: 420ms;
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* 隐藏滚动条 - Webkit浏览器 */
@@ -188,20 +245,23 @@ onUnmounted(() => {
 /* 移动端调整 padding */
 @media (max-width: 768px) {
   .grid {
-    padding: 20px 8px 40px 8px;
+    padding: 22px 12px 26px;
+    scroll-padding: 0 12px;
   }
 }
 
 /* 高度受限时调整 padding，但保持底部空间 */
 @media (max-height: 800px) {
   .grid {
-    padding: 20px 0 40px 0;
+    padding: 18px 14px 24px;
+    scroll-padding: 0 14px;
   }
 }
 
 @media (max-height: 600px) {
   .grid {
-    padding: 10px 0 30px 0;
+    padding: 12px 12px 18px;
+    scroll-padding: 0 12px;
   }
 }
 
@@ -218,7 +278,8 @@ onUnmounted(() => {
   .grid {
     grid-template-columns: repeat(7, minmax(280px, 1fr));
     gap: 8px;
-    padding: 4px 4px;
+    padding: 12px 8px 16px;
+    scroll-padding: 0 8px;
   }
 }
 
@@ -231,31 +292,31 @@ onUnmounted(() => {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 2px solid #e2e8f0;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  color: #6366f1;
+  border: 2px solid var(--outline);
+  background: linear-gradient(135deg, #fff7d6 0%, #ffd1ef 100%);
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    0 2px 6px rgba(0, 0, 0, 0.08);
+    4px 4px 0 var(--shadow-strong),
+    0 12px 18px rgba(31, 27, 22, 0.18);
 }
 
 .scroll-button:hover {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
-  border-color: #6366f1;
-  transform: translateY(-50%) scale(1.1);
+  background: linear-gradient(135deg, var(--sun) 0%, var(--coral) 100%);
+  color: #fff;
+  border-color: var(--outline);
+  transform: translate(-2px, -50%) scale(1.05) rotate(-2deg);
   box-shadow:
-    0 6px 16px rgba(99, 102, 241, 0.3),
-    0 4px 8px rgba(99, 102, 241, 0.2);
+    6px 6px 0 var(--shadow-strong),
+    0 16px 24px rgba(31, 27, 22, 0.22);
 }
 
 .scroll-button:active {
-  transform: translateY(-50%) scale(1.05);
+  transform: translateY(-50%) scale(0.98);
 }
 
 /* 在需要滚动时调整按钮位置 */
@@ -289,7 +350,7 @@ onUnmounted(() => {
     transform: translateX(0) scale(1.2);
   }
   50% {
-    transform: translateX(-4px) scale(1.2);
+    transform: translateX(-5px) scale(1.2);
   }
 }
 
@@ -298,7 +359,7 @@ onUnmounted(() => {
     transform: translateX(0) scale(1.2);
   }
   50% {
-    transform: translateX(4px) scale(1.2);
+    transform: translateX(5px) scale(1.2);
   }
 }
 </style>

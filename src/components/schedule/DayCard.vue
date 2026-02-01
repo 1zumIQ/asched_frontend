@@ -286,13 +286,15 @@ const eventDensity = computed(() => {
 <style scoped>
 .day-card {
   padding: 18px;
-  border-radius: 20px;
-  border: 2px solid transparent;
-  background: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--outline);
+  background:
+    radial-gradient(circle at 12px 12px, rgba(31, 27, 22, 0.06) 1px, transparent 1px),
+    linear-gradient(145deg, #ffffff 0%, #fff7d6 100%);
+  background-size: 24px 24px, cover;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.05),
-    0 4px 12px rgba(0, 0, 0, 0.04),
-    0 0 0 1px rgba(0, 0, 0, 0.02);
+    4px 4px 0 var(--shadow-strong),
+    0 16px 26px rgba(31, 27, 22, 0.16);
   transition:
     transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
@@ -324,70 +326,46 @@ const eventDensity = computed(() => {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
-  opacity: 0;
-  transition: opacity 200ms ease;
+  height: 10px;
+  background: linear-gradient(90deg, var(--coral), var(--sun), var(--mint));
+  opacity: 0.85;
+  box-shadow: 0 2px 0 var(--shadow-strong);
 }
 
 .day-card:hover {
-  transform: translateY(-4px);
+  transform: translate(-4px, -4px) rotate(-0.4deg);
   box-shadow:
-    0 8px 24px rgba(99, 102, 241, 0.12),
-    0 16px 48px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.2);
-}
-
-.day-card:hover::before {
-  opacity: 1;
+    6px 6px 0 var(--shadow-strong),
+    0 20px 36px rgba(31, 27, 22, 0.2);
 }
 
 .day-card--today {
-  border-color: #06b6d4;
+  border-color: var(--sky);
   background:
-    linear-gradient(145deg, #ecfeff 0%, #cffafe 20%, #ffffff 60%, #fafbfc 100%);
+    radial-gradient(circle at 12px 12px, rgba(77, 150, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(145deg, #e5f7ff 0%, #ffffff 55%, #fff5c2 100%);
+  background-size: 24px 24px, cover;
   box-shadow:
-    0 4px 16px rgba(6, 182, 212, 0.18),
-    0 8px 32px rgba(6, 182, 212, 0.12),
-    0 0 0 1px rgba(6, 182, 212, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  animation: pulse-today 3s ease-in-out infinite;
-}
-
-@keyframes pulse-today {
-  0%, 100% {
-    box-shadow:
-      0 4px 16px rgba(6, 182, 212, 0.16),
-      0 8px 32px rgba(6, 182, 212, 0.12),
-      0 0 0 1px rgba(6, 182, 212, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  }
-  50% {
-    box-shadow:
-      0 4px 20px rgba(6, 182, 212, 0.28),
-      0 8px 40px rgba(6, 182, 212, 0.18),
-      0 0 0 2px rgba(6, 182, 212, 0.32),
-      inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  }
+    6px 6px 0 var(--shadow-strong),
+    0 22px 34px rgba(77, 150, 255, 0.22);
+  animation: none;
 }
 
 .day-card--today::before {
-  background: linear-gradient(90deg, #06b6d4, #22d3ee, #0ea5e9);
-  opacity: 1;
+  background: linear-gradient(90deg, var(--sky), var(--mint), var(--sun));
 }
 
 .day-card--today .day-card__weekday {
-  color: #0e7490;
-  text-shadow: 0 1px 2px rgba(14, 116, 144, 0.18);
+  color: var(--sky);
+  text-shadow: 2px 2px 0 rgba(31, 27, 22, 0.15);
 }
 
 .day-card--today .pill--accent {
-  border-color: #67e8f9;
-  color: #0e7490;
-  background: linear-gradient(135deg, #ecfeff, #cffafe);
-  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.25);
-  animation: bounce-subtle 2s ease-in-out infinite;
+  border-color: var(--outline);
+  color: var(--ink);
+  background: linear-gradient(135deg, #e5f7ff, #fff7d6);
+  box-shadow: 3px 3px 0 var(--shadow);
+  animation: bounce-subtle 2.4s ease-in-out infinite;
 }
 
 @keyframes bounce-subtle {
@@ -405,8 +383,7 @@ const eventDensity = computed(() => {
   justify-content: space-between;
   margin-bottom: 16px;
   padding-bottom: 14px;
-  border-bottom: 2px solid transparent;
-  background: linear-gradient(90deg, #f1f5f9 0%, transparent 100%) bottom / 100% 2px no-repeat;
+  border-bottom: 3px dashed rgba(31, 27, 22, 0.25);
 }
 
 .day-card__badges {
@@ -420,9 +397,9 @@ const eventDensity = computed(() => {
 .day-card__stats {
   margin-bottom: 16px;
   padding: 12px;
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #ffffff, #fff7d6);
+  border-radius: var(--radius-md);
+  border: 2px dashed rgba(90, 77, 67, 0.3);
   animation: stats-appear 400ms ease-out;
 }
 
@@ -449,8 +426,9 @@ const eventDensity = computed(() => {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: var(--ink-soft);
   margin-bottom: 8px;
+  font-family: var(--font-display);
 }
 
 .stats-members {
@@ -469,12 +447,12 @@ const eventDensity = computed(() => {
   font-size: 12px;
   font-weight: 700;
   transition: all 200ms ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 2px 2px 0 var(--shadow);
 }
 
 .stats-member:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translate(-2px, -2px) scale(1.05);
+  box-shadow: 4px 4px 0 var(--shadow-strong);
 }
 
 .stats-member__name {
@@ -499,10 +477,11 @@ const eventDensity = computed(() => {
   right: 0;
   width: 8px;
   height: 8px;
-  background: #f59e0b;
+  background: var(--sun);
   border-radius: 50%;
   margin: 12px;
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+  border: 2px solid var(--outline);
+  box-shadow: 2px 2px 0 var(--shadow);
 }
 
 .day-card--heavy::after {
@@ -512,10 +491,11 @@ const eventDensity = computed(() => {
   right: 0;
   width: 8px;
   height: 8px;
-  background: #ef4444;
+  background: var(--coral);
   border-radius: 50%;
   margin: 12px;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+  border: 2px solid var(--outline);
+  box-shadow: 2px 2px 0 var(--shadow);
   animation: pulse-heavy 2s ease-in-out infinite;
 }
 
@@ -531,42 +511,40 @@ const eventDensity = computed(() => {
 }
 
 .day-card__weekday {
-  color: #6366f1;
+  color: var(--ink);
   font-weight: 700;
   font-size: 14px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-display);
 }
 
 .day-card__date {
-  color: #0f172a;
-  font-size: 22px;
+  color: var(--ink);
+  font-size: 24px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
   margin-top: 2px;
+  font-family: var(--font-display);
 }
 
 .empty {
   padding: 24px 16px;
-  border-radius: 16px;
-  border: 2px dashed #cbd5e1;
-  color: #94a3b8;
+  border-radius: var(--radius-md);
+  border: 2px dashed rgba(31, 27, 22, 0.25);
+  color: var(--ink-soft);
   background:
-    linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    linear-gradient(135deg, #ffffff 0%, #fff3c7 100%);
   font-size: 14px;
   text-align: center;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 200ms ease;
 }
 
 .empty:hover {
-  border-color: #a5b4fc;
-  color: #6366f1;
-  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  border-color: var(--outline);
+  color: var(--ink);
+  background: linear-gradient(135deg, #fff, #ffd1ef);
 }
 
 .sections {
@@ -590,7 +568,7 @@ const eventDensity = computed(() => {
   flex-direction: column;
   gap: 12px;
   padding: 14px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   position: relative;
   overflow: hidden;
   transition: all 200ms ease;
@@ -648,37 +626,37 @@ const eventDensity = computed(() => {
 }
 
 .section--morning {
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fef9c3 100%);
-  border: 2px solid #fde68a;
+  background:
+    linear-gradient(135deg, #fff4b8 0%, #ffe4a5 60%, #fff7d6 100%);
+  border: 2px solid var(--outline);
   box-shadow:
-    0 2px 8px rgba(245, 158, 11, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    3px 3px 0 var(--shadow),
+    inset 0 2px 0 rgba(255, 255, 255, 0.5);
   flex: 0 0 auto;
   overflow: visible;
 }
 
 .section--morning:hover {
   box-shadow:
-    0 4px 16px rgba(245, 158, 11, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  border-color: #fbbf24;
+    4px 4px 0 var(--shadow-strong),
+    inset 0 2px 0 rgba(255, 255, 255, 0.7);
 }
 
 .section--afternoon {
-  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #ddd6fe 100%);
-  border: 2px solid #c7d2fe;
+  background:
+    linear-gradient(135deg, #dff1ff 0%, #ffd1ef 55%, #fff7d6 100%);
+  border: 2px solid var(--outline);
   box-shadow:
-    0 2px 8px rgba(99, 102, 241, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    3px 3px 0 var(--shadow),
+    inset 0 2px 0 rgba(255, 255, 255, 0.5);
   flex: 1 1 auto;
   min-height: 0;
 }
 
 .section--afternoon:hover {
   box-shadow:
-    0 4px 16px rgba(99, 102, 241, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  border-color: #a5b4fc;
+    4px 4px 0 var(--shadow-strong),
+    inset 0 2px 0 rgba(255, 255, 255, 0.7);
 }
 
 .section__header {
@@ -692,7 +670,7 @@ const eventDensity = computed(() => {
   flex: 1;
   height: 2px;
   background: currentColor;
-  opacity: 0.25;
+  opacity: 0.35;
   border-radius: 2px;
   position: relative;
   overflow: hidden;
@@ -706,7 +684,7 @@ const eventDensity = computed(() => {
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-  animation: shimmer 3s infinite;
+  animation: shimmer 2.6s infinite;
 }
 
 @keyframes shimmer {
@@ -719,11 +697,11 @@ const eventDensity = computed(() => {
 }
 
 .section--morning .section__line {
-  background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+  background: linear-gradient(90deg, transparent, var(--sun), transparent);
 }
 
 .section--afternoon .section__line {
-  background: linear-gradient(90deg, transparent, #6366f1, transparent);
+  background: linear-gradient(90deg, transparent, var(--sky), transparent);
 }
 
 .section__label {
@@ -736,8 +714,9 @@ const eventDensity = computed(() => {
   letter-spacing: 0.08em;
   white-space: nowrap;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   transition: all 200ms ease;
+  font-family: var(--font-display);
 }
 
 .section__count {
@@ -747,24 +726,25 @@ const eventDensity = computed(() => {
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  background: rgba(255, 255, 255, 0.9);
+  background: #fff;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 900;
   margin-left: 2px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--outline);
+  box-shadow: 2px 2px 0 var(--shadow);
 }
 
 .section--morning .section__label {
-  color: #d97706;
-  background: rgba(251, 191, 36, 0.2);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: var(--ink);
+  background: rgba(255, 209, 102, 0.4);
+  border: 2px solid var(--outline);
 }
 
 .section--afternoon .section__label {
-  color: #4f46e5;
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: var(--ink);
+  background: rgba(77, 150, 255, 0.2);
+  border: 2px solid var(--outline);
 }
 
 .section__icon {
@@ -773,12 +753,12 @@ const eventDensity = computed(() => {
 }
 
 .section__empty {
-  color: #9ca3af;
+  color: var(--ink-soft);
   font-size: 13px;
   text-align: center;
   padding: 12px;
   font-style: italic;
-  font-weight: 500;
+  font-weight: 600;
   opacity: 0.7;
 }
 
@@ -807,7 +787,7 @@ const eventDensity = computed(() => {
 .divider__line {
   flex: 1;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #e11d48 20%, #e11d48 80%, transparent);
+  background: linear-gradient(90deg, transparent, var(--coral) 20%, var(--coral) 80%, transparent);
   border-radius: 2px;
   position: relative;
   overflow: hidden;
@@ -837,17 +817,17 @@ const eventDensity = computed(() => {
   font-size: 11px;
   font-weight: 800;
   color: #fff;
-  background: linear-gradient(135deg, #f43f5e, #e11d48, #be123c);
+  background: linear-gradient(135deg, var(--coral), var(--berry));
   padding: 5px 12px;
   border-radius: 999px;
   box-shadow:
-    0 2px 8px rgba(225, 29, 72, 0.3),
-    0 4px 16px rgba(225, 29, 72, 0.2),
+    3px 3px 0 var(--shadow-strong),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   white-space: nowrap;
   letter-spacing: 0.05em;
   position: relative;
   overflow: hidden;
+  border: 2px solid var(--outline);
 }
 
 .divider__badge::before {
@@ -895,20 +875,20 @@ const eventDensity = computed(() => {
   gap: 5px;
   padding: 5px 12px;
   border-radius: 999px;
-  border: 2px solid #e2e8f0;
-  background: linear-gradient(135deg, #ffffff, #f8fafc);
-  color: #475569;
+  border: 2px solid var(--outline);
+  background: #fff;
+  color: var(--ink);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: capitalize;
   white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 2px 2px 0 var(--shadow);
   transition: all 200ms ease;
 }
 
 .pill:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translate(-2px, -2px) rotate(-1deg);
+  box-shadow: 4px 4px 0 var(--shadow-strong);
 }
 
 .pill__icon {
@@ -917,22 +897,22 @@ const eventDensity = computed(() => {
 }
 
 .pill--count {
-  border-color: #c7d2fe;
-  color: #4f46e5;
-  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-  font-weight: 700;
+  border-color: var(--outline);
+  color: var(--ink);
+  background: linear-gradient(135deg, #dff1ff, #fff7d6);
+  font-weight: 800;
   box-shadow:
-    0 2px 8px rgba(99, 102, 241, 0.15),
+    3px 3px 0 var(--shadow-strong),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .pill--accent {
-  border-color: #a5b4fc;
-  color: #4f46e5;
-  background: linear-gradient(135deg, #eef2ff, #e0e7ff, #ddd6fe);
-  font-weight: 700;
+  border-color: var(--outline);
+  color: var(--ink);
+  background: linear-gradient(135deg, #fff7d6, #ffd1ef);
+  font-weight: 800;
   box-shadow:
-    0 2px 8px rgba(99, 102, 241, 0.2),
+    3px 3px 0 var(--shadow-strong),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
@@ -945,28 +925,28 @@ const eventDensity = computed(() => {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 2px solid #e2e8f0;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  color: #6366f1;
+  border: 2px solid var(--outline);
+  background: linear-gradient(135deg, var(--sun) 0%, #fff7d6 100%);
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    0 2px 6px rgba(0, 0, 0, 0.08);
+    3px 3px 0 var(--shadow-strong),
+    0 12px 18px rgba(31, 27, 22, 0.18);
   z-index: 5;
 }
 
 .hamburger-button:hover {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
-  border-color: #6366f1;
-  transform: translateX(-50%) scale(1.1);
+  background: linear-gradient(135deg, var(--coral) 0%, var(--berry) 100%);
+  color: #fff;
+  border-color: var(--outline);
+  transform: translate(-50%, -2px) scale(1.08);
   box-shadow:
-    0 6px 16px rgba(99, 102, 241, 0.3),
-    0 4px 8px rgba(99, 102, 241, 0.2);
+    4px 4px 0 var(--shadow-strong),
+    0 16px 24px rgba(31, 27, 22, 0.22);
 }
 
 .hamburger-button:active {
@@ -980,7 +960,7 @@ const eventDensity = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(31, 27, 22, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -1000,19 +980,42 @@ const eventDensity = computed(() => {
 }
 
 .modal-content {
-  background: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
-  border-radius: 24px;
-  border: 2px solid #e2e8f0;
+  background: linear-gradient(145deg, #ffffff 0%, #fff7d6 100%);
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--outline);
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.3),
-    0 8px 24px rgba(0, 0, 0, 0.2);
+    6px 6px 0 var(--shadow-strong),
+    0 24px 42px rgba(31, 27, 22, 0.28);
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 77, 67, 0.6) rgba(255, 255, 255, 0.6);
   padding: 24px;
   position: relative;
   animation: modal-slide-up 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 999px;
+  border: 1px dashed rgba(90, 77, 67, 0.2);
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ffe3f2, #fff2b3);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(90, 77, 67, 0.35);
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ffd1ef, #ffe59a);
 }
 
 @keyframes modal-slide-up {
@@ -1033,22 +1036,24 @@ const eventDensity = computed(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 2px solid #e2e8f0;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  color: #64748b;
+  border: 2px solid var(--outline);
+  background: #fff;
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 200ms ease;
   z-index: 10;
+  box-shadow: 2px 2px 0 var(--shadow);
 }
 
 .modal-close:hover {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border-color: #ef4444;
-  transform: scale(1.1) rotate(90deg);
+  background: linear-gradient(135deg, var(--coral) 0%, var(--berry) 100%);
+  color: #fff;
+  border-color: var(--outline);
+  transform: translate(-1px, -1px) scale(1.05) rotate(8deg);
+  box-shadow: 4px 4px 0 var(--shadow-strong);
 }
 
 .modal-header {
@@ -1057,27 +1062,25 @@ const eventDensity = computed(() => {
   justify-content: space-between;
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 2px solid #f1f5f9;
+  border-bottom: 3px dashed rgba(31, 27, 22, 0.2);
 }
 
 .modal-weekday {
-  color: #6366f1;
+  color: var(--ink);
   font-weight: 700;
   font-size: 16px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-display);
 }
 
 .modal-date {
-  color: #0f172a;
-  font-size: 28px;
+  color: var(--ink);
+  font-size: 30px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
   margin-top: 4px;
+  font-family: var(--font-display);
 }
 
 .modal-badges {
@@ -1090,9 +1093,9 @@ const eventDensity = computed(() => {
 .modal-stats {
   margin-bottom: 20px;
   padding: 14px;
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #ffffff, #fff7d6);
+  border-radius: var(--radius-md);
+  border: 2px dashed rgba(31, 27, 22, 0.25);
 }
 
 .modal-sections {
