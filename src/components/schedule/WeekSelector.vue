@@ -7,6 +7,7 @@ import {
   getWeekStartDate
 } from '@/data/utils/scheduleUtils'
 import { getWeeklyPlanByWeek } from '@/data/schedule'
+import WeekDaySwatch from './WeekDaySwatch.vue'
 
 const props = defineProps<{
   currentWeek: WeekIdentifier
@@ -106,15 +107,6 @@ const getWeekRangeLabel = (weekId: WeekIdentifier) => {
   return `${start} - ${end}`
 }
 
-const normalizeColors = (colors: string[]) => {
-  const empty = 'rgba(90, 77, 67, 0.12)'
-  if (colors.length === 0) return [empty, empty, empty, empty]
-  if (colors.length === 1) return [colors[0], colors[0], colors[0], colors[0]]
-  if (colors.length === 2) return [colors[0], colors[1], colors[0], colors[1]]
-  if (colors.length === 3) return [colors[0], colors[1], colors[2], colors[2]]
-  return colors.slice(0, 4)
-}
-
 const buildWeekPreview = (weekId: WeekIdentifier, plan: Record<string, any[]>) => {
   const monday = getWeekStartDate(weekId)
   const days: DayPreview[] = Array.from({ length: 7 }, (_, index) => {
@@ -140,7 +132,7 @@ const buildWeekPreview = (weekId: WeekIdentifier, plan: Record<string, any[]>) =
       ? `${dayLabel} ${dateLabel}：${names}`
       : `${dayLabel} ${dateLabel}：暂无直播`
     return {
-      colors: normalizeColors(colors),
+      colors,
       hasLive: orderedMembers.length > 0,
       tooltip,
     }
@@ -271,20 +263,12 @@ watch(isDropdownOpen, (open) => {
                 <span class="week-selector__dropdown-item-range">{{ getWeekPreview(weekId).range }}</span>
               </div>
               <div class="week-selector__dropdown-item-days">
-                <div
+                <WeekDaySwatch
                   v-for="(day, index) in getWeekPreview(weekId).days"
                   :key="`${weekId}-${index}`"
-                  class="week-selector__dropdown-day"
-                  :class="{ 'week-selector__dropdown-day--empty': !day.hasLive }"
+                  :colors="day.colors"
                   :title="day.tooltip"
-                >
-                  <span
-                    v-for="(color, colorIndex) in day.colors"
-                    :key="`${weekId}-${index}-${colorIndex}`"
-                    class="week-selector__dropdown-day-cell"
-                    :style="{ backgroundColor: color }"
-                  ></span>
-                </div>
+                />
               </div>
             </div>
             <span v-if="weekId === currentWeek" class="week-selector__dropdown-item-check">✓</span>
@@ -510,6 +494,9 @@ watch(isDropdownOpen, (open) => {
   font-size: 13px;
   color: var(--ink);
   font-family: var(--font-display);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .week-selector__dropdown-item-content {
@@ -522,9 +509,10 @@ watch(isDropdownOpen, (open) => {
 
 .week-selector__dropdown-item-text {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
+  flex-wrap: nowrap;
 }
 
 .week-selector__dropdown-item-range {
@@ -534,35 +522,15 @@ watch(isDropdownOpen, (open) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
 .week-selector__dropdown-item-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
-}
-
-.week-selector__dropdown-day {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: 2px solid rgba(90, 77, 67, 0.35);
-  background: rgba(255, 255, 255, 0.7);
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  overflow: hidden;
-  box-shadow: 1px 1px 0 rgba(47, 39, 33, 0.25);
-}
-
-.week-selector__dropdown-day--empty {
-  border-style: dashed;
-  opacity: 0.6;
-}
-
-.week-selector__dropdown-day-cell {
-  width: 100%;
-  height: 100%;
+  --swatch-size: 16px;
+  --swatch-gap: 1px;
 }
 
 .week-selector__dropdown-item-check {
@@ -596,11 +564,7 @@ watch(isDropdownOpen, (open) => {
 
   .week-selector__dropdown-item-days {
     gap: 3px;
-  }
-
-  .week-selector__dropdown-day {
-    width: 14px;
-    height: 14px;
+    --swatch-size: 14px;
   }
 }
 </style>
