@@ -53,16 +53,20 @@ const clearAll = () => {
 
 // 是否有筛选
 const hasFilters = computed(() => props.selectedTags.length > 0)
+
 </script>
 
 <template>
-  <div class="tag-filter">
+  <div class="tag-filter" :class="{ 'tag-filter--active': hasFilters }">
     <div class="tag-filter__header">
       <div class="tag-filter__title">本周统计</div>
       <button
-        v-if="hasFilters"
         class="tag-filter__clear"
+        :class="{ 'tag-filter__clear--hidden': !hasFilters }"
         @click="clearAll"
+        :disabled="!hasFilters"
+        :tabindex="hasFilters ? 0 : -1"
+        :aria-hidden="!hasFilters"
       >
         清除筛选
       </button>
@@ -139,6 +143,21 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   overflow: hidden;
 }
 
+.tag-filter--active {
+  border-color: transparent;
+  background:
+    linear-gradient(135deg, #ffffff 0%, #fff7d6 100%) padding-box,
+    linear-gradient(
+      90deg,
+      #ff6b6b 0%,
+      #ffd93d 20%,
+      #6bcb77 40%,
+      #4d96ff 60%,
+      #845ef7 80%,
+      #ff6b6b 100%
+    ) border-box;
+}
+
 .tag-filter::before {
   content: '';
   position: absolute;
@@ -188,6 +207,12 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   border-color: var(--outline);
   color: #fff;
   transform: translate(-1px, -1px) rotate(-2deg);
+}
+
+.tag-filter__clear--hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .tag-filter__section {
@@ -262,7 +287,7 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
 
 .tag-chip--selected {
   background: var(--tag-tint, #fff7d6);
-  border-color: var(--outline);
+  border-color: var(--tag-color, var(--outline));
   color: var(--tag-color, var(--ink));
   font-weight: 800;
   box-shadow: 4px 4px 0 var(--shadow-strong);

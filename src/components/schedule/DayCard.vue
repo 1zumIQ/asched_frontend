@@ -130,15 +130,17 @@ const eventDensity = computed(() => {
           </div>
           <div class="section__line"></div>
         </div>
-        <div v-if="morningEvents.length > 0" class="stack">
-          <EventItem
-            v-for="event in morningEvents"
-            :key="event.title"
-            :event="event"
-            :tag-meta="tagMeta"
-          />
+        <div class="section__body">
+          <div v-if="morningEvents.length > 0" class="stack">
+            <EventItem
+              v-for="event in morningEvents"
+              :key="event.title"
+              :event="event"
+              :tag-meta="tagMeta"
+            />
+          </div>
+          <div v-else class="section__empty">暂无安排</div>
         </div>
-        <div v-else class="section__empty">暂无安排</div>
       </div>
 
       <!-- 分界线 - 在高度受限时隐藏 -->
@@ -159,15 +161,17 @@ const eventDensity = computed(() => {
           </div>
           <div class="section__line"></div>
         </div>
-        <div v-if="afternoonEvents.length > 0" class="stack">
-          <EventItem
-            v-for="event in afternoonEvents"
-            :key="event.title"
-            :event="event"
-            :tag-meta="tagMeta"
-          />
+        <div class="section__body">
+          <div v-if="afternoonEvents.length > 0" class="stack">
+            <EventItem
+              v-for="event in afternoonEvents"
+              :key="event.title"
+              :event="event"
+              :tag-meta="tagMeta"
+            />
+          </div>
+          <div v-else class="section__empty">暂无安排</div>
         </div>
-        <div v-else class="section__empty">暂无安排</div>
       </div>
     </div>
 
@@ -285,7 +289,7 @@ const eventDensity = computed(() => {
 
 <style scoped>
 .day-card {
-  padding: 18px;
+  padding: 12px;
   border-radius: var(--radius-xl);
   border: 2px solid var(--outline);
   background:
@@ -553,25 +557,74 @@ const eventDensity = computed(() => {
   gap: 14px;
   flex: 1;
   min-height: 0; /* 关键：允许flex子元素缩小 */
-  overflow: hidden;
-  /* 隐藏滚动条 */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.sections::-webkit-scrollbar {
-  display: none;
+  overflow: visible;
+  position: relative;
 }
 
 .section {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 14px;
+  padding: 8px;
   border-radius: var(--radius-md);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   transition: all 200ms ease;
+}
+
+.section__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow-x: visible;
+  overflow-y: hidden;
+  padding: 8px 8px 8px 8px;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+}
+
+.section__body::-webkit-scrollbar {
+  width: 0;
+}
+
+.section__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.section__body::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.section:hover .section__body,
+.section:focus-within .section__body {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 77, 67, 0.5) transparent;
+}
+
+.section:hover .section__body::-webkit-scrollbar,
+.section:focus-within .section__body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.section:hover .section__body::-webkit-scrollbar-track,
+.section:focus-within .section__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.section:hover .section__body::-webkit-scrollbar-thumb,
+.section:focus-within .section__body::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ffe3f2, #fff2b3);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 0 0 1px rgba(90, 77, 67, 0.25);
+}
+
+.section:hover .section__body::-webkit-scrollbar-thumb:hover,
+.section:focus-within .section__body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ffd1ef, #ffe59a);
 }
 
 /* 空section样式 - 更紧凑 */
@@ -651,6 +704,14 @@ const eventDensity = computed(() => {
     inset 0 2px 0 rgba(255, 255, 255, 0.5);
   flex: 1 1 auto;
   min-height: 0;
+}
+
+.section--morning .section__body {
+  max-height: clamp(120px, 22vh, 220px);
+}
+
+.section--afternoon .section__body {
+  flex: 1;
 }
 
 .section--afternoon:hover {

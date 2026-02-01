@@ -1,7 +1,7 @@
 import type { ScheduleApi } from '../scheduleApi'
 import type { WeekIdentifier } from '../utils/scheduleUtils'
 import { mockTagMeta, mockMemberTags, mockTypeTags, mockLiveRecords, mockLiveTypeMetadata } from './scheduleData'
-import { groupByWeek, getWeekIdentifier, parseStartTime, getWeekStartDate, getDayOfWeek } from '../utils/scheduleUtils'
+import { groupByWeek, getWeekIdentifier, parseStartTime, getWeekStartDate } from '../utils/scheduleUtils'
 import type { LiveRecordItem, ScheduleEvent, LiveStatus } from '@/types/schedule'
 
 /**

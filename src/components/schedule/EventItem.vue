@@ -220,7 +220,7 @@ const durationText = computed(() => {
   background-size: 22px 22px, cover;
   box-shadow:
     3px 3px 0 var(--shadow-strong),
-    0 12px 20px rgba(31, 27, 22, 0.16);
+    0 8px 14px rgba(31, 27, 22, 0.14);
   transition:
     all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -253,11 +253,11 @@ const durationText = computed(() => {
 }
 
 .event:hover {
-  transform: translate(-3px, -3px) rotate(-0.4deg) scale(1.01);
+  transform: translate(-2px, -2px) rotate(-0.4deg) scale(1.01);
   background: linear-gradient(145deg, #ffffff 0%, #ffe8f3 100%);
   box-shadow:
     4px 4px 0 var(--shadow-strong),
-    0 16px 26px rgba(31, 27, 22, 0.18);
+    0 12px 18px rgba(31, 27, 22, 0.18);
 }
 
 .event:active {
@@ -282,13 +282,13 @@ const durationText = computed(() => {
   100% {
     box-shadow:
       3px 3px 0 var(--shadow-strong),
-      0 12px 20px rgba(6, 214, 160, 0.25);
+      0 10px 16px rgba(6, 214, 160, 0.22);
   }
 
   50% {
     box-shadow:
       4px 4px 0 var(--shadow-strong),
-      0 16px 28px rgba(6, 214, 160, 0.3);
+      0 12px 20px rgba(6, 214, 160, 0.28);
   }
 }
 

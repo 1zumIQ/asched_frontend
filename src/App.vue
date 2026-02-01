@@ -285,7 +285,7 @@ h4 {
 .page::before {
   content: '';
   position: absolute;
-  top: -40px;
+  top: 16px;
   right: 10%;
   width: 140px;
   height: 140px;
@@ -297,7 +297,7 @@ h4 {
 .page::after {
   content: '';
   position: absolute;
-  bottom: -60px;
+  bottom: 16px;
   left: 6%;
   width: 180px;
   height: 180px;
