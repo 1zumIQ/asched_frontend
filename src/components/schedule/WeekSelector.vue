@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import type { WeekIdentifier } from '@/data/utils/scheduleUtils'
+import type { TagType, TagMeta, MemberTag } from '@/types/schedule'
 import {
   formatWeekIdentifier,
   getWeekStartDate
 } from '@/data/utils/scheduleUtils'
+import { getWeeklyPlanByWeek } from '@/data/schedule'
 
 const props = defineProps<{
   currentWeek: WeekIdentifier
   availableWeeks: WeekIdentifier[]
+  tagMeta: Record<TagType, TagMeta>
+  memberTags: MemberTag[]
 }>()
 
 const emit = defineEmits<{
@@ -19,23 +23,26 @@ const isDropdownOpen = ref(false)
 const currentRef = ref<HTMLElement | null>(null)
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownStyle = ref<Record<string, string>>({})
+const weekPreviews = ref<Record<WeekIdentifier, WeekPreview>>({})
+const isLoadingPreviews = ref(false)
+
+type DayPreview = {
+  colors: string[]
+  hasLive: boolean
+  tooltip: string
+}
+
+type WeekPreview = {
+  range: string
+  days: DayPreview[]
+}
 
 // 格式化当前周
 const currentWeekLabel = computed(() => formatWeekIdentifier(props.currentWeek))
 
 // 格式化周范围
 const currentWeekRange = computed(() => {
-  const monday = getWeekStartDate(props.currentWeek)
-  const sunday = new Date(monday)
-  sunday.setDate(monday.getDate() + 6)
-
-  const start = monday.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
-  const end = sunday.toLocaleDateString('zh-CN', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-  return `${start} - ${end}`
+  return getWeekRangeLabel(props.currentWeek)
 })
 
 const sortedWeeks = computed<WeekIdentifier[]>(() => {
@@ -85,6 +92,92 @@ const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value
 }
 
+const getWeekRangeLabel = (weekId: WeekIdentifier) => {
+  const monday = getWeekStartDate(weekId)
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+
+  const start = monday.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+  const end = sunday.toLocaleDateString('zh-CN', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  return `${start} - ${end}`
+}
+
+const normalizeColors = (colors: string[]) => {
+  const empty = 'rgba(90, 77, 67, 0.12)'
+  if (colors.length === 0) return [empty, empty, empty, empty]
+  if (colors.length === 1) return [colors[0], colors[0], colors[0], colors[0]]
+  if (colors.length === 2) return [colors[0], colors[1], colors[0], colors[1]]
+  if (colors.length === 3) return [colors[0], colors[1], colors[2], colors[2]]
+  return colors.slice(0, 4)
+}
+
+const buildWeekPreview = (weekId: WeekIdentifier, plan: Record<string, any[]>) => {
+  const monday = getWeekStartDate(weekId)
+  const days: DayPreview[] = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday)
+    date.setDate(monday.getDate() + index)
+    const longName = date.toLocaleDateString('en-US', { weekday: 'long' })
+    const events = plan[longName] ?? []
+    const memberSet = new Set<MemberTag>()
+    events.forEach((event: any) => {
+      if (!Array.isArray(event.tags)) return
+      event.tags.forEach((tag: TagType) => {
+        if (props.memberTags.includes(tag as MemberTag)) {
+          memberSet.add(tag as MemberTag)
+        }
+      })
+    })
+    const orderedMembers = props.memberTags.filter(tag => memberSet.has(tag))
+    const colors = orderedMembers.map(tag => props.tagMeta[tag]?.color).filter(Boolean) as string[]
+    const dayLabel = date.toLocaleDateString('zh-CN', { weekday: 'short' })
+    const dateLabel = date.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })
+    const names = orderedMembers.map(tag => props.tagMeta[tag]?.label ?? tag).join('、')
+    const tooltip = orderedMembers.length > 0
+      ? `${dayLabel} ${dateLabel}：${names}`
+      : `${dayLabel} ${dateLabel}：暂无直播`
+    return {
+      colors: normalizeColors(colors),
+      hasLive: orderedMembers.length > 0,
+      tooltip,
+    }
+  })
+
+  return {
+    range: getWeekRangeLabel(weekId),
+    days,
+  }
+}
+
+const loadWeekPreviews = async () => {
+  if (isLoadingPreviews.value) return
+  isLoadingPreviews.value = true
+  const missing = sortedWeeks.value.filter(weekId => !weekPreviews.value[weekId])
+  try {
+    await Promise.all(
+      missing.map(async (weekId) => {
+        try {
+          const plan = await getWeeklyPlanByWeek(weekId)
+          weekPreviews.value[weekId] = buildWeekPreview(weekId, plan)
+        } catch (error) {
+          console.error('Failed to load week preview:', error)
+          weekPreviews.value[weekId] = buildWeekPreview(weekId, {})
+        }
+      })
+    )
+  } finally {
+    isLoadingPreviews.value = false
+  }
+}
+
+const getWeekPreview = (weekId: WeekIdentifier) => {
+  if (weekPreviews.value[weekId]) return weekPreviews.value[weekId]
+  return buildWeekPreview(weekId, {})
+}
+
 const updateDropdownPosition = () => {
   if (!currentRef.value) return
   const rect = currentRef.value.getBoundingClientRect()
@@ -118,6 +211,7 @@ onUnmounted(() => {
 watch(isDropdownOpen, (open) => {
   if (open) {
     nextTick(updateDropdownPosition)
+    loadWeekPreviews()
   }
 })
 </script>
@@ -165,13 +259,34 @@ watch(isDropdownOpen, (open) => {
         <div class="week-selector__dropdown-header">选择周</div>
         <div class="week-selector__dropdown-list">
           <button
-            v-for="weekId in availableWeeks"
+            v-for="weekId in sortedWeeks"
             :key="weekId"
             class="week-selector__dropdown-item"
             :class="{ 'week-selector__dropdown-item--active': weekId === currentWeek }"
             @click.stop="selectWeek(weekId)"
           >
-            <span class="week-selector__dropdown-item-label">{{ formatWeekIdentifier(weekId) }}</span>
+            <div class="week-selector__dropdown-item-content">
+              <div class="week-selector__dropdown-item-text">
+                <span class="week-selector__dropdown-item-label">{{ formatWeekIdentifier(weekId) }}</span>
+                <span class="week-selector__dropdown-item-range">{{ getWeekPreview(weekId).range }}</span>
+              </div>
+              <div class="week-selector__dropdown-item-days">
+                <div
+                  v-for="(day, index) in getWeekPreview(weekId).days"
+                  :key="`${weekId}-${index}`"
+                  class="week-selector__dropdown-day"
+                  :class="{ 'week-selector__dropdown-day--empty': !day.hasLive }"
+                  :title="day.tooltip"
+                >
+                  <span
+                    v-for="(color, colorIndex) in day.colors"
+                    :key="`${weekId}-${index}-${colorIndex}`"
+                    class="week-selector__dropdown-day-cell"
+                    :style="{ backgroundColor: color }"
+                  ></span>
+                </div>
+              </div>
+            </div>
             <span v-if="weekId === currentWeek" class="week-selector__dropdown-item-check">✓</span>
           </button>
         </div>
@@ -358,7 +473,7 @@ watch(isDropdownOpen, (open) => {
 .week-selector__dropdown-item {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: 10px 12px;
   border: 2px solid transparent;
@@ -370,6 +485,7 @@ watch(isDropdownOpen, (open) => {
   font-weight: 600;
   color: var(--ink);
   text-align: left;
+  gap: 12px;
 }
 
 .week-selector__dropdown-item:hover {
@@ -390,7 +506,63 @@ watch(isDropdownOpen, (open) => {
 }
 
 .week-selector__dropdown-item-label {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink);
+  font-family: var(--font-display);
+}
+
+.week-selector__dropdown-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   flex: 1;
+  min-width: 0;
+}
+
+.week-selector__dropdown-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.week-selector__dropdown-item-range {
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.week-selector__dropdown-item-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.week-selector__dropdown-day {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 2px solid rgba(90, 77, 67, 0.35);
+  background: rgba(255, 255, 255, 0.7);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  overflow: hidden;
+  box-shadow: 1px 1px 0 rgba(47, 39, 33, 0.25);
+}
+
+.week-selector__dropdown-day--empty {
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.week-selector__dropdown-day-cell {
+  width: 100%;
+  height: 100%;
 }
 
 .week-selector__dropdown-item-check {
@@ -420,6 +592,15 @@ watch(isDropdownOpen, (open) => {
 
   .week-selector__range {
     font-size: 11px;
+  }
+
+  .week-selector__dropdown-item-days {
+    gap: 3px;
+  }
+
+  .week-selector__dropdown-day {
+    width: 14px;
+    height: 14px;
   }
 }
 </style>

@@ -46,6 +46,8 @@ const updateSelectedTags = (tags: TagType[]) => {
         <WeekSelector
           :current-week="currentWeek"
           :available-weeks="availableWeeks"
+          :tag-meta="tagMeta"
+          :member-tags="memberTags"
           @update:current-week="updateCurrentWeek"
         />
       </div>
