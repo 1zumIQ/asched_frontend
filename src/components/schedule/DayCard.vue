@@ -252,6 +252,8 @@ const eventDensity = computed(() => {
                   :key="event.title"
                   :event="event"
                   :tag-meta="tagMeta"
+                  :member-tags="memberTags"
+                  :type-tags="typeTags"
                 />
               </div>
               <div v-else class="section__empty">暂无安排</div>
@@ -281,6 +283,8 @@ const eventDensity = computed(() => {
                   :key="event.title"
                   :event="event"
                   :tag-meta="tagMeta"
+                  :member-tags="memberTags"
+                  :type-tags="typeTags"
                 />
               </div>
               <div v-else class="section__empty">暂无安排</div>
