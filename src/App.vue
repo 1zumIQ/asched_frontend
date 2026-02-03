@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import type { DayCard, TagMeta, TagType, TypeTag } from '@/types/ui'
+import type { DayCard, TagMeta, TagType, TypeTag, ThemeName } from '@/types/ui'
 import { getAvailableWeeks, getLiveRecordsByWeek } from '@/api/schedule'
 import type { ApiLiveRecord } from '@/api/schedule'
 import { buildLiveRecordView, isSameDay, type LiveRecordView } from '@/domain/records'
@@ -12,6 +12,7 @@ import { parseTagKey } from '@/domain/tagKeys'
 import { useScheduleMetaStore } from '@/stores/scheduleMeta'
 
 const now = new Date()
+const THEME_STORAGE_KEY = 'asched-theme'
 
 // 当前选中的周
 const currentWeek = ref<IsoWeek>(getCurrentIsoWeek())
@@ -27,6 +28,7 @@ const weeklyRecords = ref<ApiLiveRecord[]>([])
 
 // 加载状态
 const isLoading = ref(false)
+const theme = ref<ThemeName>('sunrise')
 
 // 选中的标签（用于筛选）
 const selectedTags = ref<TagType[]>([])
@@ -72,9 +74,27 @@ watch(currentWeek, (newWeek) => {
 
 // 初始化
 onMounted(async () => {
+  try {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY)
+    if (storedTheme === 'sunrise' || storedTheme === 'ocean') {
+      theme.value = storedTheme
+    }
+  } catch (error) {
+    console.warn('Failed to load theme preference:', error)
+  }
+  document.documentElement.dataset.theme = theme.value
   await loadTagData()
   await loadAvailableWeeks()
   await loadWeekData(currentWeek.value)
+})
+
+watch(theme, (value) => {
+  document.documentElement.dataset.theme = value
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, value)
+  } catch (error) {
+    console.warn('Failed to persist theme preference:', error)
+  }
 })
 
 const startOfWeek = computed(() => getIsoWeekStartDate(currentWeek.value))
@@ -164,6 +184,7 @@ const tagCounts = computed(() => {
     <ScheduleHero v-if="isTagDataReady"
       v-model:current-week="currentWeek"
       v-model:selected-tags="selectedTags"
+      v-model:theme="theme"
       :available-weeks="availableWeeks"
       :week-range-label="weekRangeLabel"
       :total-sessions="totalSessions"
@@ -190,22 +211,117 @@ const tagCounts = computed(() => {
   --font-body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   --ink: #2f2721;
   --ink-soft: #61564d;
+  --ink-rgb: 47 39 33;
+  --ink-deep-rgb: 31 27 22;
   --outline: #5a4d43;
-  --shadow: rgba(47, 39, 33, 0.26);
-  --shadow-strong: rgba(47, 39, 33, 0.38);
+  --outline-rgb: 90 77 67;
   --paper: #fff2b3;
   --paper-2: #fff9db;
   --sun: #ffd166;
+  --sun-rgb: 255 209 102;
   --coral: #ff6b6b;
+  --coral-rgb: 255 107 107;
   --mint: #06d6a0;
+  --mint-rgb: 6 214 160;
   --sky: #4d96ff;
+  --sky-rgb: 77 150 255;
   --berry: #ff4fa3;
+  --berry-rgb: 255 79 163;
   --leaf: #9ee65c;
-  --shadow: rgba(31, 27, 22, 0.25);
+  --surface-base: #ffffff;
+  --surface-warm: #fff7d6;
+  --surface-warm-strong: #fff4b8;
+  --surface-warm-deep: #ffe4a5;
+  --surface-warm-soft: #fff3c7;
+  --surface-sun: #fff2b3;
+  --surface-sun-strong: #ffe59a;
+  --surface-cool: #dff1ff;
+  --surface-cool-soft: #e5f7ff;
+  --surface-rose: #ffd1ef;
+  --surface-rose-soft: #ffe3f2;
+  --surface-mint-soft: #dffaf0;
+  --surface-mint-bright: #eafdf6;
+  --surface-sunlight: #fff5c2;
+  --page-bg-warm: #fff1a6;
+  --page-bg-cool: #b9f3ff;
+  --page-bg-rose: #ffd1e8;
+  --white-rgb: 255 255 255;
+  --shadow: rgb(var(--ink-deep-rgb) / 0.25);
+  --shadow-strong: rgb(var(--ink-deep-rgb) / 0.38);
+  --shadow-ambient-1: rgb(var(--ink-deep-rgb) / 0.16);
+  --shadow-ambient-2: rgb(var(--ink-deep-rgb) / 0.2);
+  --shadow-ambient-3: rgb(var(--ink-deep-rgb) / 0.22);
+  --shadow-ambient-4: rgb(var(--ink-deep-rgb) / 0.28);
+  --overlay: rgb(var(--ink-deep-rgb) / 0.5);
+  --glass-60: rgb(var(--white-rgb) / 0.6);
+  --glass-65: rgb(var(--white-rgb) / 0.65);
+  --glass-70: rgb(var(--white-rgb) / 0.7);
+  --glass-80: rgb(var(--white-rgb) / 0.8);
+  --glass-85: rgb(var(--white-rgb) / 0.85);
+  --glass-90: rgb(var(--white-rgb) / 0.9);
+  --text-on-accent: #fff;
+  --status-ongoing: #10b981;
+  --status-ended: #94a3b8;
+  --status-interrupted: #ef4444;
+  --status-upcoming: var(--sky);
+  --status-late: #f59e0b;
+  --status-ongoing-rgb: 16 185 129;
+  --status-ended-rgb: 148 163 184;
+  --status-interrupted-rgb: 239 68 68;
+  --status-late-rgb: 245 158 11;
+  --rainbow-1: #ff6b6b;
+  --rainbow-2: #ffd93d;
+  --rainbow-3: #6bcb77;
+  --rainbow-4: #4d96ff;
+  --rainbow-5: #845ef7;
   --radius-xl: 28px 20px 32px 18px;
   --radius-lg: 22px 16px 26px 14px;
   --radius-md: 16px 12px 18px 10px;
   --radius-sm: 12px 10px 14px 8px;
+}
+
+:root[data-theme='ocean'] {
+  --ink: #1f2937;
+  --ink-soft: #475569;
+  --ink-rgb: 31 41 55;
+  --ink-deep-rgb: 15 23 42;
+  --outline: #1f3b4d;
+  --outline-rgb: 31 59 77;
+  --paper: #dbeafe;
+  --paper-2: #eff6ff;
+  --sun: #fcd34d;
+  --sun-rgb: 252 211 77;
+  --coral: #fb7185;
+  --coral-rgb: 251 113 133;
+  --mint: #2dd4bf;
+  --mint-rgb: 45 212 191;
+  --sky: #38bdf8;
+  --sky-rgb: 56 189 248;
+  --berry: #f472b6;
+  --berry-rgb: 244 114 182;
+  --leaf: #84cc16;
+  --surface-base: #ffffff;
+  --surface-warm: #fef3c7;
+  --surface-warm-strong: #fde68a;
+  --surface-warm-deep: #fcd34d;
+  --surface-warm-soft: #fffbeb;
+  --surface-sun: #fef9c3;
+  --surface-sun-strong: #fde047;
+  --surface-cool: #e0f2fe;
+  --surface-cool-soft: #eff6ff;
+  --surface-rose: #fde2e7;
+  --surface-rose-soft: #ffe4f1;
+  --surface-mint-soft: #ccfbf1;
+  --surface-mint-bright: #e6fffb;
+  --surface-sunlight: #fef3c7;
+  --page-bg-warm: #fef9c3;
+  --page-bg-cool: #bae6fd;
+  --page-bg-rose: #fecdd3;
+  --rainbow-1: #fb7185;
+  --rainbow-2: #fcd34d;
+  --rainbow-3: #34d399;
+  --rainbow-4: #38bdf8;
+  --rainbow-5: #a78bfa;
 }
 
 html {
@@ -226,9 +342,9 @@ body {
   font-family: var(--font-body);
   background-color: var(--paper);
   background-image:
-    radial-gradient(circle at 12px 12px, rgba(31, 27, 22, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 6px 6px, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-    linear-gradient(135deg, #fff1a6 0%, #b9f3ff 48%, #ffd1e8 100%);
+    radial-gradient(circle at 12px 12px, rgb(var(--ink-deep-rgb) / 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 6px 6px, var(--glass-60) 1px, transparent 1px),
+    linear-gradient(135deg, var(--page-bg-warm) 0%, var(--page-bg-cool) 48%, var(--page-bg-rose) 100%);
   background-size: 24px 24px, 18px 18px, cover;
   background-attachment: fixed;
 }
@@ -238,9 +354,9 @@ body::before {
   position: fixed;
   inset: -20% -10%;
   background:
-    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 45%),
-    radial-gradient(circle at 82% 8%, rgba(255, 209, 102, 0.35) 0%, rgba(255, 209, 102, 0) 50%),
-    radial-gradient(circle at 86% 82%, rgba(6, 214, 160, 0.3) 0%, rgba(6, 214, 160, 0) 50%);
+    radial-gradient(circle at 12% 18%, var(--glass-60) 0%, rgb(var(--white-rgb) / 0) 45%),
+    radial-gradient(circle at 82% 8%, rgb(var(--sun-rgb) / 0.35) 0%, rgb(var(--sun-rgb) / 0) 50%),
+    radial-gradient(circle at 86% 82%, rgb(var(--mint-rgb) / 0.3) 0%, rgb(var(--mint-rgb) / 0) 50%);
   opacity: 0.8;
   pointer-events: none;
   z-index: 0;
@@ -253,15 +369,15 @@ body::after {
   background-image:
     repeating-linear-gradient(
       120deg,
-      rgba(31, 27, 22, 0.08) 0px,
-      rgba(31, 27, 22, 0.08) 1px,
+      rgb(var(--ink-deep-rgb) / 0.08) 0px,
+      rgb(var(--ink-deep-rgb) / 0.08) 1px,
       transparent 1px,
       transparent 12px
     ),
     repeating-linear-gradient(
       60deg,
-      rgba(31, 27, 22, 0.05) 0px,
-      rgba(31, 27, 22, 0.05) 1px,
+      rgb(var(--ink-deep-rgb) / 0.05) 0px,
+      rgb(var(--ink-deep-rgb) / 0.05) 1px,
       transparent 1px,
       transparent 14px
     );
@@ -291,7 +407,7 @@ h4 {
 }
 
 ::selection {
-  background: rgba(255, 107, 107, 0.35);
+  background: rgb(var(--coral-rgb) / 0.35);
   color: var(--ink);
 }
 

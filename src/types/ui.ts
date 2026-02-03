@@ -21,6 +21,8 @@ export type TagMeta = {
   icon?: string
 }
 
+export type ThemeName = 'sunrise' | 'ocean'
+
 export type DayCard<TEvent = unknown> = {
   longName: string
   shortName: string

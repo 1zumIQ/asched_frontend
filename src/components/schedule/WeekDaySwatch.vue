@@ -38,11 +38,11 @@ const layoutClass = computed(() => {
   width: var(--swatch-size, 16px);
   height: var(--swatch-size, 16px);
   border-radius: 4px;
-  border: 2px solid rgba(90, 77, 67, 0.35);
-  background: rgba(90, 77, 67, 0.25);
+  border: 2px solid rgb(var(--outline-rgb) / 0.35);
+  background: rgb(var(--outline-rgb) / 0.25);
   display: grid;
   overflow: hidden;
-  box-shadow: 1px 1px 0 rgba(47, 39, 33, 0.25);
+  box-shadow: 1px 1px 0 rgb(var(--ink-rgb) / 0.25);
 }
 
 .week-day-swatch__cell {
@@ -83,20 +83,20 @@ const layoutClass = computed(() => {
 .week-day-swatch--rainbow {
   background: linear-gradient(
     135deg,
-    #ff6b6b 0%,
-    #ffd93d 20%,
-    #6bcb77 40%,
-    #4d96ff 60%,
-    #845ef7 80%,
-    #ff6b6b 100%
+    var(--rainbow-1) 0%,
+    var(--rainbow-2) 20%,
+    var(--rainbow-3) 40%,
+    var(--rainbow-4) 60%,
+    var(--rainbow-5) 80%,
+    var(--rainbow-1) 100%
   );
   border-style: solid;
-  border-color: rgba(90, 77, 67, 0.25);
+  border-color: rgb(var(--outline-rgb) / 0.25);
   padding: var(--swatch-gap, 1px);
 }
 
 .week-day-swatch--empty {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgb(var(--white-rgb) / 0.5);
   border-style: dashed;
   opacity: 0.6;
 }

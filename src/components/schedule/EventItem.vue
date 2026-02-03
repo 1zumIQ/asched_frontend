@@ -67,14 +67,38 @@ const statusLabel = computed(() => {
 })
 
 // 获取状态颜色
-const statusColor = computed(() => {
+const statusTone = computed(() => {
   switch (props.event.record.status) {
-    case 0: return '#10b981' // 直播中 - 绿色
-    case 1: return '#94a3b8' // 已结束 - 灰色
-    case 2: return '#ef4444' // 中断 - 红色
-    case 3: return '#4d96ff' // 未开始 - 蓝色
-    case 4: return '#f59e0b' // 迟到 - 橙色
-    default: return '#4d96ff'
+    case 0:
+      return {
+        color: 'var(--status-ongoing)',
+        glow: 'rgb(var(--status-ongoing-rgb) / 0.3)'
+      }
+    case 1:
+      return {
+        color: 'var(--status-ended)',
+        glow: 'rgb(var(--status-ended-rgb) / 0.3)'
+      }
+    case 2:
+      return {
+        color: 'var(--status-interrupted)',
+        glow: 'rgb(var(--status-interrupted-rgb) / 0.3)'
+      }
+    case 3:
+      return {
+        color: 'var(--status-upcoming)',
+        glow: 'rgb(var(--sky-rgb) / 0.3)'
+      }
+    case 4:
+      return {
+        color: 'var(--status-late)',
+        glow: 'rgb(var(--status-late-rgb) / 0.3)'
+      }
+    default:
+      return {
+        color: 'var(--status-upcoming)',
+        glow: 'rgb(var(--sky-rgb) / 0.3)'
+      }
   }
 })
 
@@ -128,7 +152,7 @@ const guestNames = computed(() => {
     <div v-if="eventStatus === 'ongoing'" class="event__progress-bar">
       <div class="event__progress-fill" :style="{
         width: `${progress}%`,
-        backgroundColor: statusColor
+        backgroundColor: statusTone.color
       }"></div>
     </div>
 
@@ -138,10 +162,10 @@ const guestNames = computed(() => {
           <div class="event__time">{{ event.timeLabel }}</div>
           <!-- 状态指示器移到时间旁边 -->
           <div v-if="statusLabel" class="event__status" :style="{
-            backgroundColor: statusColor,
-            boxShadow: `0 0 8px ${statusColor}30`
+            backgroundColor: statusTone.color,
+            boxShadow: `0 0 8px ${statusTone.glow}`
           }">
-            <span class="event__status-pulse" :style="{ backgroundColor: statusColor }"></span>
+            <span class="event__status-pulse" :style="{ backgroundColor: statusTone.color }"></span>
             {{ statusLabel }}
           </div>
           <div v-if="isExpanded" class="event__duration">{{ durationText }}</div>
@@ -151,7 +175,7 @@ const guestNames = computed(() => {
             <span
               class="dot"
               :class="`dot--${dotStatus}`"
-              :style="{ backgroundColor: tagMeta[primaryTag].color, color: statusColor }"
+              :style="{ backgroundColor: tagMeta[primaryTag].color, color: statusTone.color }"
             ></span>
             <div class="event__title-content">
               <div class="event__name">{{ event.record.title }}</div>
@@ -209,13 +233,35 @@ const guestNames = computed(() => {
   padding: 14px;
   border-radius: var(--radius-md);
   border: 2px solid var(--outline);
+  --event-surface: linear-gradient(145deg, var(--surface-base) 0%, var(--surface-warm) 100%);
+  --event-surface-hover: linear-gradient(
+    145deg,
+    var(--surface-base) 0%,
+    var(--surface-rose-soft) 100%
+  );
+  --event-surface-soon: linear-gradient(
+    145deg,
+    var(--surface-warm-soft) 0%,
+    var(--surface-warm) 50%,
+    var(--surface-base) 100%
+  );
+  --event-surface-ongoing: linear-gradient(
+    145deg,
+    var(--surface-mint-soft) 0%,
+    var(--surface-mint-bright) 40%,
+    var(--surface-base) 100%
+  );
+  --event-time-bg: linear-gradient(135deg, var(--surface-sun), var(--surface-warm));
+  --event-time-bg-hover: linear-gradient(135deg, var(--surface-rose), var(--surface-warm));
+  --event-guests-bg: linear-gradient(135deg, var(--surface-base), var(--surface-warm));
+  --event-expand-bg: rgb(var(--white-rgb) / 0.7);
   background:
-    radial-gradient(circle at 10px 10px, rgba(31, 27, 22, 0.05) 1px, transparent 1px),
-    linear-gradient(145deg, #ffffff 0%, #fff7d6 100%);
+    radial-gradient(circle at 10px 10px, rgb(var(--ink-deep-rgb) / 0.05) 1px, transparent 1px),
+    var(--event-surface);
   background-size: 22px 22px, cover;
   box-shadow:
     3px 3px 0 var(--shadow-strong),
-    0 8px 14px rgba(31, 27, 22, 0.14);
+    0 8px 14px rgb(var(--ink-deep-rgb) / 0.14);
   transition:
     all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -249,10 +295,10 @@ const guestNames = computed(() => {
 
 .event:hover {
   transform: translate(-2px, -2px) rotate(-0.4deg) scale(1.01);
-  background: linear-gradient(145deg, #ffffff 0%, #ffe8f3 100%);
+  background: var(--event-surface-hover);
   box-shadow:
     4px 4px 0 var(--shadow-strong),
-    0 12px 18px rgba(31, 27, 22, 0.18);
+    0 12px 18px rgb(var(--ink-deep-rgb) / 0.18);
 }
 
 .event:active {
@@ -262,12 +308,12 @@ const guestNames = computed(() => {
 /* 状态样式 */
 .event--starting-soon {
   border-color: var(--outline);
-  background: linear-gradient(145deg, #fff3c7 0%, #fff7d6 50%, #ffffff 100%);
+  background: var(--event-surface-soon);
 }
 
 .event--ongoing {
   border-color: var(--outline);
-  background: linear-gradient(145deg, #dffaf0 0%, #eafdf6 40%, #ffffff 100%);
+  background: var(--event-surface-ongoing);
   animation: pulse-ongoing 2s ease-in-out infinite;
 }
 
@@ -277,13 +323,13 @@ const guestNames = computed(() => {
   100% {
     box-shadow:
       3px 3px 0 var(--shadow-strong),
-      0 10px 16px rgba(6, 214, 160, 0.22);
+      0 10px 16px rgb(var(--mint-rgb) / 0.22);
   }
 
   50% {
     box-shadow:
       4px 4px 0 var(--shadow-strong),
-      0 12px 20px rgba(6, 214, 160, 0.28);
+      0 12px 20px rgb(var(--mint-rgb) / 0.28);
   }
 }
 
@@ -303,7 +349,7 @@ const guestNames = computed(() => {
   gap: 4px;
   padding: 3px 8px;
   border-radius: 999px;
-  color: white;
+  color: var(--text-on-accent);
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
@@ -377,7 +423,7 @@ const guestNames = computed(() => {
   left: 0;
   right: 0;
   height: 6px;
-  background: rgba(31, 27, 22, 0.12);
+  background: rgb(var(--ink-deep-rgb) / 0.12);
   overflow: hidden;
 }
 
@@ -395,7 +441,7 @@ const guestNames = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, var(--glass-60), transparent);
   animation: progress-shimmer 2s infinite;
 }
 
@@ -434,8 +480,8 @@ const guestNames = computed(() => {
   flex-shrink: 0;
   box-shadow:
     3px 3px 0 var(--shadow-strong),
-    0 10px 16px rgba(31, 27, 22, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 10px 16px var(--shadow-ambient-2),
+    inset 0 1px 0 var(--glass-60);
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -448,7 +494,7 @@ const guestNames = computed(() => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(45deg, transparent, rgb(var(--white-rgb) / 0.3), transparent);
   transform: rotate(45deg);
   animation: avatar-shine 3s infinite;
 }
@@ -467,8 +513,8 @@ const guestNames = computed(() => {
   transform: scale(1.1) rotate(7deg);
   box-shadow:
     4px 4px 0 var(--shadow-strong),
-    0 14px 20px rgba(31, 27, 22, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    0 14px 20px rgb(var(--ink-deep-rgb) / 0.25),
+    inset 0 1px 0 var(--glass-70);
 }
 
 .event__time-wrapper {
@@ -488,7 +534,7 @@ const guestNames = computed(() => {
   gap: 6px;
   padding: 4px 10px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, #fff2b3, #fff7d6);
+  background: var(--event-time-bg);
   border: 2px solid var(--outline);
   transition: all 200ms ease;
   flex-shrink: 0;
@@ -501,7 +547,7 @@ const guestNames = computed(() => {
 }
 
 .event:hover .event__time {
-  background: linear-gradient(135deg, #ffd1ef, #fff7d6);
+  background: var(--event-time-bg-hover);
   border-color: var(--outline);
   color: var(--ink);
   transform: translate(-2px, -2px);
@@ -559,7 +605,7 @@ const guestNames = computed(() => {
 }
 
 .event:hover .event__name {
-  color: var(--primary-color, #4f46e5);
+  color: var(--primary-color, var(--sky));
 }
 
 .event__meta {
@@ -581,9 +627,9 @@ const guestNames = computed(() => {
   margin-top: 6px;
   margin-bottom: 6px;
   padding: 8px 12px;
-  background: linear-gradient(135deg, #ffffff, #fff7d6);
+  background: var(--event-guests-bg);
   border-radius: var(--radius-sm);
-  border: 2px dashed rgba(90, 77, 67, 0.25);
+  border: 2px dashed rgb(var(--outline-rgb) / 0.25);
   font-size: 12px;
   animation: fade-in 300ms ease-out;
 }
@@ -614,7 +660,7 @@ const guestNames = computed(() => {
   margin-top: 6px;
   flex-shrink: 0;
   box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.9),
+    0 0 0 3px var(--glass-90),
     2px 2px 0 var(--shadow);
   transition: all 200ms ease;
   position: relative;
@@ -633,7 +679,7 @@ const guestNames = computed(() => {
 
 .dot--ongoing {
   box-shadow:
-    0 0 0 3px rgba(6, 214, 160, 0.2),
+    0 0 0 3px rgb(var(--mint-rgb) / 0.2),
     2px 2px 0 var(--shadow);
   animation: dot-breathe 1.6s ease-in-out infinite;
 }
@@ -647,8 +693,8 @@ const guestNames = computed(() => {
   opacity: 0.5;
   filter: grayscale(0.4);
   box-shadow:
-    0 0 0 2px rgba(148, 163, 184, 0.3),
-    2px 2px 0 rgba(31, 27, 22, 0.3);
+    0 0 0 2px rgb(var(--status-ended-rgb) / 0.3),
+    2px 2px 0 rgb(var(--ink-deep-rgb) / 0.3);
 }
 
 .dot--ended::after {
@@ -658,8 +704,8 @@ const guestNames = computed(() => {
 
 .dot--upcoming {
   box-shadow:
-    0 0 0 2px rgba(77, 150, 255, 0.2),
-    2px 2px 0 rgba(31, 27, 22, 0.3);
+    0 0 0 2px rgb(var(--sky-rgb) / 0.2),
+    2px 2px 0 rgb(var(--ink-deep-rgb) / 0.3);
 }
 
 .dot--upcoming::after {
@@ -713,7 +759,7 @@ const guestNames = computed(() => {
 .event:hover .dot {
   transform: scale(1.2);
   box-shadow:
-    0 0 0 4px rgba(255, 255, 255, 1),
+    0 0 0 4px var(--surface-base),
     3px 3px 0 var(--shadow-strong);
 }
 
@@ -743,7 +789,7 @@ const guestNames = computed(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgb(var(--white-rgb) / 0.4), transparent);
   transition: left 300ms ease;
 }
 
@@ -758,7 +804,7 @@ const guestNames = computed(() => {
 
 .chip__icon {
   font-size: 13px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 1px 2px rgb(var(--ink-deep-rgb) / 0.1));
 }
 
 .chip--type {
@@ -781,8 +827,8 @@ const guestNames = computed(() => {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  border: 2px dashed rgba(90, 77, 67, 0.3);
+  background: var(--event-expand-bg);
+  border: 2px dashed rgb(var(--outline-rgb) / 0.3);
 
 }
 
@@ -793,7 +839,7 @@ const guestNames = computed(() => {
 .event:hover .event__expand-indicator {
   color: var(--ink);
   backdrop-filter: blur(4px);
-  background: rgba(255, 209, 102, 0.4);
+  background: rgb(var(--sun-rgb) / 0.4);
 }
 
 @media (max-width: 720px) {

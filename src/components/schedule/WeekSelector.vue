@@ -270,7 +270,7 @@ watch(isDropdownOpen, (open) => {
   height: 40px;
   border-radius: var(--radius-sm);
   border: 2px solid var(--outline);
-  background: linear-gradient(135deg, #fffdf4, #fff2b3);
+  background: linear-gradient(135deg, var(--surface-base), var(--surface-sun));
   color: var(--ink);
   display: flex;
   align-items: center;
@@ -281,7 +281,7 @@ watch(isDropdownOpen, (open) => {
 }
 
 .week-selector__nav:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--sun), #fff3c7);
+  background: linear-gradient(135deg, var(--sun), var(--surface-warm-soft));
   color: var(--ink);
   transform: translate(-2px, -2px) rotate(-2deg);
   box-shadow: 4px 4px 0 var(--shadow-strong);
@@ -304,7 +304,7 @@ watch(isDropdownOpen, (open) => {
   padding: 10px 16px;
   border-radius: var(--radius-md);
   border: 2px solid var(--outline);
-  background: linear-gradient(135deg, #ffffff, #fff7d6);
+  background: linear-gradient(135deg, var(--surface-base), var(--surface-warm));
   cursor: pointer;
   transition: all 200ms ease;
   box-shadow: 3px 3px 0 var(--shadow);
@@ -313,7 +313,7 @@ watch(isDropdownOpen, (open) => {
 }
 
 .week-selector__current:hover {
-  background: linear-gradient(135deg, #fff, #ffe3f2);
+  background: linear-gradient(135deg, var(--surface-base), var(--surface-rose-soft));
   transform: translate(-2px, -2px);
   box-shadow: 4px 4px 0 var(--shadow-strong);
 }
@@ -358,12 +358,12 @@ watch(isDropdownOpen, (open) => {
 
 .week-selector__dropdown {
   position: fixed;
-  background: #ffffff;
+  background: var(--surface-base);
   border: 2px solid var(--outline);
   border-radius: var(--radius-md);
   box-shadow:
     6px 6px 0 var(--shadow-strong),
-    0 12px 28px rgba(31, 27, 22, 0.2);
+    0 12px 28px rgb(var(--ink-deep-rgb) / 0.2);
   z-index: 999;
   overflow: hidden;
   animation: dropdown-appear 220ms ease-out;
@@ -383,8 +383,8 @@ watch(isDropdownOpen, (open) => {
 
 .week-selector__dropdown-header {
   padding: 12px 16px;
-  background: linear-gradient(135deg, #fff5c2, #ffe3f2);
-  border-bottom: 2px dashed rgba(90, 77, 67, 0.35);
+  background: linear-gradient(135deg, var(--surface-sunlight), var(--surface-rose-soft));
+  border-bottom: 2px dashed rgb(var(--outline-rgb) / 0.35);
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
@@ -398,7 +398,7 @@ watch(isDropdownOpen, (open) => {
   overflow-y: auto;
   padding: 4px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(90, 77, 67, 0.6) rgba(255, 255, 255, 0.6);
+  scrollbar-color: rgb(var(--outline-rgb) / 0.6) var(--glass-60);
 }
 
 .week-selector__dropdown-list::-webkit-scrollbar {
@@ -406,16 +406,16 @@ watch(isDropdownOpen, (open) => {
 }
 
 .week-selector__dropdown-list::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #ffe3f2, #fff2b3);
+  background: linear-gradient(180deg, var(--surface-rose-soft), var(--surface-sun));
   border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: inset 0 0 0 1px rgba(90, 77, 67, 0.35);
+  border: 2px solid var(--glass-80);
+  box-shadow: inset 0 0 0 1px rgb(var(--outline-rgb) / 0.35);
 }
 
 .week-selector__dropdown-list::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--glass-65);
   border-radius: 999px;
-  border: 1px dashed rgba(90, 77, 67, 0.2);
+  border: 1px dashed rgb(var(--outline-rgb) / 0.2);
 }
 
 .week-selector__dropdown-item {
@@ -437,20 +437,20 @@ watch(isDropdownOpen, (open) => {
 }
 
 .week-selector__dropdown-item:hover {
-  background: linear-gradient(135deg, #fff7d6, #ffffff);
+  background: linear-gradient(135deg, var(--surface-warm), var(--surface-base));
   border-color: var(--outline);
   transform: translateX(2px);
 }
 
 .week-selector__dropdown-item--active {
-  background: linear-gradient(135deg, #ffe3f2, #fff7d6);
+  background: linear-gradient(135deg, var(--surface-rose-soft), var(--surface-warm));
   color: var(--ink);
   font-weight: 800;
   border-color: var(--outline);
 }
 
 .week-selector__dropdown-item--active:hover {
-  background: linear-gradient(135deg, #ffd1ef, #fff2b3);
+  background: linear-gradient(135deg, var(--surface-rose), var(--surface-sun));
 }
 
 .week-selector__dropdown-item-label {

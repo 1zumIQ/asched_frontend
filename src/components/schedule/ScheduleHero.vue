@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
+import type { TagType, TagMeta, MemberTag, TypeTag, ThemeName } from '@/types/ui'
 import type { IsoWeek } from '@/utils/isoWeek'
 import WeekSelector from './WeekSelector.vue'
 import TagFilter from './TagFilter.vue'
+import ThemeToggle from './ThemeToggle.vue'
 
 const props = defineProps<{
   currentWeek: IsoWeek
@@ -14,12 +15,14 @@ const props = defineProps<{
   typeTags: TypeTag[]
   tagCounts: Record<TagType, number>
   selectedTags: TagType[]
+  theme: ThemeName
   isLoading?: boolean
 }>()
 
 const emit = defineEmits<{
   'update:currentWeek': [week: IsoWeek]
   'update:selectedTags': [tags: TagType[]]
+  'update:theme': [theme: ThemeName]
 }>()
 
 const updateCurrentWeek = (week: IsoWeek) => {
@@ -28,6 +31,10 @@ const updateCurrentWeek = (week: IsoWeek) => {
 
 const updateSelectedTags = (tags: TagType[]) => {
   emit('update:selectedTags', tags)
+}
+
+const updateTheme = (value: ThemeName) => {
+  emit('update:theme', value)
 }
 </script>
 
@@ -54,6 +61,10 @@ const updateSelectedTags = (tags: TagType[]) => {
           @update:current-week="updateCurrentWeek"
         />
       </div>
+
+      <div class="hero__actions">
+        <ThemeToggle :theme="theme" @update:theme="updateTheme" />
+      </div>
     </div>
 
     <!-- 标签筛选器 -->
@@ -75,13 +86,18 @@ const updateSelectedTags = (tags: TagType[]) => {
   gap: 20px;
   align-items: center;
   background:
-    linear-gradient(135deg, #fff4b8 0%, #ffd1ef 45%, #b9f3ff 100%);
+    linear-gradient(
+      135deg,
+      var(--surface-warm-strong) 0%,
+      var(--surface-rose) 45%,
+      var(--page-bg-cool) 100%
+    );
   border: 2px solid var(--outline);
   border-radius: var(--radius-xl);
   padding: 22px;
   box-shadow:
     6px 6px 0 var(--shadow-strong),
-    0 18px 36px rgba(31, 27, 22, 0.18);
+    0 18px 36px rgb(var(--ink-deep-rgb) / 0.18);
   position: relative;
   overflow: visible;
   animation: hero-pop 600ms ease-out;
@@ -99,9 +115,9 @@ const updateSelectedTags = (tags: TagType[]) => {
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.6) 0%, transparent 35%),
-    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.5) 0%, transparent 30%),
-    radial-gradient(circle at 10% 80%, rgba(6, 214, 160, 0.2) 0%, transparent 40%);
+    radial-gradient(circle at 20% 20%, var(--glass-60) 0%, transparent 35%),
+    radial-gradient(circle at 80% 10%, var(--glass-60) 0%, transparent 30%),
+    radial-gradient(circle at 10% 80%, rgb(var(--mint-rgb) / 0.2) 0%, transparent 40%);
   opacity: 0.7;
   pointer-events: none;
 }
@@ -114,8 +130,8 @@ const updateSelectedTags = (tags: TagType[]) => {
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  border: 3px dashed rgba(31, 27, 22, 0.35);
-  background: rgba(255, 255, 255, 0.35);
+  border: 3px dashed rgb(var(--ink-deep-rgb) / 0.35);
+  background: rgb(var(--white-rgb) / 0.35);
   transform: rotate(-8deg);
   pointer-events: none;
 }
@@ -158,7 +174,7 @@ const updateSelectedTags = (tags: TagType[]) => {
   height: 14px;
   border-radius: 999px;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.7), rgba(255, 209, 102, 0.6));
+    linear-gradient(90deg, var(--glass-70), rgb(var(--sun-rgb) / 0.6));
   filter: blur(0.5px);
   opacity: 0.8;
   transform: rotate(-1.5deg);
@@ -176,12 +192,12 @@ const updateSelectedTags = (tags: TagType[]) => {
   background:
     repeating-linear-gradient(
       90deg,
-      rgba(255, 107, 107, 0.65) 0 16px,
-      rgba(255, 209, 102, 0.65) 16px 32px,
-      rgba(6, 214, 160, 0.65) 32px 48px,
-      rgba(77, 150, 255, 0.65) 48px 64px
+      rgb(var(--coral-rgb) / 0.65) 0 16px,
+      rgb(var(--sun-rgb) / 0.65) 16px 32px,
+      rgb(var(--mint-rgb) / 0.65) 32px 48px,
+      rgb(var(--sky-rgb) / 0.65) 48px 64px
     );
-  box-shadow: 2px 2px 0 rgba(31, 27, 22, 0.2);
+  box-shadow: 2px 2px 0 rgb(var(--ink-deep-rgb) / 0.2);
   transform: rotate(-0.8deg);
   animation: underline-wiggle 4.6s ease-in-out infinite;
 }
@@ -200,7 +216,7 @@ const updateSelectedTags = (tags: TagType[]) => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 3px 3px 0 rgba(31, 27, 22, 0.12);
+  text-shadow: 3px 3px 0 rgb(var(--ink-deep-rgb) / 0.12);
   animation: title-gradient 6s ease-in-out infinite;
 }
 
@@ -214,7 +230,7 @@ const updateSelectedTags = (tags: TagType[]) => {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #fff7d6, #ffe3f2);
+  background: linear-gradient(135deg, var(--surface-warm), var(--surface-rose-soft));
   border: 2px solid var(--outline);
   box-shadow: 2px 2px 0 var(--shadow);
   font-size: 14px;
@@ -264,6 +280,11 @@ const updateSelectedTags = (tags: TagType[]) => {
   margin: 16px 0;
 }
 
+.hero__actions {
+  margin-top: 12px;
+  max-width: 320px;
+}
+
 .hero__stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -275,7 +296,7 @@ const updateSelectedTags = (tags: TagType[]) => {
   padding: 14px 16px;
   border: 2px solid var(--outline);
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--glass-85);
   box-shadow: 2px 2px 0 var(--shadow);
 }
 
@@ -317,7 +338,7 @@ const updateSelectedTags = (tags: TagType[]) => {
   padding: 4px 10px;
   border-radius: 999px;
   border: 2px solid var(--outline);
-  background: #fff;
+  background: var(--surface-base);
   color: var(--ink);
   font-size: 11px;
   font-weight: 700;

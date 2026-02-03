@@ -132,10 +132,10 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   border-radius: var(--radius-lg);
   padding: 16px;
   background:
-    linear-gradient(135deg, #ffffff 0%, #fff7d6 100%);
+    linear-gradient(135deg, var(--surface-base) 0%, var(--surface-warm) 100%);
   box-shadow:
     4px 4px 0 var(--shadow-strong),
-    0 14px 24px rgba(31, 27, 22, 0.14);
+    0 14px 24px rgb(var(--ink-deep-rgb) / 0.14);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -146,15 +146,15 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
 .tag-filter--active {
   border-color: transparent;
   background:
-    linear-gradient(135deg, #ffffff 0%, #fff7d6 100%) padding-box,
+    linear-gradient(135deg, var(--surface-base) 0%, var(--surface-warm) 100%) padding-box,
     linear-gradient(
       90deg,
-      #ff6b6b 0%,
-      #ffd93d 20%,
-      #6bcb77 40%,
-      #4d96ff 60%,
-      #845ef7 80%,
-      #ff6b6b 100%
+      var(--rainbow-1) 0%,
+      var(--rainbow-2) 20%,
+      var(--rainbow-3) 40%,
+      var(--rainbow-4) 60%,
+      var(--rainbow-5) 80%,
+      var(--rainbow-1) 100%
     ) border-box;
 }
 
@@ -163,8 +163,8 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.7) 0%, transparent 45%),
-    radial-gradient(circle at 90% 10%, rgba(255, 209, 102, 0.3) 0%, transparent 40%);
+    radial-gradient(circle at 10% 20%, var(--glass-70) 0%, transparent 45%),
+    radial-gradient(circle at 90% 10%, rgb(var(--sun-rgb) / 0.3) 0%, transparent 40%);
   opacity: 0.7;
   pointer-events: none;
 }
@@ -191,7 +191,7 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   padding: 4px 12px;
   border-radius: 999px;
   border: 2px solid var(--outline);
-  background: #fff;
+  background: var(--surface-base);
   color: var(--ink);
   font-size: 11px;
   font-weight: 700;
@@ -205,7 +205,7 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
 .tag-filter__clear:hover {
   background: var(--coral);
   border-color: var(--outline);
-  color: #fff;
+  color: var(--text-on-accent);
   transform: translate(-1px, -1px) rotate(-2deg);
 }
 
@@ -253,7 +253,7 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   font-size: 12px;
   font-weight: 700;
   border: 2px solid var(--outline);
-  background: var(--tag-tint, #fff7d6);
+  background: var(--tag-tint, var(--surface-warm));
   color: var(--tag-color, var(--ink));
   cursor: pointer;
   transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -271,7 +271,7 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65), transparent 60%);
+  background: linear-gradient(135deg, var(--glass-65), transparent 60%);
   opacity: 0.6;
   transition: opacity 200ms ease;
 }
@@ -286,7 +286,7 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
 }
 
 .tag-chip--selected {
-  background: var(--tag-tint, #fff7d6);
+  background: var(--tag-tint, var(--surface-warm));
   border-color: var(--tag-color, var(--outline));
   color: var(--tag-color, var(--ink));
   font-weight: 800;
@@ -311,7 +311,7 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 0 0 2px #ffffff, 2px 2px 0 rgba(31, 27, 22, 0.4);
+  box-shadow: 0 0 0 2px var(--surface-base), 2px 2px 0 rgb(var(--ink-deep-rgb) / 0.4);
   position: relative;
   z-index: 1;
 }
@@ -330,19 +330,19 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   padding: 1px 6px;
   border-radius: 999px;
   background: var(--outline);
-  color: #fff;
+  color: var(--text-on-accent);
   font-size: 10px;
   font-weight: 800;
   flex-shrink: 0;
   position: relative;
   z-index: 1;
   transition: all 200ms ease;
-  box-shadow: 2px 2px 0 rgba(47, 39, 33, 0.3);
+  box-shadow: 2px 2px 0 rgb(var(--ink-rgb) / 0.3);
 }
 
 .tag-chip--selected .tag-chip__count {
   background: var(--tag-color, var(--ink));
-  color: #fff;
+  color: var(--text-on-accent);
 }
 
 /* 响应式 */

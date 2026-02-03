@@ -173,8 +173,8 @@ onUnmounted(() => {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 3px dashed rgba(31, 27, 22, 0.25);
-  background: rgba(255, 255, 255, 0.4);
+  border: 3px dashed rgb(var(--ink-deep-rgb) / 0.25);
+  background: rgb(var(--white-rgb) / 0.4);
   transform: rotate(12deg);
   pointer-events: none;
   z-index: 0;
@@ -298,7 +298,7 @@ onUnmounted(() => {
   height: 48px;
   border-radius: 50%;
   border: 2px solid var(--outline);
-  background: linear-gradient(135deg, #fff7d6 0%, #ffd1ef 100%);
+  background: linear-gradient(135deg, var(--surface-warm) 0%, var(--surface-rose) 100%);
   color: var(--ink);
   display: flex;
   align-items: center;
@@ -307,17 +307,17 @@ onUnmounted(() => {
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow:
     4px 4px 0 var(--shadow-strong),
-    0 12px 18px rgba(31, 27, 22, 0.18);
+    0 12px 18px rgb(var(--ink-deep-rgb) / 0.18);
 }
 
 .scroll-button:hover {
   background: linear-gradient(135deg, var(--sun) 0%, var(--coral) 100%);
-  color: #fff;
+  color: var(--text-on-accent);
   border-color: var(--outline);
   transform: translate(-2px, -50%) scale(1.05) rotate(-2deg);
   box-shadow:
     6px 6px 0 var(--shadow-strong),
-    0 16px 24px rgba(31, 27, 22, 0.22);
+    0 16px 24px rgb(var(--ink-deep-rgb) / 0.22);
 }
 
 .scroll-button:active {

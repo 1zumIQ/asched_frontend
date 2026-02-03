@@ -49,7 +49,7 @@ defineProps<{
   padding: 16px 18px;
   border-radius: var(--radius-lg);
   border: 2px solid var(--outline);
-  background: linear-gradient(135deg, #ffffff, #fff7d6);
+  background: linear-gradient(135deg, var(--surface-base), var(--surface-warm));
   box-shadow: 3px 3px 0 var(--shadow);
 }
 
@@ -77,7 +77,7 @@ defineProps<{
   padding: 3px 8px;
   border-radius: 999px;
   border: 2px solid var(--outline);
-  background: #fff;
+  background: var(--surface-base);
   color: var(--ink);
   font-size: 11px;
   font-weight: 700;
@@ -88,19 +88,19 @@ defineProps<{
 
 .pill--light {
   color: var(--ink);
-  background: linear-gradient(135deg, #dff1ff, #ffffff);
+  background: linear-gradient(135deg, var(--surface-cool), var(--surface-base));
   border: 2px solid var(--outline);
 }
 
 .pill--steady {
   color: var(--ink);
-  background: linear-gradient(135deg, #ffe3f2, #ffffff);
+  background: linear-gradient(135deg, var(--surface-rose-soft), var(--surface-base));
   border: 2px solid var(--outline);
 }
 
 .pill--intense {
   color: var(--ink);
-  background: linear-gradient(135deg, #ffd1ef, #ffffff);
+  background: linear-gradient(135deg, var(--surface-rose), var(--surface-base));
   border: 2px solid var(--outline);
 }
 
@@ -113,7 +113,7 @@ defineProps<{
   font-size: 13px;
   font-weight: 700;
   border: 2px solid var(--outline);
-  background: #fff;
+  background: var(--surface-base);
   color: var(--ink);
   box-shadow: 2px 2px 0 var(--shadow);
 }
