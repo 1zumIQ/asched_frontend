@@ -9,9 +9,9 @@ import {
   type ApiLiveTagMeta,
   type ApiVup,
   type ApiVupMeta,
-} from '@/data/schedule'
+} from '@/api/schedule'
 import type { MemberTag, TagMeta, TagType, TypeTag } from '@/types/ui'
-import { toMemberTag, toTypeTag } from '@/data/tagKeys'
+import { toMemberTag, toTypeTag } from '@/domain/tagKeys'
 
 const memberPalette = [
   { color: '#ff6b6b', tint: '#ffe5e5' },

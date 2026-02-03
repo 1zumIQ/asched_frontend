@@ -1,5 +1,5 @@
 import type { components } from '@/types/schema'
-import { apiClient } from './apiClient'
+import { apiClient } from './client'
 
 export type ApiLiveRecord = components['schemas']['LiveRecordDto']
 export type ApiIsoWeek = components['schemas']['IsoWeekTz']

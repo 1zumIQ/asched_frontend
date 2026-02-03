@@ -1,4 +1,4 @@
-import type { ApiLiveRecord } from '@/data/schedule'
+import type { ApiLiveRecord } from '@/api/schedule'
 import type { MemberTag, TagType, TypeTag } from '@/types/ui'
 import { toMemberTag, toTypeTag } from './tagKeys'
 

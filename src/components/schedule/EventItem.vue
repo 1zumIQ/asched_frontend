@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { TagType, TagMeta, TypeTag } from '@/types/ui'
-import type { LiveRecordView } from '@/data/records'
+import type { LiveRecordView } from '@/domain/records'
 
 const props = defineProps<{
   event: LiveRecordView

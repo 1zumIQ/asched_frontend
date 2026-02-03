@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import type { IsoWeek } from '@/data/utils/isoWeek'
-import { compareIsoWeeks, formatIsoWeekLabel, getIsoWeekKey, getIsoWeekRangeLabel, getIsoWeekStartDate } from '@/data/utils/isoWeek'
-import type { ApiLiveRecord } from '@/data/schedule'
-import { getRecordMemberTags, getRecordStartDate, isSameDay } from '@/data/records'
+import type { IsoWeek } from '@/utils/isoWeek'
+import { compareIsoWeeks, formatIsoWeekLabel, getIsoWeekKey, getIsoWeekRangeLabel, getIsoWeekStartDate } from '@/utils/isoWeek'
+import type { ApiLiveRecord } from '@/api/schedule'
+import { getRecordMemberTags, getRecordStartDate, isSameDay } from '@/domain/records'
 import type { TagType, TagMeta, MemberTag } from '@/types/ui'
-import { getLiveRecordsByWeek } from '@/data/schedule'
+import { getLiveRecordsByWeek } from '@/api/schedule'
 import WeekDaySwatch from './WeekDaySwatch.vue'
 
 const props = defineProps<{

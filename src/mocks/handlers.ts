@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import { mockLiveRecords, mockLiveTagMeta, mockLiveTags, mockVupMeta, mockVups } from '@/data/mock/scheduleData'
-import { getIsoWeekFromDate, getIsoWeekKey } from '@/data/utils/isoWeek'
+import { mockLiveRecords, mockLiveTagMeta, mockLiveTags, mockVupMeta, mockVups } from '@/mocks/data/scheduleData'
+import { getIsoWeekFromDate, getIsoWeekKey } from '@/utils/isoWeek'
 
 export const handlers = [
   http.get('/api/v1/vup', async () => {

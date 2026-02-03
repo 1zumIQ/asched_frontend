@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
-import type { IsoWeek } from '@/data/utils/isoWeek'
+import type { IsoWeek } from '@/utils/isoWeek'
 import WeekSelector from './WeekSelector.vue'
 import TagFilter from './TagFilter.vue'
 

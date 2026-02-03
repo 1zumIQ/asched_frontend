@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import type { DayCard, TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
-import type { LiveRecordView } from '@/data/records'
+import type { LiveRecordView } from '@/domain/records'
 import DayCardComponent from './DayCard.vue'
 
 defineProps<{
