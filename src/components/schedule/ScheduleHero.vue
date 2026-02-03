@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
-import type { MemberIndex } from '@/data/utils/memberMap'
 import type { IsoWeek } from '@/data/utils/isoWeek'
 import WeekSelector from './WeekSelector.vue'
 import TagFilter from './TagFilter.vue'
@@ -16,7 +15,6 @@ const props = defineProps<{
   tagCounts: Record<TagType, number>
   selectedTags: TagType[]
   isLoading?: boolean
-  memberIndex?: MemberIndex | null
 }>()
 
 const emit = defineEmits<{
@@ -53,7 +51,6 @@ const updateSelectedTags = (tags: TagType[]) => {
           :available-weeks="availableWeeks"
           :tag-meta="tagMeta"
           :member-tags="memberTags"
-          :member-index="memberIndex"
           @update:current-week="updateCurrentWeek"
         />
       </div>

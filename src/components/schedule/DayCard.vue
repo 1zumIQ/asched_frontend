@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { DayCard, TagType, TagMeta, ScheduleEvent, MemberTag, TypeTag } from '@/types/ui'
+import type { DayCard, TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
+import type { LiveRecordView } from '@/data/records'
 import EventItem from './EventItem.vue'
 
 const props = defineProps<{
-  day: DayCard
+  day: DayCard<LiveRecordView>
   tagMeta: Record<TagType, TagMeta>
   memberTags: MemberTag[]
   typeTags: TypeTag[]
@@ -40,9 +41,8 @@ const toggleModal = () => {
   }
 }
 
-const getStartHour = (event: ScheduleEvent): number => {
-  const match = event.time.match(/^(\d{1,2}):/)
-  return match && match[1] ? parseInt(match[1], 10) : 0
+const getStartHour = (event: LiveRecordView): number => {
+  return event.startDate.getHours()
 }
 
 const morningEvents = computed(() =>
@@ -60,7 +60,7 @@ const totalEvents = computed(() => props.day.events.length)
 const memberStats = computed(() => {
   const stats: Record<string, number> = {}
   props.day.events.forEach(event => {
-    event.tags.forEach(tag => {
+    event.memberTags.forEach(tag => {
       if (props.memberTags.includes(tag as MemberTag)) {
         stats[tag] = (stats[tag] || 0) + 1
       }
@@ -135,10 +135,9 @@ const eventDensity = computed(() => {
           <div v-if="morningEvents.length > 0" class="stack">
             <EventItem
               v-for="event in morningEvents"
-              :key="event.title"
+              :key="event.record.id"
               :event="event"
               :tag-meta="tagMeta"
-              :member-tags="memberTags"
               :type-tags="typeTags"
             />
           </div>
@@ -168,10 +167,9 @@ const eventDensity = computed(() => {
           <div v-if="afternoonEvents.length > 0" class="stack">
             <EventItem
               v-for="event in afternoonEvents"
-              :key="event.title"
+              :key="event.record.id"
               :event="event"
               :tag-meta="tagMeta"
-              :member-tags="memberTags"
               :type-tags="typeTags"
             />
           </div>
@@ -249,10 +247,9 @@ const eventDensity = computed(() => {
               <div v-if="morningEvents.length > 0" class="stack">
                 <EventItem
                   v-for="event in morningEvents"
-                  :key="event.title"
+                  :key="event.record.id"
                   :event="event"
                   :tag-meta="tagMeta"
-                  :member-tags="memberTags"
                   :type-tags="typeTags"
                 />
               </div>
@@ -280,10 +277,9 @@ const eventDensity = computed(() => {
               <div v-if="afternoonEvents.length > 0" class="stack">
                 <EventItem
                   v-for="event in afternoonEvents"
-                  :key="event.title"
+                  :key="event.record.id"
                   :event="event"
                   :tag-meta="tagMeta"
-                  :member-tags="memberTags"
                   :type-tags="typeTags"
                 />
               </div>

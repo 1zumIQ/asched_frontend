@@ -1,9 +1,9 @@
 import type { components } from '@/types/schema'
 import type { LiveStatus, LiveType } from '@/types/ui'
-import { buildMemberIndex, resolveMemberMid } from '@/data/utils/memberMap'
 
 type ApiLiveRecord = components['schemas']['LiveRecordDto']
-type ApiUser = components['schemas']['VupDto']
+type ApiVup = components['schemas']['VupDto']
+type ApiVupMeta = components['schemas']['VupMetaDto']
 type ApiLiveTag = components['schemas']['LiveTagDto']
 type ApiLiveTagMeta = components['schemas']['LiveTagMetaDto']
 
@@ -17,7 +17,7 @@ type RecordInput = {
   guests?: string[]
 }
 
-export const mockUsers: ApiUser[] = [
+export const mockVups: ApiVup[] = [
   {
     mid: 10001,
     name: '思诺',
@@ -92,6 +92,17 @@ export const mockUsers: ApiUser[] = [
   },
 ]
 
+export const mockVupMeta: ApiVupMeta[] = [
+  { mid: 10001, color: '#ff6b6b', config_version: 1 },
+  { mid: 10002, color: '#4d96ff', config_version: 1 },
+  { mid: 10003, color: '#06d6a0', config_version: 1 },
+  { mid: 10004, color: '#ffd166', config_version: 1 },
+  { mid: 10005, color: '#ff4fa3', config_version: 1 },
+  { mid: 10006, color: '#9ee65c', config_version: 1 },
+  { mid: 10007, color: '#845ef7', config_version: 1 },
+  { mid: 10008, color: '#f59e0b', config_version: 1 },
+]
+
 export const mockLiveTags: ApiLiveTag[] = [
   { tag_id: 1, name: '日常', sort_order: 1, is_active: true },
   { tag_id: 2, name: '节目', sort_order: 2, is_active: true },
@@ -99,13 +110,12 @@ export const mockLiveTags: ApiLiveTag[] = [
 ]
 
 export const mockLiveTagMeta: ApiLiveTagMeta[] = [
-  { tag_id: 1, color: '#4d96ff', icon: '🌤️', meta: {} },
-  { tag_id: 2, color: '#ff6b6b', icon: '🎭', meta: {} },
-  { tag_id: 3, color: '#06d6a0', icon: '✨', meta: {} },
+  { tag_id: 1, color: '#4d96ff', icon: '🌤️', config_version: 1 },
+  { tag_id: 2, color: '#ff6b6b', icon: '🎭', config_version: 1 },
+  { tag_id: 3, color: '#06d6a0', icon: '✨', config_version: 1 },
 ]
 
-const mockMemberIndex = buildMemberIndex(mockUsers)
-
+const mockVupByName = new Map(mockVups.map(user => [user.name, user.mid]))
 let recordCounter = 1
 
 function toIso([year, month, day, hour, minute]: [number, number, number, number, number]): string {
@@ -113,7 +123,7 @@ function toIso([year, month, day, hour, minute]: [number, number, number, number
 }
 
 function requireMid(name: string): number {
-  const mid = resolveMemberMid(name, mockMemberIndex)
+  const mid = mockVupByName.get(name)
   if (mid == null) {
     throw new Error(`Missing mock user for ${name}`)
   }

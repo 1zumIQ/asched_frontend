@@ -1,35 +1,34 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { ScheduleEvent, TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
+import type { TagType, TagMeta, TypeTag } from '@/types/ui'
+import type { LiveRecordView } from '@/data/records'
 
 const props = defineProps<{
-  event: ScheduleEvent
+  event: LiveRecordView
   tagMeta: Record<TagType, TagMeta>
-  memberTags: MemberTag[]
   typeTags: TypeTag[]
 }>()
 
 const isExpanded = ref(false)
 
 const avatarInitials = computed(() => {
-  const words = props.event.title.split(' ')
+  const words = props.event.record.title.split(' ')
   if (words.length >= 2 && words[0] && words[1] && words[0][0] && words[1][0]) {
     return (words[0][0] + words[1][0]).toUpperCase()
   }
-  return props.event.title.slice(0, 2).toUpperCase()
+  return props.event.record.title.slice(0, 2).toUpperCase()
 })
 
 // 获取主分类标签（第一个成员标签）
 const primaryTag = computed<TagType>(() => {
-  const found = props.event.tags.find((t) => props.memberTags.includes(t as MemberTag))
-  if (found) return found
-  if (props.event.tags[0]) return props.event.tags[0]
-  return props.event.name as TagType
+  if (props.event.memberTags[0]) return props.event.memberTags[0]
+  if (props.event.typeTag) return props.event.typeTag
+  return props.event.tagKeys[0] ?? props.event.memberTags[0]
 })
 
 // 获取类型标签
 const typeTag = computed(() => {
-  return props.event.tags.find((t) => props.typeTags.includes(t as TypeTag))
+  return props.event.typeTag
 })
 
 const typeIcon = computed(() => {
@@ -39,7 +38,7 @@ const typeIcon = computed(() => {
 
 // 使用后端提供的状态
 const eventStatus = computed(() => {
-  switch (props.event.status) {
+  switch (props.event.record.status) {
     case 0: return 'ongoing' // 直播中
     case 1: return 'ended' // 已结束
     case 2: return 'interrupted' // 中断
@@ -57,7 +56,7 @@ const dotStatus = computed(() => {
 
 // 获取状态标签
 const statusLabel = computed(() => {
-  switch (props.event.status) {
+  switch (props.event.record.status) {
     case 0: return '直播中'
     case 1: return '已结束'
     case 2: return '中断'
@@ -69,7 +68,7 @@ const statusLabel = computed(() => {
 
 // 获取状态颜色
 const statusColor = computed(() => {
-  switch (props.event.status) {
+  switch (props.event.record.status) {
     case 0: return '#10b981' // 直播中 - 绿色
     case 1: return '#94a3b8' // 已结束 - 灰色
     case 2: return '#ef4444' // 中断 - 红色
@@ -87,11 +86,11 @@ const formatIsoTime = (value: string) => {
 
 // 计算进度（如果正在进行中且有结束时间）
 const progress = computed(() => {
-  if (props.event.status !== 0 || !props.event.endTime) return 0
+  if (props.event.record.status !== 0 || !props.event.record.end_time) return 0
 
   const now = new Date()
-  const startDate = new Date(props.event.startTime)
-  const endDate = new Date(props.event.endTime)
+  const startDate = new Date(props.event.record.start_time)
+  const endDate = new Date(props.event.record.end_time)
   if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return 0
 
   const duration = endDate.getTime() - startDate.getTime()
@@ -102,11 +101,17 @@ const progress = computed(() => {
 
 // 持续时间显示
 const durationText = computed(() => {
-  if (props.event.endTime) {
-    const endTime = formatIsoTime(props.event.endTime)
-    return `${props.event.time} - ${endTime}`
+  if (props.event.record.end_time) {
+    const endTime = formatIsoTime(props.event.record.end_time)
+    return `${props.event.timeLabel} - ${endTime}`
   }
-  return `${props.event.time} (预计2小时)`
+  return `${props.event.timeLabel} (预计2小时)`
+})
+
+const guestNames = computed(() => {
+  return props.event.memberTags
+    .slice(1)
+    .map(tag => props.tagMeta[tag]?.label ?? tag)
 })
 </script>
 
@@ -130,7 +135,7 @@ const durationText = computed(() => {
     <div class="event__content">
       <div class="event__left">
         <div class="event__time-wrapper">
-          <div class="event__time">{{ event.time }}</div>
+          <div class="event__time">{{ event.timeLabel }}</div>
           <!-- 状态指示器移到时间旁边 -->
           <div v-if="statusLabel" class="event__status" :style="{
             backgroundColor: statusColor,
@@ -149,11 +154,7 @@ const durationText = computed(() => {
               :style="{ backgroundColor: tagMeta[primaryTag].color, color: statusColor }"
             ></span>
             <div class="event__title-content">
-              <div class="event__name">{{ event.title }}</div>
-              <div class="event__meta">
-                <span v-if="event.location">{{ event.location }}</span>
-                <span v-if="event.note"> · {{ event.note }}</span>
-              </div>
+              <div class="event__name">{{ event.record.title }}</div>
 
             </div>
           </div>
@@ -172,14 +173,14 @@ const durationText = computed(() => {
     </div>
 
     <!-- 展开时显示嘉宾信息 -->
-    <div v-if="isExpanded && event.guests && event.guests.length > 0" class="event__guests">
+    <div v-if="isExpanded && guestNames.length > 0" class="event__guests">
       <span class="event__guests-label">👥 嘉宾：</span>
-      <span class="event__guests-list">{{ event.guests.join('、') }}</span>
+      <span class="event__guests-list">{{ guestNames.join('、') }}</span>
     </div>
 
     <!-- 标签独立成行，占满整个宽度 -->
     <div class="event__tags">
-      <span v-for="tag in event.tags" :key="tag" class="chip" :class="{ 'chip--type': props.typeTags.includes(tag as any) }"
+      <span v-for="tag in event.tagKeys" :key="tag" class="chip" :class="{ 'chip--type': props.typeTags.includes(tag as TypeTag) }"
         :style="{
           borderColor: tagMeta[tag].color,
           color: tagMeta[tag].color,

@@ -2,19 +2,17 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import type { IsoWeek } from '@/data/utils/isoWeek'
 import { compareIsoWeeks, formatIsoWeekLabel, getIsoWeekKey, getIsoWeekRangeLabel, getIsoWeekStartDate } from '@/data/utils/isoWeek'
-import type { ApiLiveRecord } from '@/data/utils/liveRecord'
-import { getRecordMemberTags, getRecordStartDate, isSameDay } from '@/data/utils/liveRecord'
+import type { ApiLiveRecord } from '@/data/schedule'
+import { getRecordMemberTags, getRecordStartDate, isSameDay } from '@/data/records'
 import type { TagType, TagMeta, MemberTag } from '@/types/ui'
-import { getWeeklyPlanByWeek } from '@/data/schedule'
+import { getLiveRecordsByWeek } from '@/data/schedule'
 import WeekDaySwatch from './WeekDaySwatch.vue'
-import type { MemberIndex } from '@/data/utils/memberMap'
 
 const props = defineProps<{
   currentWeek: IsoWeek
   availableWeeks: IsoWeek[]
   tagMeta: Record<TagType, TagMeta>
   memberTags: MemberTag[]
-  memberIndex?: MemberIndex | null
 }>()
 
 const emit = defineEmits<{
@@ -105,7 +103,7 @@ const buildWeekPreview = (week: IsoWeek, records: ApiLiveRecord[]) => {
     records.forEach((record) => {
       const startDate = getRecordStartDate(record)
       if (!startDate || !isSameDay(startDate, date)) return
-      getRecordMemberTags(record, props.memberIndex ?? undefined).forEach((tag) => {
+      getRecordMemberTags(record).forEach((tag) => {
         if (props.memberTags.includes(tag)) {
           memberSet.add(tag)
         }
@@ -141,7 +139,7 @@ const loadWeekPreviews = async () => {
     await Promise.all(
       missing.map(async (week) => {
         try {
-          const records = await getWeeklyPlanByWeek(week)
+          const records = await getLiveRecordsByWeek(week)
           weekPreviews.value[getIsoWeekKey(week)] = buildWeekPreview(week, records)
         } catch (error) {
           console.error('Failed to load week preview:', error)

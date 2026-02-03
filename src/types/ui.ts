@@ -1,43 +1,19 @@
 // UI related types (dynamic, derived from API data)
-export type MemberTag = string
-export type TypeTag = string
-export type TagType = string
-export type LiveType = number
+export type MemberId = number
+export type LiveTypeId = number
+
+export type MemberTag = `member:${MemberId}`
+export type TypeTag = `type:${LiveTypeId}`
+export type TagType = MemberTag | TypeTag
+
+export type LiveType = LiveTypeId
 export type LiveStatus = number
 
-export type LiveTypeMetadata = {
-  id: LiveType
-  name: string
-  icon?: string
-  color?: string
-  description?: string
-}
-
-export type LiveRecordItem = {
-  name: string
-  title: string
-  guests: string[]
-  type: LiveType
-  start_time: string
-  end_time?: string
-  status: LiveStatus
-}
-
-export type ScheduleEvent = {
-  time: string
-  title: string
-  location?: string
-  note?: string
-  tags: TagType[]
-  name: string
-  guests: string[]
-  liveType: LiveType
-  startTime: string
-  endTime?: string
-  status: LiveStatus
-}
+export type TagKind = 'member' | 'type'
 
 export type TagMeta = {
+  id: number
+  kind: TagKind
   label: string
   color: string
   tint: string
@@ -45,10 +21,10 @@ export type TagMeta = {
   icon?: string
 }
 
-export type DayCard = {
+export type DayCard<TEvent = unknown> = {
   longName: string
   shortName: string
   numeric: string
   isToday: boolean
-  events: ScheduleEvent[]
+  events: TEvent[]
 }

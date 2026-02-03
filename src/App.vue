@@ -1,26 +1,23 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import type { DayCard, MemberTag, TagMeta, TagType, TypeTag } from '@/types/ui'
-import { getAvailableWeeks, getLiveTagMeta, getLiveTags, getUsers, getWeeklyPlanByWeek } from '@/data/schedule'
-import type { ApiLiveRecord, LiveTypeTagMap, ScheduleEventWithDate } from '@/data/utils/liveRecord'
-import { isSameDay, toScheduleEvent } from '@/data/utils/liveRecord'
+import { storeToRefs } from 'pinia'
+import type { DayCard, TagMeta, TagType, TypeTag } from '@/types/ui'
+import { getAvailableWeeks, getLiveRecordsByWeek } from '@/data/schedule'
+import type { ApiLiveRecord } from '@/data/schedule'
+import { buildLiveRecordView, isSameDay, type LiveRecordView } from '@/data/records'
 import type { IsoWeek } from '@/data/utils/isoWeek'
 import { getCurrentIsoWeek, getIsoWeekRangeLabel, getIsoWeekStartDate } from '@/data/utils/isoWeek'
 import { ScheduleHero, WeekGrid } from '@/components/schedule'
-import type { MemberIndex } from '@/data/utils/memberMap'
-import { buildMemberIndex } from '@/data/utils/memberMap'
-import { buildFallbackTagMeta, buildMemberTagMeta, buildTypeTagMeta } from '@/data/utils/tagMeta'
+import { parseTagKey } from '@/data/tagKeys'
+import { useScheduleMetaStore } from '@/stores/scheduleMeta'
 
 const now = new Date()
 
 // 当前选中的周
 const currentWeek = ref<IsoWeek>(getCurrentIsoWeek())
 
-const tagMeta = ref<Record<TagType, TagMeta>>({})
-const memberTags = ref<MemberTag[]>([])
-const typeTags = ref<TypeTag[]>([])
-const memberIndex = ref<MemberIndex | null>(null)
-const typeTagMap = ref<LiveTypeTagMap>(new Map())
+const metaStore = useScheduleMetaStore()
+const { tagMeta, memberTags, typeTags, isLoading: isMetaLoading } = storeToRefs(metaStore)
 
 // 有数据的周列表
 const availableWeeks = ref<IsoWeek[]>([])
@@ -30,39 +27,19 @@ const weeklyRecords = ref<ApiLiveRecord[]>([])
 
 // 加载状态
 const isLoading = ref(false)
-const isMetaLoading = ref(false)
 
 // 选中的标签（用于筛选）
 const selectedTags = ref<TagType[]>([])
 
 const isTagDataReady = computed(() => {
-  return (
-    Object.keys(tagMeta.value).length > 0 &&
-    memberTags.value.length > 0
-  )
+  return Object.keys(tagMeta.value).length > 0 && memberTags.value.length > 0
 })
 
 const loadTagData = async () => {
-  isMetaLoading.value = true
   try {
-    const [users, liveTags, liveTagMeta] = await Promise.all([
-      getUsers(),
-      getLiveTags(),
-      getLiveTagMeta()
-    ])
-    memberIndex.value = buildMemberIndex(users)
-
-    const memberData = buildMemberTagMeta(users)
-    const typeData = buildTypeTagMeta(liveTags, liveTagMeta)
-
-    tagMeta.value = { ...memberData.tagMeta, ...typeData.tagMeta }
-    memberTags.value = memberData.memberTags
-    typeTags.value = typeData.typeTags
-    typeTagMap.value = typeData.typeTagMap
+    await metaStore.load()
   } catch (error) {
     console.error('Failed to load tag data:', error)
-  } finally {
-    isMetaLoading.value = false
   }
 }
 
@@ -79,7 +56,7 @@ const loadAvailableWeeks = async () => {
 const loadWeekData = async (week: IsoWeek) => {
   isLoading.value = true
   try {
-    weeklyRecords.value = await getWeeklyPlanByWeek(week)
+    weeklyRecords.value = await getLiveRecordsByWeek(week)
   } catch (error) {
     console.error('Failed to load week data:', error)
     weeklyRecords.value = []
@@ -104,49 +81,57 @@ const startOfWeek = computed(() => getIsoWeekStartDate(currentWeek.value))
 
 const weekRangeLabel = computed(() => getIsoWeekRangeLabel(currentWeek.value, 'en-US'))
 
-const scheduleEvents = computed<ScheduleEventWithDate[]>(() => {
-  if (!memberIndex.value) return []
+const scheduleEvents = computed<LiveRecordView[]>(() => {
   return weeklyRecords.value
-    .map(record => toScheduleEvent(record, memberIndex.value ?? undefined, typeTagMap.value))
-    .filter((event): event is ScheduleEventWithDate => Boolean(event))
+    .map(record => buildLiveRecordView(record))
+    .filter((event): event is LiveRecordView => Boolean(event))
 })
 
 const effectiveTypeTags = computed<TypeTag[]>(() => {
   const tags = new Set<TypeTag>(typeTags.value)
   scheduleEvents.value.forEach((event) => {
-    event.tags.forEach((tag) => {
-      if (!memberTags.value.includes(tag as MemberTag)) {
-        tags.add(tag as TypeTag)
-      }
-    })
+    tags.add(event.typeTag)
   })
   return [...tags]
 })
 
+const FALLBACK_META = {
+  color: '#5a4d43',
+  tint: '#f0e9e2',
+}
+
+const buildFallbackTagMeta = (tag: TagType): TagMeta => {
+  const parsed = parseTagKey(tag)
+  return {
+    id: parsed.id,
+    kind: parsed.kind,
+    label: parsed.kind === 'member' ? `MID:${parsed.id}` : `类型 ${parsed.id}`,
+    color: FALLBACK_META.color,
+    tint: FALLBACK_META.tint,
+  }
+}
+
 const effectiveTagMeta = computed<Record<TagType, TagMeta>>(() => {
   const meta: Record<TagType, TagMeta> = { ...tagMeta.value }
-  memberTags.value.forEach((tag) => {
+  const ensure = (tag: TagType) => {
     if (!meta[tag]) meta[tag] = buildFallbackTagMeta(tag)
-  })
-  effectiveTypeTags.value.forEach((tag) => {
-    if (!meta[tag]) meta[tag] = buildFallbackTagMeta(tag)
-  })
+  }
+  memberTags.value.forEach(ensure)
+  effectiveTypeTags.value.forEach(ensure)
   scheduleEvents.value.forEach((event) => {
-    event.tags.forEach((tag) => {
-      if (!meta[tag]) meta[tag] = buildFallbackTagMeta(tag)
-    })
+    event.tagKeys.forEach(ensure)
   })
   return meta
 })
 
-const filteredEvents = computed<ScheduleEventWithDate[]>(() => {
+const filteredEvents = computed<LiveRecordView[]>(() => {
   if (selectedTags.value.length === 0) return scheduleEvents.value
   return scheduleEvents.value.filter(event =>
-    event.tags.some(tag => selectedTags.value.includes(tag))
+    event.tagKeys.some(tag => selectedTags.value.includes(tag))
   )
 })
 
-const dayCards = computed<DayCard[]>(() => {
+const dayCards = computed<DayCard<LiveRecordView>[]>(() => {
   return Array.from({ length: 7 }, (_, index) => {
     const date = new Date(startOfWeek.value)
     date.setDate(startOfWeek.value.getDate() + index)
@@ -156,7 +141,7 @@ const dayCards = computed<DayCard[]>(() => {
     const isToday = date.toDateString() === now.toDateString()
     const events = filteredEvents.value
       .filter(event => isSameDay(event.startDate, date))
-      .sort((a, b) => a.time.localeCompare(b.time))
+      .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
     return { longName, shortName, numeric, isToday, events }
   })
 })
@@ -166,7 +151,7 @@ const totalSessions = computed(() => weeklyRecords.value.length)
 const tagCounts = computed(() => {
   const counts = {} as Record<TagType, number>
   scheduleEvents.value.forEach((event) => {
-    event.tags.forEach((tag: TagType) => {
+    event.tagKeys.forEach((tag: TagType) => {
       counts[tag] = (counts[tag] || 0) + 1
     })
   })
@@ -187,7 +172,6 @@ const tagCounts = computed(() => {
       :type-tags="effectiveTypeTags"
       :tag-counts="tagCounts"
       :is-loading="isLoading || isMetaLoading"
-      :member-index="memberIndex"
     />
     <!-- <ScheduleLegend :tag-meta="tagMeta" :member-tags="memberTags" /> -->
     <WeekGrid v-if="isTagDataReady && !isLoading" :day-cards="dayCards" :tag-meta="effectiveTagMeta" :member-tags="memberTags" :type-tags="effectiveTypeTags" />

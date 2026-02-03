@@ -3,26 +3,42 @@ import { apiClient } from './apiClient'
 
 export type ApiLiveRecord = components['schemas']['LiveRecordDto']
 export type ApiIsoWeek = components['schemas']['IsoWeekTz']
-export type ApiUser = components['schemas']['VupDto']
+export type ApiVup = components['schemas']['VupDto']
+export type ApiVupMeta = components['schemas']['VupMetaDto']
 export type ApiLiveTag = components['schemas']['LiveTagDto']
 export type ApiLiveTagMeta = components['schemas']['LiveTagMetaDto']
 
-let usersCache: Promise<ApiUser[]> | null = null
+let vupsCache: Promise<ApiVup[]> | null = null
+let vupMetaCache: Promise<ApiVupMeta[]> | null = null
 let liveTagsCache: Promise<ApiLiveTag[]> | null = null
 let liveTagMetaCache: Promise<ApiLiveTagMeta[]> | null = null
 
-export async function getUsers(): Promise<ApiUser[]> {
-  if (!usersCache) {
-    usersCache = apiClient
-      .GET('/api/v1/users')
+export async function getVups(): Promise<ApiVup[]> {
+  if (!vupsCache) {
+    vupsCache = apiClient
+      .GET('/api/v1/vup')
       .then(({ data, error }) => {
         if (error) {
-          throw new Error('Failed to fetch users')
+          throw new Error('Failed to fetch vups')
         }
         return data ?? []
       })
   }
-  return usersCache
+  return vupsCache
+}
+
+export async function getVupMeta(): Promise<ApiVupMeta[]> {
+  if (!vupMetaCache) {
+    vupMetaCache = apiClient
+      .GET('/api/v1/vup_meta')
+      .then(({ data, error }) => {
+        if (error) {
+          throw new Error('Failed to fetch vup meta')
+        }
+        return data ?? []
+      })
+  }
+  return vupMetaCache
 }
 
 export async function getLiveTags(): Promise<ApiLiveTag[]> {
@@ -61,7 +77,7 @@ export async function getAvailableWeeks(): Promise<ApiIsoWeek[]> {
   return data ?? []
 }
 
-export async function getWeeklyPlanByWeek(week: ApiIsoWeek): Promise<ApiLiveRecord[]> {
+export async function getLiveRecordsByWeek(week: ApiIsoWeek): Promise<ApiLiveRecord[]> {
   const { data, error } = await apiClient.GET('/api/v1/live_records/all/{year}/{week}', {
     params: {
       path: {

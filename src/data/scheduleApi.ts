@@ -1,11 +1,11 @@
-import type { ApiLiveRecord, ApiLiveTag, ApiLiveTagMeta, ApiUser } from './schedule'
-import type { IsoWeek } from './utils/isoWeek'
+import type { ApiIsoWeek, ApiLiveRecord, ApiLiveTag, ApiLiveTagMeta, ApiVup, ApiVupMeta } from './schedule'
 
 export interface ScheduleApi {
-  getUsers(): Promise<ApiUser[]>
+  getVups(): Promise<ApiVup[]>
+  getVupMeta(): Promise<ApiVupMeta[]>
   getLiveTags(): Promise<ApiLiveTag[]>
   getLiveTagMeta(): Promise<ApiLiveTagMeta[]>
-  getAvailableWeeks(): Promise<IsoWeek[]>
-  getWeeklyPlanByWeek(week: IsoWeek): Promise<ApiLiveRecord[]>
+  getAvailableWeeks(): Promise<ApiIsoWeek[]>
+  getLiveRecordsByWeek(week: ApiIsoWeek): Promise<ApiLiveRecord[]>
 }
 

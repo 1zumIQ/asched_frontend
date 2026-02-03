@@ -1,11 +1,15 @@
 import { http, HttpResponse } from 'msw'
-import { mockLiveRecords, mockLiveTagMeta, mockLiveTags, mockUsers } from '@/data/mock/scheduleData'
+import { mockLiveRecords, mockLiveTagMeta, mockLiveTags, mockVupMeta, mockVups } from '@/data/mock/scheduleData'
 import { getIsoWeekFromDate, getIsoWeekKey } from '@/data/utils/isoWeek'
 
 export const handlers = [
-  http.get('/api/v1/users', async () => {
+  http.get('/api/v1/vup', async () => {
     await new Promise(resolve => setTimeout(resolve, 80))
-    return HttpResponse.json(mockUsers)
+    return HttpResponse.json(mockVups)
+  }),
+  http.get('/api/v1/vup_meta', async () => {
+    await new Promise(resolve => setTimeout(resolve, 80))
+    return HttpResponse.json(mockVupMeta)
   }),
   http.get('/api/v1/live_records/available_weeks', async () => {
     const weeks = new Map<string, { year: number; week: number }>()
