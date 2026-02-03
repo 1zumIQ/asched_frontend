@@ -105,12 +105,12 @@ const eventDensity = computed(() => {
           :key="member"
           class="stats-member"
           :style="{
-            backgroundColor: tagMeta[member as TagType].tint,
-            borderColor: tagMeta[member as TagType].color,
-            color: tagMeta[member as TagType].color
+            backgroundColor: tagMeta[member as TagType]?.tint,
+            borderColor: tagMeta[member as TagType]?.color,
+            color: tagMeta[member as TagType]?.color
           }"
         >
-          <span class="stats-member__name">{{ tagMeta[member as TagType].label }}</span>
+          <span class="stats-member__name">{{ tagMeta[member as TagType]?.label }}</span>
           <span class="stats-member__count">×{{ count }}</span>
         </div>
       </div>
@@ -218,12 +218,12 @@ const eventDensity = computed(() => {
                 :key="member"
                 class="stats-member"
                 :style="{
-                  backgroundColor: tagMeta[member as TagType].tint,
-                  borderColor: tagMeta[member as TagType].color,
-                  color: tagMeta[member as TagType].color
+                  backgroundColor: tagMeta[member as TagType]?.tint,
+                  borderColor: tagMeta[member as TagType]?.color,
+                  color: tagMeta[member as TagType]?.color
                 }"
               >
-                <span class="stats-member__name">{{ tagMeta[member as TagType].label }}</span>
+                <span class="stats-member__name">{{ tagMeta[member as TagType]?.label }}</span>
                 <span class="stats-member__count">×{{ count }}</span>
               </div>
             </div>
