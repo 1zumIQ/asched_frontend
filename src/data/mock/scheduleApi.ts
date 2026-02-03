@@ -1,8 +1,8 @@
 import type { ScheduleApi } from '../scheduleApi'
 import type { WeekIdentifier } from '../utils/scheduleUtils'
-import { mockTagMeta, mockMemberTags, mockTypeTags, mockLiveRecords, mockLiveTypeMetadata } from './scheduleData'
+import { mockLiveRecords, mockLiveTypeMetadata, mockMemberTags, mockTagMeta, mockTypeTags } from './scheduleData'
 import { groupByWeek, getWeekIdentifier, parseStartTime, getWeekStartDate } from '../utils/scheduleUtils'
-import type { LiveRecordItem, ScheduleEvent, LiveStatus } from '@/types/schedule'
+import type { LiveRecordItem, LiveStatus } from '@/types/schedule'
 
 /**
  * Mock实现的日程数据API
@@ -35,14 +35,6 @@ export class MockScheduleApi implements ScheduleApi {
     // 模拟网络延迟
     await new Promise(resolve => setTimeout(resolve, 50))
     return mockLiveTypeMetadata
-  }
-
-  async getLiveRecords() {
-    return mockLiveRecords
-  }
-
-  async getWeeklyPlan() {
-    return groupByWeek(mockLiveRecords)
   }
 
   async getAvailableWeeks() {

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import type { DayCard, TagType } from '@/types/schedule'
+import type { DayCard, MemberTag, TagMeta, TagType, TypeTag } from '@/types/schedule'
 import type { WeekIdentifier } from '@/data/utils/scheduleUtils'
-import { tagMeta, memberTags, energyTags } from '@/data/schedule'
-import { getAvailableWeeks, getWeeklyPlanByWeek } from '@/data/schedule'
+import { getAvailableWeeks, getMemberTags, getTagMeta, getTypeTags, getWeeklyPlanByWeek } from '@/data/schedule'
 import { getCurrentWeekIdentifier, getWeekStartDate } from '@/data/utils/scheduleUtils'
 import { ScheduleHero, ScheduleLegend, WeekGrid } from '@/components/schedule'
 
@@ -11,6 +10,10 @@ const now = new Date()
 
 // 当前选中的周
 const currentWeek = ref<WeekIdentifier>(getCurrentWeekIdentifier())
+
+const tagMeta = ref<Record<TagType, TagMeta>>({})
+const memberTags = ref<MemberTag[]>([])
+const typeTags = ref<TypeTag[]>([])
 
 // 有数据的周列表
 const availableWeeks = ref<WeekIdentifier[]>([])
@@ -20,9 +23,36 @@ const weeklyPlan = ref<Record<string, any[]>>({})
 
 // 加载状态
 const isLoading = ref(false)
+const isMetaLoading = ref(false)
 
 // 选中的标签（用于筛选）
 const selectedTags = ref<TagType[]>([])
+
+const isTagDataReady = computed(() => {
+  return (
+    Object.keys(tagMeta.value).length > 0 &&
+    memberTags.value.length > 0 &&
+    typeTags.value.length > 0
+  )
+})
+
+const loadTagData = async () => {
+  isMetaLoading.value = true
+  try {
+    const [tagMetaResult, memberTagsResult, typeTagsResult] = await Promise.all([
+      getTagMeta(),
+      getMemberTags(),
+      getTypeTags()
+    ])
+    tagMeta.value = tagMetaResult
+    memberTags.value = memberTagsResult
+    typeTags.value = typeTagsResult
+  } catch (error) {
+    console.error('Failed to load tag data:', error)
+  } finally {
+    isMetaLoading.value = false
+  }
+}
 
 // 加载有数据的周列表
 const loadAvailableWeeks = async () => {
@@ -53,6 +83,7 @@ watch(currentWeek, (newWeek) => {
 
 // 初始化
 onMounted(async () => {
+  await loadTagData()
   await loadAvailableWeeks()
   await loadWeekData(currentWeek.value)
 })
@@ -125,7 +156,7 @@ const tagCounts = computed(() => {
 
 <template>
   <main class="page">
-    <ScheduleHero
+    <ScheduleHero v-if="isTagDataReady"
       v-model:current-week="currentWeek"
       v-model:selected-tags="selectedTags"
       :available-weeks="availableWeeks"
@@ -133,12 +164,12 @@ const tagCounts = computed(() => {
       :total-sessions="totalSessions"
       :tag-meta="tagMeta"
       :member-tags="memberTags"
-      :type-tags="energyTags"
+      :type-tags="typeTags"
       :tag-counts="tagCounts"
-      :is-loading="isLoading"
+      :is-loading="isLoading || isMetaLoading"
     />
-    <!-- <ScheduleLegend :tag-meta="tagMeta" /> -->
-    <WeekGrid v-if="!isLoading" :day-cards="dayCards" :tag-meta="tagMeta" />
+    <!-- <ScheduleLegend :tag-meta="tagMeta" :member-tags="memberTags" /> -->
+    <WeekGrid v-if="isTagDataReady && !isLoading" :day-cards="dayCards" :tag-meta="tagMeta" :member-tags="memberTags" :type-tags="typeTags" />
     <div v-else class="loading">
       <div class="loading__spinner"></div>
       <div class="loading__text">加载中...</div>

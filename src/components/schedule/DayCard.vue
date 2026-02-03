@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { DayCard, TagType, TagMeta, ScheduleEvent, MemberTag } from '@/types/schedule'
+import type { DayCard, TagType, TagMeta, ScheduleEvent, MemberTag, TypeTag } from '@/types/schedule'
 import EventItem from './EventItem.vue'
-import { memberTags } from '@/data/schedule'
 
 const props = defineProps<{
   day: DayCard
   tagMeta: Record<TagType, TagMeta>
+  memberTags: MemberTag[]
+  typeTags: TypeTag[]
   cardHeight?: number
 }>()
 
@@ -60,7 +61,7 @@ const memberStats = computed(() => {
   const stats: Record<string, number> = {}
   props.day.events.forEach(event => {
     event.tags.forEach(tag => {
-      if (memberTags.includes(tag as MemberTag)) {
+      if (props.memberTags.includes(tag as MemberTag)) {
         stats[tag] = (stats[tag] || 0) + 1
       }
     })
@@ -137,6 +138,8 @@ const eventDensity = computed(() => {
               :key="event.title"
               :event="event"
               :tag-meta="tagMeta"
+              :member-tags="memberTags"
+              :type-tags="typeTags"
             />
           </div>
           <div v-else class="section__empty">暂无安排</div>
@@ -168,6 +171,8 @@ const eventDensity = computed(() => {
               :key="event.title"
               :event="event"
               :tag-meta="tagMeta"
+              :member-tags="memberTags"
+              :type-tags="typeTags"
             />
           </div>
           <div v-else class="section__empty">暂无安排</div>

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import type { DayCard, TagType, TagMeta } from '@/types/schedule'
+import type { DayCard, TagType, TagMeta, MemberTag, TypeTag } from '@/types/schedule'
 import DayCardComponent from './DayCard.vue'
 
 defineProps<{
   dayCards: DayCard[]
   tagMeta: Record<TagType, TagMeta>
+  memberTags: MemberTag[]
+  typeTags: TypeTag[]
 }>()
 
 const gridRef = ref<HTMLElement | null>(null)
@@ -130,6 +132,8 @@ onUnmounted(() => {
         :key="day.longName"
         :day="day"
         :tag-meta="tagMeta"
+        :member-tags="memberTags"
+        :type-tags="typeTags"
         :card-height="cardHeight"
       />
     </section>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { TagType, TagMeta } from '@/types/schedule'
-import { memberTags } from '@/data/schedule'
+import type { MemberTag, TagType, TagMeta } from '@/types/schedule'
 
 defineProps<{
   tagMeta: Record<TagType, TagMeta>
+  memberTags: MemberTag[]
 }>()
 </script>
 

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import type { ScheduleEvent, TagType, TagMeta, MemberTag, TypeTag, LiveStatus, LiveTypeMetadata } from '@/types/schedule'
-import { memberTags, energyTags } from '@/data/schedule'
 import { getLiveTypeMetadata } from '@/data/schedule'
 
 const props = defineProps<{
   event: ScheduleEvent
   tagMeta: Record<TagType, TagMeta>
+  memberTags: MemberTag[]
+  typeTags: TypeTag[]
 }>()
 
 const isExpanded = ref(false)
@@ -38,7 +39,7 @@ const avatarInitials = computed(() => {
 
 // 获取主分类标签（第一个成员标签）
 const primaryTag = computed<TagType>(() => {
-  const found = props.event.tags.find((t) => memberTags.includes(t as MemberTag))
+  const found = props.event.tags.find((t) => props.memberTags.includes(t as MemberTag))
   if (found) return found
   if (props.event.tags[0]) return props.event.tags[0]
   return '思诺' as TagType
@@ -46,7 +47,7 @@ const primaryTag = computed<TagType>(() => {
 
 // 获取类型标签
 const typeTag = computed(() => {
-  return props.event.tags.find((t) => energyTags.includes(t as TypeTag))
+  return props.event.tags.find((t) => props.typeTags.includes(t as TypeTag))
 })
 
 // 使用后端提供的状态
@@ -185,13 +186,13 @@ const durationText = computed(() => {
 
     <!-- 标签独立成行，占满整个宽度 -->
     <div class="event__tags">
-      <span v-for="tag in event.tags" :key="tag" class="chip" :class="{ 'chip--type': energyTags.includes(tag as any) }"
+      <span v-for="tag in event.tags" :key="tag" class="chip" :class="{ 'chip--type': props.typeTags.includes(tag as any) }"
         :style="{
           borderColor: tagMeta[tag].color,
           color: tagMeta[tag].color,
           backgroundColor: tagMeta[tag].tint,
         }">
-        <span v-if="energyTags.includes(tag as any)" class="chip__icon">
+        <span v-if="props.typeTags.includes(tag as any)" class="chip__icon">
           {{ typeIconsMap[event.liveType] || '📝' }}
         </span>
         {{ tagMeta[tag].label }}
