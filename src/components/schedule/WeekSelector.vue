@@ -45,9 +45,9 @@ const currentKey = computed(() => getIsoWeekKey(props.currentWeek))
 
 const sortedWeeks = computed<IsoWeek[]>(() => {
   const merged = new Map<string, IsoWeek>()
-  ;[props.currentWeek, ...props.availableWeeks].forEach((week) => {
-    merged.set(getIsoWeekKey(week), week)
-  })
+    ;[props.currentWeek, ...props.availableWeeks].forEach((week) => {
+      merged.set(getIsoWeekKey(week), week)
+    })
   return [...merged.values()].sort(compareIsoWeeks)
 })
 
@@ -198,15 +198,11 @@ watch(isDropdownOpen, (open) => {
 
 <template>
   <div class="week-selector">
-    <button
-      class="week-selector__nav"
-      :class="{ 'week-selector__nav--disabled': !canGoPrevious }"
-      :disabled="!canGoPrevious"
-      @click="goToPreviousWeek"
-      title="上一周"
-    >
+    <button class="week-selector__nav" :class="{ 'week-selector__nav--disabled': !canGoPrevious }"
+      :disabled="!canGoPrevious" @click="goToPreviousWeek" title="上一周">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M12 15L7 10L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 15L7 10L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
       </svg>
     </button>
 
@@ -215,48 +211,31 @@ watch(isDropdownOpen, (open) => {
         <span class="week-selector__week">{{ currentWeekLabel }}</span>
         <span class="week-selector__range">{{ currentWeekRange }}</span>
       </div>
-      <svg
-        class="week-selector__dropdown-icon"
-        :class="{ 'week-selector__dropdown-icon--open': isDropdownOpen }"
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-      >
-        <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <svg class="week-selector__dropdown-icon" :class="{ 'week-selector__dropdown-icon--open': isDropdownOpen }"
+        width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
       </svg>
 
     </div>
 
     <!-- 下拉菜单 -->
     <Teleport to="body">
-      <div
-        v-if="isDropdownOpen"
-        ref="dropdownRef"
-        class="week-selector__dropdown week-selector__dropdown--portal"
-        :style="dropdownStyle"
-      >
+      <div v-if="isDropdownOpen" ref="dropdownRef" class="week-selector__dropdown week-selector__dropdown--portal"
+        :style="dropdownStyle">
         <div class="week-selector__dropdown-header">选择周</div>
         <div class="week-selector__dropdown-list">
-          <button
-            v-for="week in sortedWeeks"
-            :key="getIsoWeekKey(week)"
-            class="week-selector__dropdown-item"
+          <button v-for="week in sortedWeeks" :key="getIsoWeekKey(week)" class="week-selector__dropdown-item"
             :class="{ 'week-selector__dropdown-item--active': getIsoWeekKey(week) === currentKey }"
-            @click.stop="selectWeek(week)"
-          >
+            @click.stop="selectWeek(week)">
             <div class="week-selector__dropdown-item-content">
               <div class="week-selector__dropdown-item-text">
                 <span class="week-selector__dropdown-item-label">{{ formatIsoWeekLabel(week) }}</span>
                 <span class="week-selector__dropdown-item-range">{{ getWeekPreview(week).range }}</span>
               </div>
               <div class="week-selector__dropdown-item-days">
-                <WeekDaySwatch
-                  v-for="(day, index) in getWeekPreview(week).days"
-                  :key="`${getIsoWeekKey(week)}-${index}`"
-                  :colors="day.colors"
-                  :title="day.tooltip"
-                />
+                <WeekDaySwatch v-for="(day, index) in getWeekPreview(week).days"
+                  :key="`${getIsoWeekKey(week)}-${index}`" :colors="day.colors" :title="day.tooltip" />
               </div>
             </div>
             <span v-if="getIsoWeekKey(week) === currentKey" class="week-selector__dropdown-item-check">✓</span>
@@ -265,15 +244,11 @@ watch(isDropdownOpen, (open) => {
       </div>
     </Teleport>
 
-    <button
-      class="week-selector__nav"
-      :class="{ 'week-selector__nav--disabled': !canGoNext }"
-      :disabled="!canGoNext"
-      @click="goToNextWeek"
-      title="下一周"
-    >
+    <button class="week-selector__nav" :class="{ 'week-selector__nav--disabled': !canGoNext }" :disabled="!canGoNext"
+      @click="goToNextWeek" title="下一周">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M8 5L13 10L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 5L13 10L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
       </svg>
     </button>
   </div>
@@ -399,6 +374,7 @@ watch(isDropdownOpen, (open) => {
     opacity: 0;
     transform: translateY(-8px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -556,4 +532,3 @@ watch(isDropdownOpen, (open) => {
   }
 }
 </style>
-
