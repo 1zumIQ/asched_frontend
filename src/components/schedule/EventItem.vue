@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
-import type { ScheduleEvent, TagType, TagMeta, MemberTag, TypeTag, LiveStatus, LiveTypeMetadata } from '@/types/schedule'
-import { getLiveTypeMetadata } from '@/data/schedule'
+import { computed, ref } from 'vue'
+import type { ScheduleEvent, TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
 
 const props = defineProps<{
   event: ScheduleEvent
@@ -11,23 +10,6 @@ const props = defineProps<{
 }>()
 
 const isExpanded = ref(false)
-
-// 类型元数据
-const liveTypeMetadata = ref<LiveTypeMetadata[]>([])
-
-// 加载类型元数据
-onMounted(async () => {
-  liveTypeMetadata.value = await getLiveTypeMetadata()
-})
-
-// 类型图标映射（从API获取）
-const typeIconsMap = computed(() => {
-  const map: Record<number, string> = {}
-  liveTypeMetadata.value.forEach(meta => {
-    map[meta.id] = meta.icon
-  })
-  return map
-})
 
 const avatarInitials = computed(() => {
   const words = props.event.title.split(' ')
@@ -42,12 +24,17 @@ const primaryTag = computed<TagType>(() => {
   const found = props.event.tags.find((t) => props.memberTags.includes(t as MemberTag))
   if (found) return found
   if (props.event.tags[0]) return props.event.tags[0]
-  return '思诺' as TagType
+  return props.event.name as TagType
 })
 
 // 获取类型标签
 const typeTag = computed(() => {
   return props.event.tags.find((t) => props.typeTags.includes(t as TypeTag))
+})
+
+const typeIcon = computed(() => {
+  if (!typeTag.value) return '📝'
+  return props.tagMeta[typeTag.value]?.icon ?? '📝'
 })
 
 // 使用后端提供的状态
@@ -92,13 +79,20 @@ const statusColor = computed(() => {
   }
 })
 
+const formatIsoTime = (value: string) => {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
 // 计算进度（如果正在进行中且有结束时间）
 const progress = computed(() => {
   if (props.event.status !== 0 || !props.event.endTime) return 0
 
   const now = new Date()
-  const startDate = new Date(props.event.startTime.replace(/(\d{2})-(\d{2})-(\d{2})/, '20$1-$2-$3'))
-  const endDate = new Date(props.event.endTime.replace(/(\d{2})-(\d{2})-(\d{2})/, '20$1-$2-$3'))
+  const startDate = new Date(props.event.startTime)
+  const endDate = new Date(props.event.endTime)
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return 0
 
   const duration = endDate.getTime() - startDate.getTime()
   const elapsed = now.getTime() - startDate.getTime()
@@ -109,9 +103,8 @@ const progress = computed(() => {
 // 持续时间显示
 const durationText = computed(() => {
   if (props.event.endTime) {
-    const startTime = props.event.startTime.split(' ')[1]
-    const endTime = props.event.endTime.split(' ')[1]
-    return `${startTime} - ${endTime}`
+    const endTime = formatIsoTime(props.event.endTime)
+    return `${props.event.time} - ${endTime}`
   }
   return `${props.event.time} (预计2小时)`
 })
@@ -193,7 +186,7 @@ const durationText = computed(() => {
           backgroundColor: tagMeta[tag].tint,
         }">
         <span v-if="props.typeTags.includes(tag as any)" class="chip__icon">
-          {{ typeIconsMap[event.liveType] || '📝' }}
+          {{ typeIcon }}
         </span>
         {{ tagMeta[tag].label }}
       </span>
@@ -822,3 +815,4 @@ const durationText = computed(() => {
   }
 }
 </style>
+

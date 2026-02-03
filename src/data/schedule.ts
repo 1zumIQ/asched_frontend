@@ -1,32 +1,79 @@
-import type { ScheduleEvent, LiveTypeMetadata, MemberTag, TagMeta, TagType, TypeTag } from '@/types/schedule'
-import type { ScheduleApi } from './scheduleApi'
-import type { WeekIdentifier } from './utils/scheduleUtils'
-import { mockScheduleApi } from './mock/scheduleApi'
+import type { components } from '@/types/schema'
+import { apiClient } from './apiClient'
 
-const scheduleApi: ScheduleApi = mockScheduleApi
+export type ApiLiveRecord = components['schemas']['LiveRecordDto']
+export type ApiIsoWeek = components['schemas']['IsoWeekTz']
+export type ApiUser = components['schemas']['VupDto']
+export type ApiLiveTag = components['schemas']['LiveTagDto']
+export type ApiLiveTagMeta = components['schemas']['LiveTagMetaDto']
 
-export async function getTagMeta(): Promise<Record<TagType, TagMeta>> {
-  return scheduleApi.getTagMeta()
+let usersCache: Promise<ApiUser[]> | null = null
+let liveTagsCache: Promise<ApiLiveTag[]> | null = null
+let liveTagMetaCache: Promise<ApiLiveTagMeta[]> | null = null
+
+export async function getUsers(): Promise<ApiUser[]> {
+  if (!usersCache) {
+    usersCache = apiClient
+      .GET('/api/v1/users')
+      .then(({ data, error }) => {
+        if (error) {
+          throw new Error('Failed to fetch users')
+        }
+        return data ?? []
+      })
+  }
+  return usersCache
 }
 
-export async function getMemberTags(): Promise<MemberTag[]> {
-  return scheduleApi.getMemberTags()
+export async function getLiveTags(): Promise<ApiLiveTag[]> {
+  if (!liveTagsCache) {
+    liveTagsCache = apiClient
+      .GET('/api/v1/live_tag')
+      .then(({ data, error }) => {
+        if (error) {
+          throw new Error('Failed to fetch live tags')
+        }
+        return data ?? []
+      })
+  }
+  return liveTagsCache
 }
 
-export async function getTypeTags(): Promise<TypeTag[]> {
-  return scheduleApi.getTypeTags()
+export async function getLiveTagMeta(): Promise<ApiLiveTagMeta[]> {
+  if (!liveTagMetaCache) {
+    liveTagMetaCache = apiClient
+      .GET('/api/v1/live_tag_meta')
+      .then(({ data, error }) => {
+        if (error) {
+          throw new Error('Failed to fetch live tag meta')
+        }
+        return data ?? []
+      })
+  }
+  return liveTagMetaCache
 }
 
-export async function getLiveTypeMetadata(): Promise<LiveTypeMetadata[]> {
-  return scheduleApi.getLiveTypeMetadata()
+export async function getAvailableWeeks(): Promise<ApiIsoWeek[]> {
+  const { data, error } = await apiClient.GET('/api/v1/live_records/available_weeks')
+  if (error) {
+    throw new Error('Failed to fetch available weeks')
+  }
+  return data ?? []
 }
 
-export async function getAvailableWeeks(): Promise<WeekIdentifier[]> {
-  return scheduleApi.getAvailableWeeks()
-}
+export async function getWeeklyPlanByWeek(week: ApiIsoWeek): Promise<ApiLiveRecord[]> {
+  const { data, error } = await apiClient.GET('/api/v1/live_records/all/{year}/{week}', {
+    params: {
+      path: {
+        year: week.year,
+        week: week.week,
+      },
+    },
+  })
 
-export async function getWeeklyPlanByWeek(
-  weekId: WeekIdentifier
-): Promise<Record<string, ScheduleEvent[]>> {
-  return scheduleApi.getWeeklyPlanByWeek(weekId)
+  if (error) {
+    throw new Error(`Failed to fetch live records for ${week.year}-W${week.week}`)
+  }
+
+  return data ?? []
 }

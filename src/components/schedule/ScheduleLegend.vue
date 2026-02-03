@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MemberTag, TagType, TagMeta } from '@/types/schedule'
+import type { MemberTag, TagType, TagMeta } from '@/types/ui'
 
 defineProps<{
   tagMeta: Record<TagType, TagMeta>
@@ -122,3 +122,4 @@ defineProps<{
   border-color: transparent;
 }
 </style>
+

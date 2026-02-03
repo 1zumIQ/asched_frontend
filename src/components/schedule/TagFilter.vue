@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { TagType, TagMeta, MemberTag, TypeTag } from '@/types/schedule'
+import type { TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
 
 const props = defineProps<{
   tagMeta: Record<TagType, TagMeta>
@@ -363,3 +363,4 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   }
 }
 </style>
+

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import type { DayCard, TagType, TagMeta, MemberTag, TypeTag } from '@/types/schedule'
+import type { DayCard, TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
 import DayCardComponent from './DayCard.vue'
 
 defineProps<{
@@ -367,3 +367,4 @@ onUnmounted(() => {
   }
 }
 </style>
+

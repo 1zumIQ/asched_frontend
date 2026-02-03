@@ -4,9 +4,22 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
-const app = createApp(App)
+async function bootstrap() {
+  if (import.meta.env.DEV) {
+    const { worker } = await import('./mocks/browser')
+    try {
+      await worker.start({ onUnhandledRequest: 'bypass' })
+    } catch (error) {
+      console.warn('MSW failed to start. Run `npx msw init public/` to generate the worker file.', error)
+    }
+  }
 
-app.use(createPinia())
-app.use(router)
+  const app = createApp(App)
 
-app.mount('#app')
+  app.use(createPinia())
+  app.use(router)
+
+  app.mount('#app')
+}
+
+void bootstrap()

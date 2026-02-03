@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { DayCard, TagType, TagMeta, ScheduleEvent, MemberTag, TypeTag } from '@/types/schedule'
+import type { DayCard, TagType, TagMeta, ScheduleEvent, MemberTag, TypeTag } from '@/types/ui'
 import EventItem from './EventItem.vue'
 
 const props = defineProps<{
@@ -1174,3 +1174,4 @@ const eventDensity = computed(() => {
   gap: 16px;
 }
 </style>
+

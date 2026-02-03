@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { TagType, TagMeta, MemberTag, TypeTag } from '@/types/schedule'
-import type { WeekIdentifier } from '@/data/utils/scheduleUtils'
+import type { TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
+import type { MemberIndex } from '@/data/utils/memberMap'
+import type { IsoWeek } from '@/data/utils/isoWeek'
 import WeekSelector from './WeekSelector.vue'
 import TagFilter from './TagFilter.vue'
 
 const props = defineProps<{
-  currentWeek: WeekIdentifier
-  availableWeeks: WeekIdentifier[]
+  currentWeek: IsoWeek
+  availableWeeks: IsoWeek[]
   weekRangeLabel: string
   totalSessions: number
   tagMeta: Record<TagType, TagMeta>
@@ -15,15 +16,16 @@ const props = defineProps<{
   tagCounts: Record<TagType, number>
   selectedTags: TagType[]
   isLoading?: boolean
+  memberIndex?: MemberIndex | null
 }>()
 
 const emit = defineEmits<{
-  'update:currentWeek': [weekId: WeekIdentifier]
+  'update:currentWeek': [week: IsoWeek]
   'update:selectedTags': [tags: TagType[]]
 }>()
 
-const updateCurrentWeek = (weekId: WeekIdentifier) => {
-  emit('update:currentWeek', weekId)
+const updateCurrentWeek = (week: IsoWeek) => {
+  emit('update:currentWeek', week)
 }
 
 const updateSelectedTags = (tags: TagType[]) => {
@@ -51,6 +53,7 @@ const updateSelectedTags = (tags: TagType[]) => {
           :available-weeks="availableWeeks"
           :tag-meta="tagMeta"
           :member-tags="memberTags"
+          :member-index="memberIndex"
           @update:current-week="updateCurrentWeek"
         />
       </div>
@@ -327,3 +330,4 @@ const updateSelectedTags = (tags: TagType[]) => {
   transform: rotate(-2deg);
 }
 </style>
+

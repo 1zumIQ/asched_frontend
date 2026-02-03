@@ -1,174 +1,259 @@
-import type { TagType, TagMeta, MemberTag, TypeTag, LiveRecordItem, LiveType, LiveTypeMetadata, LiveStatus } from '@/types/schedule'
+import type { components } from '@/types/schema'
+import type { LiveStatus, LiveType } from '@/types/ui'
+import { buildMemberIndex, resolveMemberMid } from '@/data/utils/memberMap'
 
-export const mockTagMeta: Record<TagType, TagMeta> = {
-  // 成员标签
-  '思诺': { label: '思诺', color: '#ec4899', tint: 'rgba(236, 72, 153, 0.12)', avatar: 'https://i1.hdslb.com/bfs/face/5c5c2e1220f2a0e4f0b38f5f7e5f5e5f5e5f5e5f.jpg' },
-  '心宜': { label: '心宜', color: '#f97316', tint: 'rgba(249, 115, 22, 0.12)', avatar: 'https://i0.hdslb.com/bfs/face/cc9ebd4e6c7e5e5e5e5e5e5e5e5e5e5e5e5e5e5e.jpg' },
-  '贝拉': { label: '贝拉', color: '#8b5cf6', tint: 'rgba(139, 92, 246, 0.12)', avatar: 'https://i1.hdslb.com/bfs/face/3a1a7e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e.jpg' },
-  '乃琳': { label: '乃琳', color: '#3b82f6', tint: 'rgba(59, 130, 246, 0.12)', avatar: 'nailin.jpg' },
-  '嘉然': { label: '嘉然', color: '#ef4444', tint: 'rgba(239, 68, 68, 0.12)', avatar: 'jiaran.jpg' },
-  '珈乐': { label: '珈乐', color: '#a855f7', tint: 'rgba(168, 85, 247, 0.12)', avatar: 'https://i0.hdslb.com/bfs/face/jiale-avatar.jpg' },
-  '向晚': { label: '向晚', color: '#06b6d4', tint: 'rgba(6, 182, 212, 0.12)', avatar: 'https://i0.hdslb.com/bfs/face/xiangwan-avatar.jpg' },
-  'A-SOUL': { label: 'A-SOUL', color: '#6366f1', tint: 'rgba(99, 102, 241, 0.12)', avatar: 'https://i0.hdslb.com/bfs/face/asoul-group-avatar.jpg' },
-  // 类型标签
-  '其它': { label: '其它', color: '#6b7280', tint: 'rgba(107, 114, 128, 0.12)' },
-  '2D': { label: '2D', color: '#0ea5e9', tint: 'rgba(14, 165, 233, 0.12)' },
-  '节目': { label: '节目', color: '#a855f7', tint: 'rgba(168, 85, 247, 0.12)' },
-  '日常': { label: '日常', color: '#22c55e', tint: 'rgba(34, 197, 94, 0.12)' },
-  '突击': { label: '突击', color: '#f59e0b', tint: 'rgba(245, 158, 11, 0.12)' },
-  '推广': { label: '推广', color: '#8b5cf6', tint: 'rgba(139, 92, 246, 0.12)' },
-  '电台': { label: '电台', color: '#ec4899', tint: 'rgba(236, 72, 153, 0.12)' },
-  '特别': { label: '特别', color: '#ef4444', tint: 'rgba(239, 68, 68, 0.12)' },
-  '枝江综艺': { label: '枝江综艺', color: '#14b8a6', tint: 'rgba(20, 184, 166, 0.12)' },
+type ApiLiveRecord = components['schemas']['LiveRecordDto']
+type ApiUser = components['schemas']['VupDto']
+type ApiLiveTag = components['schemas']['LiveTagDto']
+type ApiLiveTagMeta = components['schemas']['LiveTagMetaDto']
+
+type RecordInput = {
+  name: string
+  title: string
+  type: LiveType
+  start: [number, number, number, number, number]
+  end?: [number, number, number, number, number]
+  status: LiveStatus
+  guests?: string[]
 }
 
-// 成员标签列表（用于图例显示）
-export const mockMemberTags: MemberTag[] = ['思诺', '心宜', '贝拉', '乃琳', '嘉然', '珈乐', '向晚', 'A-SOUL']
-export const mockTypeTags: TypeTag[] = ['其它', '2D', '节目', '日常', '突击', '推广', '电台', '特别', '枝江综艺']
-
-// 直播类型元数据（从后端获取）
-export const mockLiveTypeMetadata: LiveTypeMetadata[] = [
-  { id: 0, name: '其它', icon: '📝', color: '#6b7280', description: '其他类型的直播' },
-  { id: 1, name: '2D', icon: '🎨', color: '#0ea5e9', description: '2D虚拟形象直播' },
-  { id: 2, name: '节目', icon: '📺', color: '#a855f7', description: '特别节目' },
-  { id: 3, name: '日常', icon: '☕', color: '#22c55e', description: '日常直播' },
-  { id: 4, name: '突击', icon: '⚡', color: '#f59e0b', description: '突击直播' },
-  { id: 5, name: '推广', icon: '📢', color: '#8b5cf6', description: '推广活动' },
-  { id: 6, name: '电台', icon: '📻', color: '#ec4899', description: '电台节目' },
-  { id: 7, name: '特别', icon: '⭐', color: '#ef4444', description: '特别活动' },
-  { id: 8, name: '枝江综艺', icon: '🎪', color: '#14b8a6', description: '枝江综艺节目' },
+export const mockUsers: ApiUser[] = [
+  {
+    mid: 10001,
+    name: '思诺',
+    nick_name_bili: '思诺',
+    face_url_bili: 'https://i1.hdslb.com/bfs/face/5c5c2e1220f2a0e4f0b38f5f7e5f5e5f5e5f5e5f.jpg',
+    room_id: 10001,
+    sign: 'mock',
+    sid: null,
+  },
+  {
+    mid: 10002,
+    name: '心宜',
+    nick_name_bili: '心宜',
+    face_url_bili: 'https://i0.hdslb.com/bfs/face/cc9ebd4e6c7e5e5e5e5e5e5e5e5e5e5e5e5e5e5e.jpg',
+    room_id: 10002,
+    sign: 'mock',
+    sid: null,
+  },
+  {
+    mid: 10003,
+    name: '贝拉',
+    nick_name_bili: '贝拉',
+    face_url_bili: 'https://i1.hdslb.com/bfs/face/3a1a7e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e.jpg',
+    room_id: 10003,
+    sign: 'mock',
+    sid: null,
+  },
+  {
+    mid: 10004,
+    name: '乃琳',
+    nick_name_bili: '乃琳',
+    face_url_bili: 'nailin.jpg',
+    room_id: 10004,
+    sign: 'mock',
+    sid: null,
+  },
+  {
+    mid: 10005,
+    name: '嘉然',
+    nick_name_bili: '嘉然',
+    face_url_bili: 'jiaran.jpg',
+    room_id: 10005,
+    sign: 'mock',
+    sid: null,
+  },
+  {
+    mid: 10006,
+    name: '珈乐',
+    nick_name_bili: '珈乐',
+    face_url_bili: 'https://i0.hdslb.com/bfs/face/jiale-avatar.jpg',
+    room_id: 10006,
+    sign: 'mock',
+    sid: null,
+  },
+  {
+    mid: 10007,
+    name: '向晚',
+    nick_name_bili: '向晚',
+    face_url_bili: 'https://i0.hdslb.com/bfs/face/xiangwan-avatar.jpg',
+    room_id: 10007,
+    sign: 'mock',
+    sid: null,
+  },
+  {
+    mid: 10008,
+    name: 'A-SOUL',
+    nick_name_bili: 'A-SOUL',
+    face_url_bili: 'https://i0.hdslb.com/bfs/face/asoul-group-avatar.jpg',
+    room_id: 10008,
+    sign: 'mock',
+    sid: null,
+  },
 ]
 
-// Mock直播记录数据（对应后端LiveRecordItem）
-export const mockLiveRecords: LiveRecordItem[] = [
-  {
+export const mockLiveTags: ApiLiveTag[] = [
+  { tag_id: 1, name: '日常', sort_order: 1, is_active: true },
+  { tag_id: 2, name: '节目', sort_order: 2, is_active: true },
+  { tag_id: 3, name: '特别', sort_order: 3, is_active: true },
+]
+
+export const mockLiveTagMeta: ApiLiveTagMeta[] = [
+  { tag_id: 1, color: '#4d96ff', icon: '🌤️', meta: {} },
+  { tag_id: 2, color: '#ff6b6b', icon: '🎭', meta: {} },
+  { tag_id: 3, color: '#06d6a0', icon: '✨', meta: {} },
+]
+
+const mockMemberIndex = buildMemberIndex(mockUsers)
+
+let recordCounter = 1
+
+function toIso([year, month, day, hour, minute]: [number, number, number, number, number]): string {
+  return new Date(year, month - 1, day, hour, minute).toISOString()
+}
+
+function requireMid(name: string): number {
+  const mid = resolveMemberMid(name, mockMemberIndex)
+  if (mid == null) {
+    throw new Error(`Missing mock user for ${name}`)
+  }
+  return mid
+}
+
+function makeRecord(input: RecordInput): ApiLiveRecord {
+  const { name, title, type, start, end, status, guests = [] } = input
+  const mid = requireMid(name)
+
+  return {
+    id: `mock-${recordCounter++}`,
+    mid,
+    guest_mids: guests.map(requireMid),
+    live_type: type,
+    start_time: toIso(start),
+    end_time: end ? toIso(end) : null,
+    status,
+    title,
+  }
+}
+
+export const mockLiveRecords: ApiLiveRecord[] = [
+  makeRecord({
     name: '思诺',
     title: '华语金曲连唱4.0',
-    guests: [],
-    type: 3, // 日常
-    start_time: '26-01-28 19:30',
-    end_time: '26-01-28 21:30',
-    status: 1 // 已结束
-  },
-  {
+    type: 3,
+    start: [2026, 1, 28, 19, 30],
+    end: [2026, 1, 28, 21, 30],
+    status: 1,
+  }),
+  makeRecord({
     name: '心宜',
     title: '来吧，上才艺！',
-    guests: [],
-    type: 3, // 日常
-    start_time: '26-01-28 21:00',
-    end_time: '26-01-28 23:00',
-    status: 1 // 已结束
-  },
-  {
+    type: 3,
+    start: [2026, 1, 28, 21, 0],
+    end: [2026, 1, 28, 23, 0],
+    status: 1,
+  }),
+  makeRecord({
     name: '思诺',
     title: '思诺直播',
-    guests: [],
-    type: 1, // 2D
-    start_time: '26-01-29 18:00',
-    status: 3 // 未开始
-  },
-  {
+    type: 1,
+    start: [2026, 1, 29, 18, 0],
+    status: 3,
+  }),
+  makeRecord({
     name: '贝拉',
     title: '时间旅行者的贝极星',
-    guests: [],
-    type: 3, // 日常
-    start_time: '26-01-29 21:00',
-    status: 0 // 未开始
-  },
-  {
+    type: 3,
+    start: [2026, 1, 29, 21, 0],
+    status: 0,
+  }),
+  makeRecord({
     name: '心宜',
     title: '心宜直播',
-    guests: [],
-    type: 1, // 2D
-    start_time: '26-01-30 16:00',
-    status: 3 // 未开始
-  },
-  {
+    type: 1,
+    start: [2026, 1, 30, 16, 0],
+    status: 3,
+  }),
+  makeRecord({
     name: '乃琳',
     title: '什么叫经典复刻？',
-    guests: [],
-    type: 3, // 日常
-    start_time: '26-01-30 19:30',
-    status: 3 // 未开始
-  },
-  {
+    type: 3,
+    start: [2026, 1, 30, 19, 30],
+    status: 3,
+  }),
+  makeRecord({
     name: '贝拉',
     title: '我勒个豆豆豆豆？',
-    guests: [],
-    type: 3, // 日常
-    start_time: '26-01-30 8:30',
-    status: 3 // 未开始
-  },
-  {
+    type: 3,
+    start: [2026, 1, 30, 8, 30],
+    status: 3,
+  }),
+  makeRecord({
     name: '嘉然',
     title: '百变小嘉然',
-    guests: [],
-    type: 3, // 日常
-    start_time: '26-01-30 21:00',
-    status: 3 // 未开始
-  },
-  {
+    type: 3,
+    start: [2026, 1, 30, 21, 0],
+    status: 3,
+  }),
+  makeRecord({
     name: '心宜',
     title: '心宜直播',
-    guests: [],
-    type: 1, // 2D
-    start_time: '26-01-31 16:00',
-    status: 3 // 未开始
-  },
-  {
+    type: 1,
+    start: [2026, 1, 31, 16, 0],
+    status: 3,
+  }),
+  makeRecord({
     name: '乃琳',
     title: '羞死了',
+    type: 2,
+    start: [2026, 1, 31, 20, 0],
+    status: 3,
     guests: ['贝拉'],
-    type: 2, // 节目
-    start_time: '26-01-31 20:00',
-    status: 3 // 未开始
-  },
-  {
+  }),
+  makeRecord({
     name: 'A-SOUL',
     title: '我来的正是时候吗？',
+    type: 2,
+    start: [2026, 2, 1, 20, 0],
+    status: 3,
     guests: ['嘉然', '乃琳', '贝拉'],
-    type: 2, // 节目
-    start_time: '26-02-01 20:00',
-    status: 3 // 未开始
-  },
-  {
+  }),
+  makeRecord({
     name: '思诺',
     title: '思诺直播',
-    guests: [],
-    type: 1, // 2D
-    start_time: '26-02-02 15:00',
-    status: 3 // 未开始
-  },
-  {
+    type: 1,
+    start: [2026, 2, 2, 15, 0],
+    status: 3,
+  }),
+  makeRecord({
     name: '思诺',
     title: '冰箱，终极易如反掌！',
+    type: 2,
+    start: [2026, 2, 2, 20, 0],
+    status: 3,
     guests: ['心宜'],
-    type: 2, // 节目
-    start_time: '26-02-02 20:00',
-    status: 3 // 未开始
-  },
-  {
+  }),
+  makeRecord({
     name: 'A-SOUL',
     title: '我来的正是时候吗？',
+    type: 2,
+    start: [2026, 2, 7, 20, 0],
+    status: 3,
     guests: ['嘉然', '乃琳', '贝拉'],
-    type: 2, // 节目
-    start_time: '26-02-07 20:00',
-    status: 3 // 未开始
-  },
-  {
+  }),
+  makeRecord({
     name: '思诺',
     title: '思诺直播',
-    guests: [],
-    type: 1, // 2D
-    start_time: '26-02-05 15:00',
-    status: 3 // 未开始
-  },
-  {
+    type: 1,
+    start: [2026, 2, 5, 15, 0],
+    status: 3,
+  }),
+  makeRecord({
     name: '思诺',
     title: '冰箱，终极易如反掌！',
+    type: 2,
+    start: [2026, 2, 1, 20, 0],
+    status: 3,
     guests: ['心宜'],
-    type: 2, // 节目
-    start_time: '26-02-01 20:00',
-    status: 3 // 未开始
-  }
+  }),
 ]

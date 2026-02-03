@@ -1,25 +1,32 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import type { DayCard, MemberTag, TagMeta, TagType, TypeTag } from '@/types/schedule'
-import type { WeekIdentifier } from '@/data/utils/scheduleUtils'
-import { getAvailableWeeks, getMemberTags, getTagMeta, getTypeTags, getWeeklyPlanByWeek } from '@/data/schedule'
-import { getCurrentWeekIdentifier, getWeekStartDate } from '@/data/utils/scheduleUtils'
-import { ScheduleHero, ScheduleLegend, WeekGrid } from '@/components/schedule'
+import type { DayCard, MemberTag, TagMeta, TagType, TypeTag } from '@/types/ui'
+import { getAvailableWeeks, getLiveTagMeta, getLiveTags, getUsers, getWeeklyPlanByWeek } from '@/data/schedule'
+import type { ApiLiveRecord, LiveTypeTagMap, ScheduleEventWithDate } from '@/data/utils/liveRecord'
+import { isSameDay, toScheduleEvent } from '@/data/utils/liveRecord'
+import type { IsoWeek } from '@/data/utils/isoWeek'
+import { getCurrentIsoWeek, getIsoWeekRangeLabel, getIsoWeekStartDate } from '@/data/utils/isoWeek'
+import { ScheduleHero, WeekGrid } from '@/components/schedule'
+import type { MemberIndex } from '@/data/utils/memberMap'
+import { buildMemberIndex } from '@/data/utils/memberMap'
+import { buildFallbackTagMeta, buildMemberTagMeta, buildTypeTagMeta } from '@/data/utils/tagMeta'
 
 const now = new Date()
 
 // 当前选中的周
-const currentWeek = ref<WeekIdentifier>(getCurrentWeekIdentifier())
+const currentWeek = ref<IsoWeek>(getCurrentIsoWeek())
 
 const tagMeta = ref<Record<TagType, TagMeta>>({})
 const memberTags = ref<MemberTag[]>([])
 const typeTags = ref<TypeTag[]>([])
+const memberIndex = ref<MemberIndex | null>(null)
+const typeTagMap = ref<LiveTypeTagMap>(new Map())
 
 // 有数据的周列表
-const availableWeeks = ref<WeekIdentifier[]>([])
+const availableWeeks = ref<IsoWeek[]>([])
 
 // 当前周的数据
-const weeklyPlan = ref<Record<string, any[]>>({})
+const weeklyRecords = ref<ApiLiveRecord[]>([])
 
 // 加载状态
 const isLoading = ref(false)
@@ -31,22 +38,27 @@ const selectedTags = ref<TagType[]>([])
 const isTagDataReady = computed(() => {
   return (
     Object.keys(tagMeta.value).length > 0 &&
-    memberTags.value.length > 0 &&
-    typeTags.value.length > 0
+    memberTags.value.length > 0
   )
 })
 
 const loadTagData = async () => {
   isMetaLoading.value = true
   try {
-    const [tagMetaResult, memberTagsResult, typeTagsResult] = await Promise.all([
-      getTagMeta(),
-      getMemberTags(),
-      getTypeTags()
+    const [users, liveTags, liveTagMeta] = await Promise.all([
+      getUsers(),
+      getLiveTags(),
+      getLiveTagMeta()
     ])
-    tagMeta.value = tagMetaResult
-    memberTags.value = memberTagsResult
-    typeTags.value = typeTagsResult
+    memberIndex.value = buildMemberIndex(users)
+
+    const memberData = buildMemberTagMeta(users)
+    const typeData = buildTypeTagMeta(liveTags, liveTagMeta)
+
+    tagMeta.value = { ...memberData.tagMeta, ...typeData.tagMeta }
+    memberTags.value = memberData.memberTags
+    typeTags.value = typeData.typeTags
+    typeTagMap.value = typeData.typeTagMap
   } catch (error) {
     console.error('Failed to load tag data:', error)
   } finally {
@@ -64,13 +76,13 @@ const loadAvailableWeeks = async () => {
 }
 
 // 加载指定周的数据
-const loadWeekData = async (weekId: WeekIdentifier) => {
+const loadWeekData = async (week: IsoWeek) => {
   isLoading.value = true
   try {
-    weeklyPlan.value = await getWeeklyPlanByWeek(weekId)
+    weeklyRecords.value = await getWeeklyPlanByWeek(week)
   } catch (error) {
     console.error('Failed to load week data:', error)
-    weeklyPlan.value = {}
+    weeklyRecords.value = []
   } finally {
     isLoading.value = false
   }
@@ -88,40 +100,50 @@ onMounted(async () => {
   await loadWeekData(currentWeek.value)
 })
 
-const startOfWeek = computed(() => {
-  return getWeekStartDate(currentWeek.value)
+const startOfWeek = computed(() => getIsoWeekStartDate(currentWeek.value))
+
+const weekRangeLabel = computed(() => getIsoWeekRangeLabel(currentWeek.value, 'en-US'))
+
+const scheduleEvents = computed<ScheduleEventWithDate[]>(() => {
+  if (!memberIndex.value) return []
+  return weeklyRecords.value
+    .map(record => toScheduleEvent(record, memberIndex.value ?? undefined, typeTagMap.value))
+    .filter((event): event is ScheduleEventWithDate => Boolean(event))
 })
 
-const endOfWeek = computed(() => {
-  const end = new Date(startOfWeek.value)
-  end.setDate(end.getDate() + 6)
-  end.setHours(23, 59, 59, 999)
-  return end
-})
-
-const weekRangeLabel = computed(() => {
-  const start = startOfWeek.value.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  const end = endOfWeek.value.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+const effectiveTypeTags = computed<TypeTag[]>(() => {
+  const tags = new Set<TypeTag>(typeTags.value)
+  scheduleEvents.value.forEach((event) => {
+    event.tags.forEach((tag) => {
+      if (!memberTags.value.includes(tag as MemberTag)) {
+        tags.add(tag as TypeTag)
+      }
+    })
   })
-  return `${start} - ${end}`
+  return [...tags]
 })
 
-// 筛选后的事件
-const filteredWeeklyPlan = computed(() => {
-  if (selectedTags.value.length === 0) {
-    return weeklyPlan.value
-  }
-
-  const filtered: Record<string, any[]> = {}
-  Object.entries(weeklyPlan.value).forEach(([day, events]) => {
-    filtered[day] = events.filter(event =>
-      event.tags.some((tag: TagType) => selectedTags.value.includes(tag))
-    )
+const effectiveTagMeta = computed<Record<TagType, TagMeta>>(() => {
+  const meta: Record<TagType, TagMeta> = { ...tagMeta.value }
+  memberTags.value.forEach((tag) => {
+    if (!meta[tag]) meta[tag] = buildFallbackTagMeta(tag)
   })
-  return filtered
+  effectiveTypeTags.value.forEach((tag) => {
+    if (!meta[tag]) meta[tag] = buildFallbackTagMeta(tag)
+  })
+  scheduleEvents.value.forEach((event) => {
+    event.tags.forEach((tag) => {
+      if (!meta[tag]) meta[tag] = buildFallbackTagMeta(tag)
+    })
+  })
+  return meta
+})
+
+const filteredEvents = computed<ScheduleEventWithDate[]>(() => {
+  if (selectedTags.value.length === 0) return scheduleEvents.value
+  return scheduleEvents.value.filter(event =>
+    event.tags.some(tag => selectedTags.value.includes(tag))
+  )
 })
 
 const dayCards = computed<DayCard[]>(() => {
@@ -132,22 +154,20 @@ const dayCards = computed<DayCard[]>(() => {
     const shortName = date.toLocaleDateString('en-US', { weekday: 'short' })
     const numeric = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     const isToday = date.toDateString() === now.toDateString()
-    const events = filteredWeeklyPlan.value[longName] ?? []
+    const events = filteredEvents.value
+      .filter(event => isSameDay(event.startDate, date))
+      .sort((a, b) => a.time.localeCompare(b.time))
     return { longName, shortName, numeric, isToday, events }
   })
 })
 
-const totalSessions = computed(() =>
-  Object.values(weeklyPlan.value).reduce((sum, items) => sum + items.length, 0)
-)
+const totalSessions = computed(() => weeklyRecords.value.length)
 
 const tagCounts = computed(() => {
   const counts = {} as Record<TagType, number>
-  Object.values(weeklyPlan.value).forEach((events) => {
-    events.forEach((event) => {
-      event.tags.forEach((tag: TagType) => {
-        counts[tag] = (counts[tag] || 0) + 1
-      })
+  scheduleEvents.value.forEach((event) => {
+    event.tags.forEach((tag: TagType) => {
+      counts[tag] = (counts[tag] || 0) + 1
     })
   })
   return counts
@@ -162,14 +182,15 @@ const tagCounts = computed(() => {
       :available-weeks="availableWeeks"
       :week-range-label="weekRangeLabel"
       :total-sessions="totalSessions"
-      :tag-meta="tagMeta"
+      :tag-meta="effectiveTagMeta"
       :member-tags="memberTags"
-      :type-tags="typeTags"
+      :type-tags="effectiveTypeTags"
       :tag-counts="tagCounts"
       :is-loading="isLoading || isMetaLoading"
+      :member-index="memberIndex"
     />
     <!-- <ScheduleLegend :tag-meta="tagMeta" :member-tags="memberTags" /> -->
-    <WeekGrid v-if="isTagDataReady && !isLoading" :day-cards="dayCards" :tag-meta="tagMeta" :member-tags="memberTags" :type-tags="typeTags" />
+    <WeekGrid v-if="isTagDataReady && !isLoading" :day-cards="dayCards" :tag-meta="effectiveTagMeta" :member-tags="memberTags" :type-tags="effectiveTypeTags" />
     <div v-else class="loading">
       <div class="loading__spinner"></div>
       <div class="loading__text">加载中...</div>
@@ -417,3 +438,4 @@ h4 {
   letter-spacing: 0.04em;
 }
 </style>
+

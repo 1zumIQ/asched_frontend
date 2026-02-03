@@ -144,6 +144,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/live_tag": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 获取所有直播标签。
+         * @description 获取全部直播标签
+         */
+        get: operations["get_all_live_tags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/live_tag_meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 获取所有直播标签元信息。
+         * @description 获取全部直播标签元信息
+         */
+        get: operations["get_all_live_tag_meta"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reservations": {
         parameters: {
             query?: never;
@@ -204,7 +244,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/users": {
+    "/api/v1/vup": {
         parameters: {
             query?: never;
             header?: never;
@@ -212,10 +252,30 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 获取所有用户。
-         * @description 获取全部用户信息
+         * 获取所有VUP。
+         * @description 获取全部VUP信息
          */
-        get: operations["get_all_users"];
+        get: operations["get_all_vup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vup_meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 获取所有 VUP 元信息。
+         * @description 获取全部 VUP 元信息
+         */
+        get: operations["get_all_vup_meta"];
         put?: never;
         post?: never;
         delete?: never;
@@ -256,17 +316,52 @@ export interface components {
             success: boolean;
         };
         /** @description ISO 周信息 */
-        IsoWeek: {
+        IsoWeekTz: {
             /** Format: int32 */
             week: number;
             /** Format: int32 */
             year: number;
         };
-        /**
-         * AsoulSchedule
-         * @description Asoul Schedule Entity
-         */
-        "asched.entity.asoul_schedules.Model": {
+        LiveRecordDto: {
+            cover_url?: string | null;
+            /** Format: int64 */
+            duration_seconds?: number | null;
+            /** Format: date-time */
+            end_time?: string | null;
+            guest_mids: number[];
+            /** Format: uuid */
+            id: string;
+            is_reservation?: boolean | null;
+            live_id_bili?: string | null;
+            /** Format: int32 */
+            live_type: number;
+            /** Format: int64 */
+            mid: number;
+            /** Format: int64 */
+            room_id?: number | null;
+            /** Format: date-time */
+            start_time: string;
+            /** Format: int32 */
+            status: number;
+            title: string;
+        };
+        LiveTagDto: {
+            is_active?: boolean | null;
+            name: string;
+            /** Format: int32 */
+            sort_order?: number | null;
+            /** Format: int64 */
+            tag_id: number;
+        };
+        LiveTagMetaDto: {
+            color?: string | null;
+            /** Format: int32 */
+            config_version?: number | null;
+            icon?: string | null;
+            /** Format: int64 */
+            tag_id: number;
+        };
+        ScheduleDto: {
             /** Format: uuid */
             id: string;
             id_str: string;
@@ -285,44 +380,7 @@ export interface components {
             schedule_url: string;
             summary?: string | null;
         };
-        /**
-         * LiveRecord
-         * @description Live Record Entity
-         */
-        "asched.entity.live_records.Model": {
-            cover_url?: string | null;
-            /** Format: date-time */
-            create_at: string | null;
-            /** Format: int64 */
-            duration_seconds?: number | null;
-            /** Format: date-time */
-            end_time: string | null;
-            guest_mids: number[];
-            /** Format: uuid */
-            id: string;
-            is_reservation?: boolean | null;
-            live_id_bili?: string | null;
-            /** Format: int32 */
-            live_type: number;
-            /** Format: int64 */
-            mid: number;
-            /** Format: int64 */
-            room_id?: number | null;
-            /** Format: date-time */
-            start_time: string;
-            /** Format: int32 */
-            status: number;
-            title: string;
-            /** Format: date-time */
-            update_at: string | null;
-        };
-        /**
-         * VUP
-         * @description VUP Entity
-         */
-        "asched.entity.vup.Model": {
-            /** Format: date-time */
-            create_at: string;
+        VupDto: {
             face_url_bili: string;
             /** Format: int64 */
             mid: number;
@@ -333,8 +391,13 @@ export interface components {
             /** Format: int64 */
             sid?: number | null;
             sign: string;
-            /** Format: date-time */
-            update_at: string;
+        };
+        VupMetaDto: {
+            color?: string | null;
+            /** Format: int32 */
+            config_version?: number | null;
+            /** Format: int64 */
+            mid: number;
         };
     };
     responses: never;
@@ -451,7 +514,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["asched.entity.live_records.Model"][];
+                    "application/json": components["schemas"]["LiveRecordDto"][];
                 };
             };
         };
@@ -471,7 +534,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["IsoWeek"][];
+                    "application/json": components["schemas"]["IsoWeekTz"][];
                 };
             };
         };
@@ -498,7 +561,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["asched.entity.live_records.Model"][];
+                    "application/json": components["schemas"]["LiveRecordDto"][];
+                };
+            };
+        };
+    };
+    get_all_live_tags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 直播标签列表 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveTagDto"][];
+                };
+            };
+        };
+    };
+    get_all_live_tag_meta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 直播标签元信息列表 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveTagMetaDto"][];
                 };
             };
         };
@@ -518,7 +621,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["asched.entity.live_records.Model"][];
+                    "application/json": components["schemas"]["LiveRecordDto"][];
                 };
             };
         };
@@ -541,7 +644,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["asched.entity.asoul_schedules.Model"];
+                    "application/json": components["schemas"]["ScheduleDto"];
                 };
             };
         };
@@ -568,12 +671,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": null | components["schemas"]["asched.entity.asoul_schedules.Model"];
+                    "application/json": null | components["schemas"]["ScheduleDto"];
                 };
             };
         };
     };
-    get_all_users: {
+    get_all_vup: {
         parameters: {
             query?: never;
             header?: never;
@@ -582,13 +685,33 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 用户列表 */
+            /** @description VUP列表 */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["asched.entity.vup.Model"][];
+                    "application/json": components["schemas"]["VupDto"][];
+                };
+            };
+        };
+    };
+    get_all_vup_meta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description VUP 元信息列表 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VupMetaDto"][];
                 };
             };
         };

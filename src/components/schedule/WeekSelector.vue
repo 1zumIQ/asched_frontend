@@ -1,30 +1,31 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import type { WeekIdentifier } from '@/data/utils/scheduleUtils'
-import type { TagType, TagMeta, MemberTag } from '@/types/schedule'
-import {
-  formatWeekIdentifier,
-  getWeekStartDate
-} from '@/data/utils/scheduleUtils'
+import type { IsoWeek } from '@/data/utils/isoWeek'
+import { compareIsoWeeks, formatIsoWeekLabel, getIsoWeekKey, getIsoWeekRangeLabel, getIsoWeekStartDate } from '@/data/utils/isoWeek'
+import type { ApiLiveRecord } from '@/data/utils/liveRecord'
+import { getRecordMemberTags, getRecordStartDate, isSameDay } from '@/data/utils/liveRecord'
+import type { TagType, TagMeta, MemberTag } from '@/types/ui'
 import { getWeeklyPlanByWeek } from '@/data/schedule'
 import WeekDaySwatch from './WeekDaySwatch.vue'
+import type { MemberIndex } from '@/data/utils/memberMap'
 
 const props = defineProps<{
-  currentWeek: WeekIdentifier
-  availableWeeks: WeekIdentifier[]
+  currentWeek: IsoWeek
+  availableWeeks: IsoWeek[]
   tagMeta: Record<TagType, TagMeta>
   memberTags: MemberTag[]
+  memberIndex?: MemberIndex | null
 }>()
 
 const emit = defineEmits<{
-  'update:currentWeek': [weekId: WeekIdentifier]
+  'update:currentWeek': [week: IsoWeek]
 }>()
 
 const isDropdownOpen = ref(false)
 const currentRef = ref<HTMLElement | null>(null)
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownStyle = ref<Record<string, string>>({})
-const weekPreviews = ref<Record<WeekIdentifier, WeekPreview>>({})
+const weekPreviews = ref<Record<string, WeekPreview>>({})
 const isLoadingPreviews = ref(false)
 
 type DayPreview = {
@@ -38,21 +39,22 @@ type WeekPreview = {
   days: DayPreview[]
 }
 
-// 格式化当前周
-const currentWeekLabel = computed(() => formatWeekIdentifier(props.currentWeek))
+const currentWeekLabel = computed(() => formatIsoWeekLabel(props.currentWeek))
 
-// 格式化周范围
-const currentWeekRange = computed(() => {
-  return getWeekRangeLabel(props.currentWeek)
-})
+const currentWeekRange = computed(() => getIsoWeekRangeLabel(props.currentWeek, 'zh-CN'))
 
-const sortedWeeks = computed<WeekIdentifier[]>(() => {
-  const merged = new Set<WeekIdentifier>([props.currentWeek, ...props.availableWeeks])
-  return [...merged].sort()
+const currentKey = computed(() => getIsoWeekKey(props.currentWeek))
+
+const sortedWeeks = computed<IsoWeek[]>(() => {
+  const merged = new Map<string, IsoWeek>()
+  ;[props.currentWeek, ...props.availableWeeks].forEach((week) => {
+    merged.set(getIsoWeekKey(week), week)
+  })
+  return [...merged.values()].sort(compareIsoWeeks)
 })
 
 const currentIndex = computed(() => {
-  return sortedWeeks.value.indexOf(props.currentWeek)
+  return sortedWeeks.value.findIndex(week => getIsoWeekKey(week) === currentKey.value)
 })
 
 const previousAvailableWeek = computed(() => {
@@ -83,8 +85,8 @@ const goToNextWeek = () => {
 }
 
 // 选择特定周
-const selectWeek = (weekId: WeekIdentifier) => {
-  emit('update:currentWeek', weekId)
+const selectWeek = (week: IsoWeek) => {
+  emit('update:currentWeek', week)
   isDropdownOpen.value = false
 }
 
@@ -93,36 +95,23 @@ const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value
 }
 
-const getWeekRangeLabel = (weekId: WeekIdentifier) => {
-  const monday = getWeekStartDate(weekId)
-  const sunday = new Date(monday)
-  sunday.setDate(monday.getDate() + 6)
-
-  const start = monday.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
-  const end = sunday.toLocaleDateString('zh-CN', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-  return `${start} - ${end}`
-}
-
-const buildWeekPreview = (weekId: WeekIdentifier, plan: Record<string, any[]>) => {
-  const monday = getWeekStartDate(weekId)
+const buildWeekPreview = (week: IsoWeek, records: ApiLiveRecord[]) => {
+  const monday = getIsoWeekStartDate(week)
   const days: DayPreview[] = Array.from({ length: 7 }, (_, index) => {
     const date = new Date(monday)
     date.setDate(monday.getDate() + index)
-    const longName = date.toLocaleDateString('en-US', { weekday: 'long' })
-    const events = plan[longName] ?? []
     const memberSet = new Set<MemberTag>()
-    events.forEach((event: any) => {
-      if (!Array.isArray(event.tags)) return
-      event.tags.forEach((tag: TagType) => {
-        if (props.memberTags.includes(tag as MemberTag)) {
-          memberSet.add(tag as MemberTag)
+
+    records.forEach((record) => {
+      const startDate = getRecordStartDate(record)
+      if (!startDate || !isSameDay(startDate, date)) return
+      getRecordMemberTags(record, props.memberIndex ?? undefined).forEach((tag) => {
+        if (props.memberTags.includes(tag)) {
+          memberSet.add(tag)
         }
       })
     })
+
     const orderedMembers = props.memberTags.filter(tag => memberSet.has(tag))
     const colors = orderedMembers.map(tag => props.tagMeta[tag]?.color).filter(Boolean) as string[]
     const dayLabel = date.toLocaleDateString('zh-CN', { weekday: 'short' })
@@ -139,7 +128,7 @@ const buildWeekPreview = (weekId: WeekIdentifier, plan: Record<string, any[]>) =
   })
 
   return {
-    range: getWeekRangeLabel(weekId),
+    range: getIsoWeekRangeLabel(week, 'zh-CN'),
     days,
   }
 }
@@ -147,16 +136,16 @@ const buildWeekPreview = (weekId: WeekIdentifier, plan: Record<string, any[]>) =
 const loadWeekPreviews = async () => {
   if (isLoadingPreviews.value) return
   isLoadingPreviews.value = true
-  const missing = sortedWeeks.value.filter(weekId => !weekPreviews.value[weekId])
+  const missing = sortedWeeks.value.filter(week => !weekPreviews.value[getIsoWeekKey(week)])
   try {
     await Promise.all(
-      missing.map(async (weekId) => {
+      missing.map(async (week) => {
         try {
-          const plan = await getWeeklyPlanByWeek(weekId)
-          weekPreviews.value[weekId] = buildWeekPreview(weekId, plan)
+          const records = await getWeeklyPlanByWeek(week)
+          weekPreviews.value[getIsoWeekKey(week)] = buildWeekPreview(week, records)
         } catch (error) {
           console.error('Failed to load week preview:', error)
-          weekPreviews.value[weekId] = buildWeekPreview(weekId, {})
+          weekPreviews.value[getIsoWeekKey(week)] = buildWeekPreview(week, [])
         }
       })
     )
@@ -165,9 +154,10 @@ const loadWeekPreviews = async () => {
   }
 }
 
-const getWeekPreview = (weekId: WeekIdentifier) => {
-  if (weekPreviews.value[weekId]) return weekPreviews.value[weekId]
-  return buildWeekPreview(weekId, {})
+const getWeekPreview = (week: IsoWeek) => {
+  const key = getIsoWeekKey(week)
+  if (weekPreviews.value[key]) return weekPreviews.value[key]
+  return buildWeekPreview(week, [])
 }
 
 const updateDropdownPosition = () => {
@@ -251,27 +241,27 @@ watch(isDropdownOpen, (open) => {
         <div class="week-selector__dropdown-header">选择周</div>
         <div class="week-selector__dropdown-list">
           <button
-            v-for="weekId in sortedWeeks"
-            :key="weekId"
+            v-for="week in sortedWeeks"
+            :key="getIsoWeekKey(week)"
             class="week-selector__dropdown-item"
-            :class="{ 'week-selector__dropdown-item--active': weekId === currentWeek }"
-            @click.stop="selectWeek(weekId)"
+            :class="{ 'week-selector__dropdown-item--active': getIsoWeekKey(week) === currentKey }"
+            @click.stop="selectWeek(week)"
           >
             <div class="week-selector__dropdown-item-content">
               <div class="week-selector__dropdown-item-text">
-                <span class="week-selector__dropdown-item-label">{{ formatWeekIdentifier(weekId) }}</span>
-                <span class="week-selector__dropdown-item-range">{{ getWeekPreview(weekId).range }}</span>
+                <span class="week-selector__dropdown-item-label">{{ formatIsoWeekLabel(week) }}</span>
+                <span class="week-selector__dropdown-item-range">{{ getWeekPreview(week).range }}</span>
               </div>
               <div class="week-selector__dropdown-item-days">
                 <WeekDaySwatch
-                  v-for="(day, index) in getWeekPreview(weekId).days"
-                  :key="`${weekId}-${index}`"
+                  v-for="(day, index) in getWeekPreview(week).days"
+                  :key="`${getIsoWeekKey(week)}-${index}`"
                   :colors="day.colors"
                   :title="day.tooltip"
                 />
               </div>
             </div>
-            <span v-if="weekId === currentWeek" class="week-selector__dropdown-item-check">✓</span>
+            <span v-if="getIsoWeekKey(week) === currentKey" class="week-selector__dropdown-item-check">✓</span>
           </button>
         </div>
       </div>
@@ -568,3 +558,4 @@ watch(isDropdownOpen, (open) => {
   }
 }
 </style>
+
