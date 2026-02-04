@@ -299,7 +299,11 @@ watch(isDropdownOpen, (open) => {
 }
 
 .week-selector__nav:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--sun), var(--surface-warm-soft));
+  background: linear-gradient(
+    135deg,
+    var(--schedule-accent-warm),
+    var(--surface-warm-soft)
+  );
   color: var(--ink);
   transform: translate(-2px, -2px) rotate(-2deg);
   box-shadow: 4px 4px 0 var(--shadow-strong);
@@ -517,7 +521,7 @@ watch(isDropdownOpen, (open) => {
 
 .week-selector__dropdown-item-check {
   font-size: 16px;
-  color: var(--mint);
+  color: var(--schedule-accent-mint);
   font-weight: 700;
 }
 

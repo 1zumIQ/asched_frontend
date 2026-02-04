@@ -319,7 +319,11 @@ onUnmounted(() => {
 }
 
 .scroll-button:hover {
-  background: linear-gradient(135deg, var(--sun) 0%, var(--coral) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--schedule-accent-warm) 0%,
+    var(--schedule-accent-hot) 100%
+  );
   color: var(--text-on-accent);
   border-color: var(--outline);
   transform: translate(-2px, -50%) scale(1.05) rotate(-2deg);
@@ -376,4 +380,3 @@ onUnmounted(() => {
   }
 }
 </style>
-

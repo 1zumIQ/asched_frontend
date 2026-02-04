@@ -48,7 +48,7 @@ const STATUS_META: Record<
     dot: 'upcoming',
     tone: {
       color: 'var(--status-upcoming)',
-      glow: 'rgb(var(--sky-rgb) / 0.3)',
+      glow: 'rgb(var(--status-upcoming-rgb) / 0.3)',
     },
   },
   4: {
@@ -68,7 +68,7 @@ const DEFAULT_STATUS = {
   dot: 'upcoming' as DotStatusKey,
   tone: {
     color: 'var(--status-upcoming)',
-    glow: 'rgb(var(--sky-rgb) / 0.3)',
+    glow: 'rgb(var(--status-upcoming-rgb) / 0.3)',
   },
 }
 
@@ -294,6 +294,7 @@ const guestNames = computed(() => {
   --event-time-bg-hover: linear-gradient(135deg, var(--surface-rose), var(--surface-warm));
   --event-guests-bg: linear-gradient(135deg, var(--surface-base), var(--surface-warm));
   --event-expand-bg: rgb(var(--white-rgb) / 0.7);
+  --event-expand-bg-hover: rgb(var(--schedule-accent-warm-rgb) / 0.4);
   background:
     radial-gradient(circle at 10px 10px, rgb(var(--ink-deep-rgb) / 0.05) 1px, transparent 1px),
     var(--event-surface);
@@ -328,7 +329,11 @@ const guestNames = computed(() => {
   left: 0;
   width: 6px;
   height: 100%;
-  background: linear-gradient(180deg, var(--primary-color, var(--coral)), transparent);
+  background: linear-gradient(
+    180deg,
+    var(--primary-color, var(--schedule-accent-hot)),
+    transparent
+  );
   opacity: 0.7;
 }
 
@@ -357,13 +362,13 @@ const guestNames = computed(() => {
   100% {
     box-shadow:
       3px 3px 0 var(--shadow-strong),
-      0 10px 16px rgb(var(--mint-rgb) / 0.22);
+      0 10px 16px rgb(var(--status-ongoing-rgb) / 0.22);
   }
 
   50% {
     box-shadow:
       4px 4px 0 var(--shadow-strong),
-      0 12px 20px rgb(var(--mint-rgb) / 0.28);
+      0 12px 20px rgb(var(--status-ongoing-rgb) / 0.28);
   }
 }
 
@@ -639,7 +644,7 @@ const guestNames = computed(() => {
 }
 
 .event:hover .event__name {
-  color: var(--primary-color, var(--sky));
+  color: var(--primary-color, var(--schedule-accent-cool));
 }
 
 .event__meta {
@@ -713,7 +718,7 @@ const guestNames = computed(() => {
 
 .dot--ongoing {
   box-shadow:
-    0 0 0 3px rgb(var(--mint-rgb) / 0.2),
+    0 0 0 3px rgb(var(--status-ongoing-rgb) / 0.2),
     2px 2px 0 var(--shadow);
   animation: dot-breathe 1.6s ease-in-out infinite;
 }
@@ -738,7 +743,7 @@ const guestNames = computed(() => {
 
 .dot--upcoming {
   box-shadow:
-    0 0 0 2px rgb(var(--sky-rgb) / 0.2),
+    0 0 0 2px rgb(var(--status-upcoming-rgb) / 0.2),
     2px 2px 0 rgb(var(--ink-deep-rgb) / 0.3);
 }
 
@@ -873,7 +878,7 @@ const guestNames = computed(() => {
 .event:hover .event__expand-indicator {
   color: var(--ink);
   backdrop-filter: blur(4px);
-  background: rgb(var(--sun-rgb) / 0.4);
+  background: var(--event-expand-bg-hover);
 }
 
 @media (max-width: 720px) {

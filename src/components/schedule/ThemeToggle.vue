@@ -73,12 +73,12 @@ const setTheme = (value: ThemeName) => {
 }
 
 .theme-toggle__button[data-theme='light'] {
-  --theme-accent: var(--sun);
+  --theme-accent: var(--schedule-accent-warm);
   --theme-accent-soft: var(--surface-warm-strong);
 }
 
 .theme-toggle__button[data-theme='dark'] {
-  --theme-accent: var(--sky);
+  --theme-accent: var(--schedule-accent-cool);
   --theme-accent-soft: var(--surface-cool);
 }
 

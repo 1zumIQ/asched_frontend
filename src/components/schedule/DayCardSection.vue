@@ -231,11 +231,11 @@ const hasEvents = computed(() => props.events.length > 0)
 }
 
 .section--morning .section__line {
-  background: linear-gradient(90deg, transparent, var(--sun), transparent);
+  background: linear-gradient(90deg, transparent, var(--schedule-accent-warm), transparent);
 }
 
 .section--afternoon .section__line {
-  background: linear-gradient(90deg, transparent, var(--sky), transparent);
+  background: linear-gradient(90deg, transparent, var(--schedule-accent-cool), transparent);
 }
 
 .section__label {
@@ -271,13 +271,13 @@ const hasEvents = computed(() => props.events.length > 0)
 
 .section--morning .section__label {
   color: var(--ink);
-  background: rgb(var(--sun-rgb) / 0.4);
+  background: rgb(var(--schedule-accent-warm-rgb) / 0.4);
   border: 2px solid var(--outline);
 }
 
 .section--afternoon .section__label {
   color: var(--ink);
-  background: rgb(var(--sky-rgb) / 0.2);
+  background: rgb(var(--schedule-accent-cool-rgb) / 0.2);
   border: 2px solid var(--outline);
 }
 

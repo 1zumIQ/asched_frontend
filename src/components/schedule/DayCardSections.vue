@@ -77,7 +77,13 @@ defineProps<{
 .day-card-sections__line {
   flex: 1;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--coral) 20%, var(--coral) 80%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--schedule-accent-hot) 20%,
+    var(--schedule-accent-hot) 80%,
+    transparent
+  );
   border-radius: 2px;
   position: relative;
   overflow: hidden;
@@ -107,7 +113,7 @@ defineProps<{
   font-size: 11px;
   font-weight: 800;
   color: var(--text-on-accent);
-  background: linear-gradient(135deg, var(--coral), var(--berry));
+  background: linear-gradient(135deg, var(--schedule-accent-hot), var(--schedule-accent-berry));
   padding: 5px 12px;
   border-radius: 999px;
   box-shadow:

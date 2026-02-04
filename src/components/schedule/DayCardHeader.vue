@@ -84,7 +84,7 @@ const isModal = computed(() => props.variant === 'modal')
 }
 
 .day-card-header--today .day-card-header__weekday {
-  color: var(--sky);
+  color: var(--schedule-accent-cool);
   text-shadow: 2px 2px 0 rgb(var(--ink-deep-rgb) / 0.15);
 }
 

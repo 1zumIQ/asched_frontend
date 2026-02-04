@@ -138,12 +138,12 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
     linear-gradient(135deg, var(--surface-base) 0%, var(--surface-warm) 100%) padding-box,
     linear-gradient(
       90deg,
-      var(--rainbow-1) 0%,
-      var(--rainbow-2) 20%,
-      var(--rainbow-3) 40%,
-      var(--rainbow-4) 60%,
-      var(--rainbow-5) 80%,
-      var(--rainbow-1) 100%
+      var(--schedule-rainbow-1) 0%,
+      var(--schedule-rainbow-2) 20%,
+      var(--schedule-rainbow-3) 40%,
+      var(--schedule-rainbow-4) 60%,
+      var(--schedule-rainbow-5) 80%,
+      var(--schedule-rainbow-1) 100%
     ) border-box;
 }
 
@@ -153,7 +153,11 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   inset: 0;
   background-image:
     radial-gradient(circle at 10% 20%, var(--glass-70) 0%, transparent 45%),
-    radial-gradient(circle at 90% 10%, rgb(var(--sun-rgb) / 0.3) 0%, transparent 40%);
+    radial-gradient(
+      circle at 90% 10%,
+      rgb(var(--schedule-accent-warm-rgb) / 0.3) 0%,
+      transparent 40%
+    );
   opacity: 0.7;
   pointer-events: none;
 }
@@ -192,7 +196,7 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
 }
 
 .tag-filter__clear:hover {
-  background: var(--coral);
+  background: var(--schedule-accent-hot);
   border-color: var(--outline);
   color: var(--text-on-accent);
   transform: translate(-1px, -1px) rotate(-2deg);

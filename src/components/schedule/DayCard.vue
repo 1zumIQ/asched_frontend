@@ -224,7 +224,12 @@ const eventDensity = computed(() => {
   left: 0;
   right: 0;
   height: 10px;
-  background: linear-gradient(90deg, var(--coral), var(--sun), var(--mint));
+  background: linear-gradient(
+    90deg,
+    var(--schedule-accent-hot),
+    var(--schedule-accent-warm),
+    var(--schedule-accent-mint)
+  );
   opacity: 0.85;
   box-shadow: 0 2px 0 var(--shadow-strong);
 }
@@ -237,8 +242,8 @@ const eventDensity = computed(() => {
 }
 
 .day-card--today {
-  border-color: var(--sky);
-  --card-dot-color: rgb(var(--sky-rgb) / 0.12);
+  border-color: var(--schedule-accent-cool);
+  --card-dot-color: rgb(var(--schedule-accent-cool-rgb) / 0.12);
   --card-surface: linear-gradient(
     145deg,
     var(--surface-cool-soft) 0%,
@@ -247,12 +252,17 @@ const eventDensity = computed(() => {
   );
   box-shadow:
     6px 6px 0 var(--shadow-strong),
-    0 22px 34px rgb(var(--sky-rgb) / 0.22);
+    0 22px 34px rgb(var(--schedule-accent-cool-rgb) / 0.22);
   animation: none;
 }
 
 .day-card--today::before {
-  background: linear-gradient(90deg, var(--sky), var(--mint), var(--sun));
+  background: linear-gradient(
+    90deg,
+    var(--schedule-accent-cool),
+    var(--schedule-accent-mint),
+    var(--schedule-accent-warm)
+  );
 }
 
 .day-card--medium::after,
@@ -270,11 +280,11 @@ const eventDensity = computed(() => {
 }
 
 .day-card--medium::after {
-  background: var(--sun);
+  background: var(--schedule-accent-warm);
 }
 
 .day-card--heavy::after {
-  background: var(--coral);
+  background: var(--schedule-accent-hot);
   animation: pulse-heavy 2s ease-in-out infinite;
 }
 
@@ -298,7 +308,7 @@ const eventDensity = computed(() => {
   height: 48px;
   border-radius: 50%;
   border: 2px solid var(--outline);
-  background: linear-gradient(135deg, var(--sun) 0%, var(--surface-warm) 100%);
+  background: linear-gradient(135deg, var(--schedule-accent-warm) 0%, var(--surface-warm) 100%);
   color: var(--ink);
   display: flex;
   align-items: center;
@@ -312,7 +322,11 @@ const eventDensity = computed(() => {
 }
 
 .hamburger-button:hover {
-  background: linear-gradient(135deg, var(--coral) 0%, var(--berry) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--schedule-accent-hot) 0%,
+    var(--schedule-accent-berry) 100%
+  );
   color: var(--text-on-accent);
   border-color: var(--outline);
   transform: translate(-50%, -2px) scale(1.08);
@@ -324,6 +338,7 @@ const eventDensity = computed(() => {
 .hamburger-button:active {
   transform: translateX(-50%) scale(1.05);
 }
+
 
 .modal-overlay {
   position: fixed;
@@ -417,7 +432,11 @@ const eventDensity = computed(() => {
 }
 
 .modal-close:hover {
-  background: linear-gradient(135deg, var(--coral) 0%, var(--berry) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--schedule-accent-hot) 0%,
+    var(--schedule-accent-berry) 100%
+  );
   color: var(--text-on-accent);
   border-color: var(--outline);
   transform: translate(-1px, -1px) scale(1.05) rotate(8deg);

@@ -126,7 +126,11 @@ const updateTheme = (value: ThemeName) => {
   background-image:
     radial-gradient(circle at 20% 20%, var(--glass-60) 0%, transparent 35%),
     radial-gradient(circle at 80% 10%, var(--glass-60) 0%, transparent 30%),
-    radial-gradient(circle at 10% 80%, rgb(var(--mint-rgb) / 0.2) 0%, transparent 40%);
+    radial-gradient(
+      circle at 10% 80%,
+      rgb(var(--schedule-accent-mint-rgb) / 0.2) 0%,
+      transparent 40%
+    );
   opacity: 0.7;
   pointer-events: none;
 }
@@ -183,7 +187,7 @@ const updateTheme = (value: ThemeName) => {
   height: 14px;
   border-radius: 999px;
   background:
-    linear-gradient(90deg, var(--glass-70), rgb(var(--sun-rgb) / 0.6));
+    linear-gradient(90deg, var(--glass-70), rgb(var(--schedule-accent-warm-rgb) / 0.6));
   filter: blur(0.5px);
   opacity: 0.8;
   transform: rotate(-1.5deg);
@@ -201,10 +205,10 @@ const updateTheme = (value: ThemeName) => {
   background:
     repeating-linear-gradient(
       90deg,
-      rgb(var(--coral-rgb) / 0.65) 0 16px,
-      rgb(var(--sun-rgb) / 0.65) 16px 32px,
-      rgb(var(--mint-rgb) / 0.65) 32px 48px,
-      rgb(var(--sky-rgb) / 0.65) 48px 64px
+      rgb(var(--schedule-accent-hot-rgb) / 0.65) 0 16px,
+      rgb(var(--schedule-accent-warm-rgb) / 0.65) 16px 32px,
+      rgb(var(--schedule-accent-mint-rgb) / 0.65) 32px 48px,
+      rgb(var(--schedule-accent-cool-rgb) / 0.65) 48px 64px
     );
   box-shadow: 2px 2px 0 rgb(var(--ink-deep-rgb) / 0.2);
   transform: rotate(-0.8deg);
@@ -216,10 +220,10 @@ const updateTheme = (value: ThemeName) => {
   color: var(--ink);
   background: linear-gradient(
     120deg,
-    var(--coral) 0%,
-    var(--berry) 35%,
-    var(--sky) 70%,
-    var(--sun) 100%
+    var(--schedule-accent-hot) 0%,
+    var(--schedule-accent-berry) 35%,
+    var(--schedule-accent-cool) 70%,
+    var(--schedule-accent-warm) 100%
   );
   background-size: 200% 200%;
   -webkit-background-clip: text;
@@ -243,7 +247,7 @@ const updateTheme = (value: ThemeName) => {
   border: 2px solid var(--outline);
   box-shadow: 2px 2px 0 var(--shadow);
   font-size: 14px;
-  color: var(--coral);
+  color: var(--schedule-accent-hot);
   transform: rotate(-8deg);
   animation: sparkle-pop 3s ease-in-out infinite;
   pointer-events: none;

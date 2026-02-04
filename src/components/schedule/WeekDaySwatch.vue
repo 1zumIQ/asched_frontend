@@ -83,12 +83,12 @@ const layoutClass = computed(() => {
 .week-day-swatch--rainbow {
   background: linear-gradient(
     135deg,
-    var(--rainbow-1) 0%,
-    var(--rainbow-2) 20%,
-    var(--rainbow-3) 40%,
-    var(--rainbow-4) 60%,
-    var(--rainbow-5) 80%,
-    var(--rainbow-1) 100%
+    var(--schedule-rainbow-1) 0%,
+    var(--schedule-rainbow-2) 20%,
+    var(--schedule-rainbow-3) 40%,
+    var(--schedule-rainbow-4) 60%,
+    var(--schedule-rainbow-5) 80%,
+    var(--schedule-rainbow-1) 100%
   );
   border-style: solid;
   border-color: rgb(var(--outline-rgb) / 0.25);
