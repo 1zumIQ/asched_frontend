@@ -18,23 +18,23 @@ const setTheme = (value: ThemeName) => {
   <div class="theme-toggle" role="group" aria-label="选择主题">
     <button
       class="theme-toggle__button"
-      :class="{ 'theme-toggle__button--active': theme === 'sunrise' }"
-      data-theme="sunrise"
+      :class="{ 'theme-toggle__button--active': theme === 'light' }"
+      data-theme="light"
       type="button"
-      @click="setTheme('sunrise')"
+      @click="setTheme('light')"
     >
-      <span class="theme-toggle__title">Sunrise</span>
-      <span class="theme-toggle__hint">Warm</span>
+      <span class="theme-toggle__title">Light</span>
+      <span class="theme-toggle__hint">Default</span>
     </button>
     <button
       class="theme-toggle__button"
-      :class="{ 'theme-toggle__button--active': theme === 'ocean' }"
-      data-theme="ocean"
+      :class="{ 'theme-toggle__button--active': theme === 'dark' }"
+      data-theme="dark"
       type="button"
-      @click="setTheme('ocean')"
+      @click="setTheme('dark')"
     >
-      <span class="theme-toggle__title">Ocean</span>
-      <span class="theme-toggle__hint">Cool</span>
+      <span class="theme-toggle__title">Dark</span>
+      <span class="theme-toggle__hint">Night</span>
     </button>
   </div>
 </template>
@@ -72,12 +72,12 @@ const setTheme = (value: ThemeName) => {
   transition: opacity 200ms ease;
 }
 
-.theme-toggle__button[data-theme='sunrise'] {
+.theme-toggle__button[data-theme='light'] {
   --theme-accent: var(--sun);
   --theme-accent-soft: var(--surface-warm-strong);
 }
 
-.theme-toggle__button[data-theme='ocean'] {
+.theme-toggle__button[data-theme='dark'] {
   --theme-accent: var(--sky);
   --theme-accent-soft: var(--surface-cool);
 }

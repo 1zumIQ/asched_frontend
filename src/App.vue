@@ -28,7 +28,7 @@ const weeklyRecords = ref<ApiLiveRecord[]>([])
 
 // 加载状态
 const isLoading = ref(false)
-const theme = ref<ThemeName>('sunrise')
+const theme = ref<ThemeName>('light')
 
 // 选中的标签（用于筛选）
 const selectedTags = ref<TagType[]>([])
@@ -76,7 +76,7 @@ watch(currentWeek, (newWeek) => {
 onMounted(async () => {
   try {
     const storedTheme = localStorage.getItem(THEME_STORAGE_KEY)
-    if (storedTheme === 'sunrise' || storedTheme === 'ocean') {
+    if (storedTheme === 'light' || storedTheme === 'dark') {
       theme.value = storedTheme
     }
   } catch (error) {
@@ -280,45 +280,45 @@ const tagCounts = computed(() => {
   --radius-sm: 12px 10px 14px 8px;
 }
 
-:root[data-theme='ocean'] {
-  --ink: #1f2937;
-  --ink-soft: #475569;
-  --ink-rgb: 31 41 55;
-  --ink-deep-rgb: 15 23 42;
-  --outline: #1f3b4d;
-  --outline-rgb: 31 59 77;
-  --paper: #dbeafe;
-  --paper-2: #eff6ff;
-  --sun: #fcd34d;
-  --sun-rgb: 252 211 77;
+:root[data-theme='dark'] {
+  --ink: #e2e8f0;
+  --ink-soft: #94a3b8;
+  --ink-rgb: 226 232 240;
+  --ink-deep-rgb: 148 163 184;
+  --outline: #334155;
+  --outline-rgb: 51 65 85;
+  --paper: #0f172a;
+  --paper-2: #111827;
+  --sun: #facc15;
+  --sun-rgb: 250 204 21;
   --coral: #fb7185;
   --coral-rgb: 251 113 133;
-  --mint: #2dd4bf;
-  --mint-rgb: 45 212 191;
+  --mint: #34d399;
+  --mint-rgb: 52 211 153;
   --sky: #38bdf8;
   --sky-rgb: 56 189 248;
   --berry: #f472b6;
   --berry-rgb: 244 114 182;
   --leaf: #84cc16;
-  --surface-base: #ffffff;
-  --surface-warm: #fef3c7;
-  --surface-warm-strong: #fde68a;
-  --surface-warm-deep: #fcd34d;
-  --surface-warm-soft: #fffbeb;
-  --surface-sun: #fef9c3;
-  --surface-sun-strong: #fde047;
-  --surface-cool: #e0f2fe;
-  --surface-cool-soft: #eff6ff;
-  --surface-rose: #fde2e7;
-  --surface-rose-soft: #ffe4f1;
-  --surface-mint-soft: #ccfbf1;
-  --surface-mint-bright: #e6fffb;
-  --surface-sunlight: #fef3c7;
-  --page-bg-warm: #fef9c3;
-  --page-bg-cool: #bae6fd;
-  --page-bg-rose: #fecdd3;
+  --surface-base: #0f172a;
+  --surface-warm: #1e293b;
+  --surface-warm-strong: #273449;
+  --surface-warm-deep: #334155;
+  --surface-warm-soft: #1b2435;
+  --surface-sun: #1f2a3d;
+  --surface-sun-strong: #273449;
+  --surface-cool: #0b2239;
+  --surface-cool-soft: #10263d;
+  --surface-rose: #2a1f2f;
+  --surface-rose-soft: #241a29;
+  --surface-mint-soft: #0f2a24;
+  --surface-mint-bright: #12332b;
+  --surface-sunlight: #1b2435;
+  --page-bg-warm: #0b1220;
+  --page-bg-cool: #0b1726;
+  --page-bg-rose: #1b1020;
   --rainbow-1: #fb7185;
-  --rainbow-2: #fcd34d;
+  --rainbow-2: #facc15;
   --rainbow-3: #34d399;
   --rainbow-4: #38bdf8;
   --rainbow-5: #a78bfa;
