@@ -25,11 +25,11 @@ defineProps<{
           :key="tag"
           class="chip chip--soft"
           :style="{
-            backgroundColor: tagMeta[tag].tint,
-            color: tagMeta[tag].color,
+            backgroundColor: tagMeta[tag]?.tint,
+            color: tagMeta[tag]?.color,
           }"
         >
-          {{ tagMeta[tag].label }}
+          {{ tagMeta[tag]?.label }}
         </span>
       </div>
     </div>

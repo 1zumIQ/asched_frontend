@@ -248,14 +248,14 @@ const guestNames = computed(() => {
         class="chip"
         :class="{ 'chip--type': isTypeTag(tag) }"
         :style="{
-          borderColor: tagMeta[tag].color,
-          color: tagMeta[tag].color,
-          backgroundColor: tagMeta[tag].tint,
+          borderColor: tagMeta[tag]?.color,
+          color: tagMeta[tag]?.color,
+          backgroundColor: tagMeta[tag]?.tint,
         }">
         <span v-if="isTypeTag(tag)" class="chip__icon">
           {{ typeIcon }}
         </span>
-        {{ tagMeta[tag].label }}
+        {{ tagMeta[tag]?.label }}
       </span>
     </div>
 
