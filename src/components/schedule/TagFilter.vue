@@ -18,9 +18,9 @@ const emit = defineEmits<{
 const memberTagStats = computed(() => {
   return props.memberTags.map(tag => ({
     tag,
-    label: props.tagMeta[tag].label,
-    color: props.tagMeta[tag].color,
-    tint: props.tagMeta[tag].tint,
+    label: props.tagMeta[tag]?.label,
+    color: props.tagMeta[tag]?.color,
+    tint: props.tagMeta[tag]?.tint,
     count: props.tagCounts[tag] || 0,
     selected: props.selectedTags.includes(tag)
   })).sort((a, b) => b.count - a.count)
@@ -30,9 +30,9 @@ const memberTagStats = computed(() => {
 const typeTagStats = computed(() => {
   return props.typeTags.map(tag => ({
     tag,
-    label: props.tagMeta[tag].label,
-    color: props.tagMeta[tag].color,
-    tint: props.tagMeta[tag].tint,
+    label: props.tagMeta[tag]?.label,
+    color: props.tagMeta[tag]?.color,
+    tint: props.tagMeta[tag]?.tint,
     count: props.tagCounts[tag] || 0,
     selected: props.selectedTags.includes(tag)
   })).sort((a, b) => b.count - a.count)
