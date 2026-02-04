@@ -97,11 +97,9 @@ const avatarInitials = computed(() => {
 })
 
 // 获取主分类标签（第一个成员标签）
-const primaryTag = computed<TagType>(() => {
-  if (props.event.memberTags[0]) return props.event.memberTags[0]
-  if (props.event.typeTag) return props.event.typeTag
-  return props.event.tagKeys[0] ?? props.event.memberTags[0]
-})
+const primaryTag = computed<TagType>(() => (
+  props.event.memberTags[0] ?? props.event.tagKeys[0] ?? props.event.typeTag
+))
 
 const primaryMeta = computed(() => (
   props.tagMeta[primaryTag.value] ?? FALLBACK_TAG_META
@@ -179,7 +177,6 @@ const guestNames = computed(() => {
 
 <template>
   <div class="event" :class="{
-    'event--starting-soon': eventStatus === 'starting-soon',
     'event--ongoing': eventStatus === 'ongoing',
     'event--ended': eventStatus === 'ended',
     'event--expanded': isExpanded
@@ -348,11 +345,6 @@ const guestNames = computed(() => {
 }
 
 /* 状态样式 */
-.event--starting-soon {
-  border-color: var(--outline);
-  background: var(--event-surface-soon);
-}
-
 .event--ongoing {
   border-color: var(--outline);
   background: var(--event-surface-ongoing);
@@ -904,4 +896,3 @@ const guestNames = computed(() => {
   }
 }
 </style>
-

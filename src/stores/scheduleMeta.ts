@@ -67,7 +67,12 @@ function makeTint(color: string, fallback: string): string {
 }
 
 function getPaletteEntry<T extends { color: string; tint: string }>(palette: T[], index: number): T {
-  return palette[index % palette.length]
+  if (palette.length === 0) {
+    throw new Error('Palette must not be empty')
+  }
+  const entry = palette[index % palette.length]
+  if (!entry) throw new Error('Palette entry not found')
+  return entry
 }
 
 export const useScheduleMetaStore = defineStore('scheduleMeta', () => {

@@ -289,7 +289,7 @@ onUnmounted(() => {
 /* 430px以下：减少最小宽度和间距 */
 @media (max-width: 430px) {
   .grid {
-    grid-template-columns: repeat(7, minmax(280px, 1fr));
+    grid-template-columns: repeat(7, minmax(100%, 1fr));
     gap: 8px;
     padding: 12px 8px 16px;
     scroll-padding: 0 8px;
