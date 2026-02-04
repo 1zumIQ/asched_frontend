@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  shallowRef,
+  useTemplateRef,
+} from 'vue'
 import type { DayCard, TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
 import type { LiveRecordView } from '@/domain/records'
 import DayCardComponent from './DayCard.vue'
@@ -11,10 +18,11 @@ defineProps<{
   typeTags: TypeTag[]
 }>()
 
-const gridRef = ref<HTMLElement | null>(null)
-const scrollPosition = ref(0)
-const showScrollControls = ref(false)
-const cardHeight = ref<number>(0)
+const gridRef = useTemplateRef<HTMLElement>('grid')
+const scrollPosition = shallowRef(0)
+const showScrollControls = shallowRef(false)
+const cardHeight = shallowRef(0)
+let resizeObserver: ResizeObserver | null = null
 
 // 计算卡片可用高度
 const calculateCardHeight = () => {
@@ -30,14 +38,6 @@ const calculateCardHeight = () => {
 
   // 确保高度为正数
   cardHeight.value = Math.max(calculatedHeight, 200)
-
-  console.log('Grid height calculation:', {
-    gridHeight,
-    gridPaddingTop,
-    gridPaddingBottom,
-    bottomMargin,
-    calculatedHeight: cardHeight.value
-  })
 }
 
 // 检测是否需要滚动控制
@@ -70,6 +70,15 @@ const updateScrollPosition = () => {
   }
 }
 
+const handleResize = () => {
+  checkScrollNeeded()
+  calculateCardHeight()
+}
+
+const handleScroll = () => {
+  updateScrollPosition()
+}
+
 // 判断是否可以向左滚动
 const canScrollLeft = computed(() => {
   return scrollPosition.value > 0
@@ -86,29 +95,28 @@ onMounted(() => {
     checkScrollNeeded()
     calculateCardHeight()
   })
-  window.addEventListener('resize', () => {
+  window.addEventListener('resize', handleResize)
+  if (!gridRef.value) return
+
+  gridRef.value.addEventListener('scroll', handleScroll)
+  // 初始化时更新滚动位置，确保箭头正确显示
+  updateScrollPosition()
+  // 使用 ResizeObserver 监听网格大小变化
+  resizeObserver = new ResizeObserver(() => {
     checkScrollNeeded()
+    updateScrollPosition()
     calculateCardHeight()
   })
-  if (gridRef.value) {
-    gridRef.value.addEventListener('scroll', updateScrollPosition)
-    // 初始化时更新滚动位置，确保箭头正确显示
-    updateScrollPosition()
-    // 使用 ResizeObserver 监听网格大小变化
-    const resizeObserver = new ResizeObserver(() => {
-      checkScrollNeeded()
-      updateScrollPosition()
-      calculateCardHeight()
-    })
-    resizeObserver.observe(gridRef.value)
-  }
+  resizeObserver.observe(gridRef.value)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', checkScrollNeeded)
+  window.removeEventListener('resize', handleResize)
   if (gridRef.value) {
-    gridRef.value.removeEventListener('scroll', updateScrollPosition)
+    gridRef.value.removeEventListener('scroll', handleScroll)
   }
+  resizeObserver?.disconnect()
+  resizeObserver = null
 })
 </script>
 
@@ -127,7 +135,7 @@ onUnmounted(() => {
     </button>
 
     <!-- 日程网格 -->
-    <section ref="gridRef" class="grid">
+    <section ref="grid" class="grid">
       <DayCardComponent
         v-for="day in dayCards"
         :key="day.longName"

@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  shallowRef,
+  useTemplateRef,
+  watch,
+} from 'vue'
 import type { IsoWeek } from '@/utils/isoWeek'
 import { compareIsoWeeks, formatIsoWeekLabel, getIsoWeekKey, getIsoWeekRangeLabel, getIsoWeekStartDate } from '@/utils/isoWeek'
 import type { ApiLiveRecord } from '@/api/schedule'
@@ -19,12 +28,12 @@ const emit = defineEmits<{
   'update:currentWeek': [week: IsoWeek]
 }>()
 
-const isDropdownOpen = ref(false)
-const currentRef = ref<HTMLElement | null>(null)
-const dropdownRef = ref<HTMLElement | null>(null)
+const isDropdownOpen = shallowRef(false)
+const currentRef = useTemplateRef<HTMLElement>('current')
+const dropdownRef = useTemplateRef<HTMLElement>('dropdown')
 const dropdownStyle = ref<Record<string, string>>({})
 const weekPreviews = ref<Record<string, WeekPreview>>({})
-const isLoadingPreviews = ref(false)
+const isLoadingPreviews = shallowRef(false)
 
 type DayPreview = {
   colors: string[]
@@ -170,22 +179,31 @@ const updateDropdownPosition = () => {
 
 // 点击外部关闭下拉菜单
 const handleClickOutside = (event: MouseEvent) => {
-  const target = event.target as HTMLElement
+  if (!(event.target instanceof HTMLElement)) return
+  const target = event.target
   if (currentRef.value?.contains(target) || dropdownRef.value?.contains(target)) return
   if (target.closest('.week-selector')) return
   isDropdownOpen.value = false
 }
 
+const handleResize = () => {
+  updateDropdownPosition()
+}
+
+const handleScroll = () => {
+  updateDropdownPosition()
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  window.addEventListener('resize', updateDropdownPosition)
-  window.addEventListener('scroll', updateDropdownPosition, true)
+  window.addEventListener('resize', handleResize)
+  window.addEventListener('scroll', handleScroll, true)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
-  window.removeEventListener('resize', updateDropdownPosition)
-  window.removeEventListener('scroll', updateDropdownPosition, true)
+  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('scroll', handleScroll, true)
 })
 
 watch(isDropdownOpen, (open) => {
@@ -206,7 +224,7 @@ watch(isDropdownOpen, (open) => {
       </svg>
     </button>
 
-    <div ref="currentRef" class="week-selector__current" @click="toggleDropdown">
+    <div ref="current" class="week-selector__current" @click="toggleDropdown">
       <div class="week-selector__label">
         <span class="week-selector__week">{{ currentWeekLabel }}</span>
         <span class="week-selector__range">{{ currentWeekRange }}</span>
@@ -221,7 +239,7 @@ watch(isDropdownOpen, (open) => {
 
     <!-- 下拉菜单 -->
     <Teleport to="body">
-      <div v-if="isDropdownOpen" ref="dropdownRef" class="week-selector__dropdown week-selector__dropdown--portal"
+      <div v-if="isDropdownOpen" ref="dropdown" class="week-selector__dropdown week-selector__dropdown--portal"
         :style="dropdownStyle">
         <div class="week-selector__dropdown-header">选择周</div>
         <div class="week-selector__dropdown-list">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ThemeName } from '@/types/ui'
 
-const props = defineProps<{
+const { theme } = defineProps<{
   theme: ThemeName
 }>()
 
@@ -18,7 +18,7 @@ const setTheme = (value: ThemeName) => {
   <div class="theme-toggle" role="group" aria-label="选择主题">
     <button
       class="theme-toggle__button"
-      :class="{ 'theme-toggle__button--active': props.theme === 'sunrise' }"
+      :class="{ 'theme-toggle__button--active': theme === 'sunrise' }"
       data-theme="sunrise"
       type="button"
       @click="setTheme('sunrise')"
@@ -28,7 +28,7 @@ const setTheme = (value: ThemeName) => {
     </button>
     <button
       class="theme-toggle__button"
-      :class="{ 'theme-toggle__button--active': props.theme === 'ocean' }"
+      :class="{ 'theme-toggle__button--active': theme === 'ocean' }"
       data-theme="ocean"
       type="button"
       @click="setTheme('ocean')"

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, onBeforeUnmount } from 'vue'
+import { computed, shallowRef, type CSSProperties } from 'vue'
 import type { DayCard, TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
 import type { LiveRecordView } from '@/domain/records'
-import DayCardHeader from './DayCardHeader.vue'
-import DayCardStats from './DayCardStats.vue'
-import DayCardSections from './DayCardSections.vue'
+import { useBodyScrollLock } from '@/composables/useBodyScrollLock'
+import DayCardContent from './DayCardContent.vue'
+
+const HAMBURGER_THRESHOLD = 3
 
 const props = defineProps<{
   day: DayCard<LiveRecordView>
@@ -14,14 +15,22 @@ const props = defineProps<{
   cardHeight?: number
 }>()
 
-const cardRef = ref<HTMLElement | null>(null)
-const showModal = ref(false)
+const showModal = shallowRef(false)
+
+useBodyScrollLock(showModal)
+
+// 统计信息
+const totalEvents = computed(() => props.day.events.length)
+const hasEvents = computed(() => totalEvents.value > 0)
+const isEmpty = computed(() => totalEvents.value === 0)
 
 // 当一天有三场或以上直播时显示汉堡按钮
-const showHamburgerButton = computed(() => props.day.events.length >= 3)
+const showHamburgerButton = computed(() => (
+  hasEvents.value && totalEvents.value >= HAMBURGER_THRESHOLD
+))
 
 // 计算卡片样式
-const cardStyle = computed(() => {
+const cardStyle = computed<CSSProperties>(() => {
   if (props.cardHeight && props.cardHeight > 0) {
     return {
       height: `${props.cardHeight}px`,
@@ -35,12 +44,7 @@ const cardStyle = computed(() => {
 // 打开/关闭模态框
 const toggleModal = () => {
   showModal.value = !showModal.value
-  document.body.style.overflow = showModal.value ? 'hidden' : ''
 }
-
-onBeforeUnmount(() => {
-  document.body.style.overflow = ''
-})
 
 const getStartHour = (event: LiveRecordView): number => {
   return event.startDate.getHours()
@@ -54,27 +58,23 @@ const afternoonEvents = computed(() =>
   props.day.events.filter((event) => getStartHour(event) >= 12)
 )
 
-// 统计信息
-const totalEvents = computed(() => props.day.events.length)
-
 // 按成员统计
-const memberStats = computed(() => {
-  const stats: Record<string, number> = {}
+const memberStats = computed<Array<[MemberTag, number]>>(() => {
+  const stats = new Map<MemberTag, number>()
   props.day.events.forEach((event) => {
     event.memberTags.forEach((tag) => {
-      if (props.memberTags.includes(tag as MemberTag)) {
-        stats[tag] = (stats[tag] || 0) + 1
-      }
+      if (!props.memberTags.includes(tag)) return
+      stats.set(tag, (stats.get(tag) ?? 0) + 1)
     })
   })
-  return Object.entries(stats)
+  return [...stats.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3) // 只显示前3个
 })
 
 // 事件密度（用于视觉指示）
 const eventDensity = computed(() => {
-  if (totalEvents.value === 0) return 'none'
+  if (isEmpty.value) return 'none'
   if (totalEvents.value <= 2) return 'light'
   if (totalEvents.value <= 4) return 'medium'
   return 'heavy'
@@ -83,7 +83,6 @@ const eventDensity = computed(() => {
 
 <template>
   <article
-    ref="cardRef"
     class="day-card"
     :class="{
       'day-card--today': day.isToday,
@@ -92,26 +91,16 @@ const eventDensity = computed(() => {
     }"
     :style="cardStyle"
   >
-    <DayCardHeader :day="day" :total-events="totalEvents" variant="card" />
-
-    <DayCardStats
-      v-if="memberStats.length > 0"
-      :stats="memberStats"
-      :tag-meta="tagMeta"
-      variant="card"
-      collapsible
-    />
-
-    <div v-if="day.events.length === 0" class="empty">
-      暂无安排 睡大觉喽！
-    </div>
-    <DayCardSections
-      v-else
+    <DayCardContent
+      :day="day"
+      :total-events="totalEvents"
+      :member-stats="memberStats"
       :morning-events="morningEvents"
       :afternoon-events="afternoonEvents"
       :tag-meta="tagMeta"
       :type-tags="typeTags"
-      collapsible-divider
+      stats-collapsible
+      divider-collapsible
     />
 
     <button
@@ -134,25 +123,15 @@ const eventDensity = computed(() => {
             </svg>
           </button>
 
-          <DayCardHeader :day="day" :total-events="totalEvents" variant="modal" />
-
-          <DayCardStats
-            v-if="memberStats.length > 0"
-            :stats="memberStats"
-            :tag-meta="tagMeta"
-            variant="modal"
-          />
-
-          <div v-if="day.events.length === 0" class="empty">
-            暂无安排 睡大觉喽！
-          </div>
-          <DayCardSections
-            v-else
-            variant="modal"
+          <DayCardContent
+            :day="day"
+            :total-events="totalEvents"
+            :member-stats="memberStats"
             :morning-events="morningEvents"
             :afternoon-events="afternoonEvents"
             :tag-meta="tagMeta"
             :type-tags="typeTags"
+            variant="modal"
           />
         </div>
       </div>
@@ -308,24 +287,6 @@ const eventDensity = computed(() => {
     opacity: 0.6;
     transform: scale(1.2);
   }
-}
-
-.empty {
-  padding: 24px 16px;
-  border-radius: var(--radius-md);
-  border: 2px dashed rgb(var(--ink-deep-rgb) / 0.25);
-  color: var(--ink-soft);
-  background: linear-gradient(135deg, var(--surface-base) 0%, var(--surface-warm-soft) 100%);
-  font-size: 14px;
-  text-align: center;
-  font-weight: 600;
-  transition: all 200ms ease;
-}
-
-.empty:hover {
-  border-color: var(--outline);
-  color: var(--ink);
-  background: linear-gradient(135deg, var(--surface-base), var(--surface-rose));
 }
 
 .hamburger-button {

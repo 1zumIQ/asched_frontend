@@ -1,11 +1,20 @@
 <script setup lang="ts">
 import type { TagType, TagMeta, MemberTag, TypeTag, ThemeName } from '@/types/ui'
 import type { IsoWeek } from '@/utils/isoWeek'
-import WeekSelector from './WeekSelector.vue'
 import TagFilter from './TagFilter.vue'
 import ThemeToggle from './ThemeToggle.vue'
+import WeekSelector from './WeekSelector.vue'
 
-const props = defineProps<{
+const {
+  currentWeek,
+  availableWeeks,
+  tagMeta,
+  memberTags,
+  typeTags,
+  tagCounts,
+  selectedTags,
+  theme,
+} = defineProps<{
   currentWeek: IsoWeek
   availableWeeks: IsoWeek[]
   weekRangeLabel: string

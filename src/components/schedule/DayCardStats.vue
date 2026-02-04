@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { TagType, TagMeta } from '@/types/ui'
+import type { MemberTag, TagMeta, TagType } from '@/types/ui'
 
-const props = defineProps<{
-  stats: Array<[string, number]>
+const { stats, tagMeta, variant, collapsible } = defineProps<{
+  stats: Array<[MemberTag, number]>
   tagMeta: Record<TagType, TagMeta>
   variant?: 'card' | 'modal'
   collapsible?: boolean
 }>()
 
-const rootClass = computed(() => {
-  const base = props.variant === 'modal' ? 'modal-stats' : 'day-card__stats'
-  return [
-    base,
-    props.collapsible ? 'day-card__stats--collapsible' : ''
-  ]
-})
+const rootClass = computed(() => ({
+  'day-card-stats': true,
+  'day-card-stats--modal': variant === 'modal',
+  'day-card-stats--collapsible': Boolean(collapsible),
+}))
 </script>
 
 <template>
@@ -27,12 +25,12 @@ const rootClass = computed(() => {
         :key="member"
         class="stats-member"
         :style="{
-          backgroundColor: tagMeta[member as TagType]?.tint,
-          borderColor: tagMeta[member as TagType]?.color,
-          color: tagMeta[member as TagType]?.color
+          backgroundColor: tagMeta[member]?.tint,
+          borderColor: tagMeta[member]?.color,
+          color: tagMeta[member]?.color
         }"
       >
-        <span class="stats-member__name">{{ tagMeta[member as TagType]?.label }}</span>
+        <span class="stats-member__name">{{ tagMeta[member]?.label }}</span>
         <span class="stats-member__count">×{{ count }}</span>
       </div>
     </div>
@@ -40,8 +38,7 @@ const rootClass = computed(() => {
 </template>
 
 <style scoped>
-.day-card__stats,
-.modal-stats {
+.day-card-stats {
   padding: var(--stats-padding, 12px);
   background: linear-gradient(135deg, var(--surface-base), var(--surface-warm));
   border-radius: var(--radius-md);
@@ -49,17 +46,17 @@ const rootClass = computed(() => {
   margin-bottom: var(--stats-margin-bottom, 16px);
 }
 
-.day-card__stats {
+.day-card-stats:not(.day-card-stats--modal) {
   animation: stats-appear 400ms ease-out;
 }
 
-.modal-stats {
+.day-card-stats--modal {
   margin-bottom: 20px;
   border-color: rgb(var(--outline-rgb) / 0.25);
 }
 
 @media (max-height: 900px) {
-  .day-card__stats--collapsible {
+  .day-card-stats--collapsible {
     display: none;
   }
 }

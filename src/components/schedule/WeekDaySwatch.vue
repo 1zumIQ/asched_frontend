@@ -6,17 +6,17 @@ const props = defineProps<{
   title?: string
 }>()
 
-const rawCount = computed(() => props.colors.length)
-const isRainbow = computed(() => rawCount.value > 4)
-const isEmpty = computed(() => rawCount.value === 0)
+const colorCount = computed(() => props.colors.length)
+const isRainbow = computed(() => colorCount.value > 4)
+const isEmpty = computed(() => colorCount.value === 0)
 const limitedColors = computed(() => (isRainbow.value ? [] : props.colors.slice(0, 4)))
 
 const layoutClass = computed(() => {
   if (isEmpty.value) return 'week-day-swatch--empty'
-  if (rawCount.value <= 1) return 'week-day-swatch--single'
-  if (rawCount.value === 2) return 'week-day-swatch--split-2'
-  if (rawCount.value === 3) return 'week-day-swatch--split-3'
-  if (rawCount.value === 4) return 'week-day-swatch--split-4'
+  if (colorCount.value <= 1) return 'week-day-swatch--single'
+  if (colorCount.value === 2) return 'week-day-swatch--split-2'
+  if (colorCount.value === 3) return 'week-day-swatch--split-3'
+  if (colorCount.value === 4) return 'week-day-swatch--split-4'
   return 'week-day-swatch--rainbow'
 })
 </script>

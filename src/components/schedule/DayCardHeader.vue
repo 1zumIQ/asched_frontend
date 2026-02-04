@@ -8,30 +8,22 @@ const props = defineProps<{
   variant?: 'card' | 'modal'
 }>()
 
-const headerClass = computed(() => (
-  props.variant === 'modal' ? 'modal-header' : 'day-card__header'
-))
-
-const badgesClass = computed(() => (
-  props.variant === 'modal' ? 'modal-badges' : 'day-card__badges'
-))
-
-const weekdayClass = computed(() => (
-  props.variant === 'modal' ? 'modal-weekday' : 'day-card__weekday'
-))
-
-const dateClass = computed(() => (
-  props.variant === 'modal' ? 'modal-date' : 'day-card__date'
-))
+const isModal = computed(() => props.variant === 'modal')
 </script>
 
 <template>
-  <header :class="[headerClass, { 'day-card-header--today': day.isToday }]">
+  <header
+    class="day-card-header"
+    :class="{
+      'day-card-header--modal': isModal,
+      'day-card-header--today': day.isToday
+    }"
+  >
     <div>
-      <div :class="weekdayClass">{{ day.shortName }}</div>
-      <div :class="dateClass">{{ day.numeric }}</div>
+      <div class="day-card-header__weekday">{{ day.shortName }}</div>
+      <div class="day-card-header__date">{{ day.numeric }}</div>
     </div>
-    <div :class="badgesClass">
+    <div class="day-card-header__badges">
       <span v-if="day.isToday" class="pill pill--accent">Today</span>
       <span v-if="totalEvents > 0" class="pill pill--count">
         <span class="pill__icon">📅</span>
@@ -42,70 +34,56 @@ const dateClass = computed(() => (
 </template>
 
 <style scoped>
-.day-card__header,
-.modal-header {
+.day-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 3px dashed var(--header-border, rgb(var(--ink-deep-rgb) / 0.25));
-}
-
-.day-card__header {
   margin-bottom: var(--header-gap, 16px);
   padding-bottom: var(--header-padding, 14px);
 }
 
-.modal-header {
+.day-card-header--modal {
   margin-bottom: 20px;
   padding-bottom: 16px;
   --header-border: rgb(var(--ink-deep-rgb) / 0.2);
 }
 
-.day-card__badges,
-.modal-badges {
+.day-card-header__badges {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.day-card__weekday,
-.modal-weekday {
+.day-card-header__weekday {
   color: var(--ink);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-family: var(--font-display);
-}
-
-.day-card__weekday {
   font-size: 14px;
 }
 
-.modal-weekday {
+.day-card-header--modal .day-card-header__weekday {
   font-size: 16px;
 }
 
-.day-card__date,
-.modal-date {
+.day-card-header__date {
   color: var(--ink);
   font-weight: 800;
   letter-spacing: 0.01em;
   font-family: var(--font-display);
   margin-top: 2px;
-}
-
-.day-card__date {
   font-size: 24px;
 }
 
-.modal-date {
+.day-card-header--modal .day-card-header__date {
   font-size: 30px;
   margin-top: 4px;
 }
 
-.day-card-header--today .day-card__weekday,
-.day-card-header--today .modal-weekday {
+.day-card-header--today .day-card-header__weekday {
   color: var(--sky);
   text-shadow: 2px 2px 0 rgb(var(--ink-deep-rgb) / 0.15);
 }

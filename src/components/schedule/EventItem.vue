@@ -1,7 +1,84 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, shallowRef } from 'vue'
 import type { TagType, TagMeta, TypeTag } from '@/types/ui'
 import type { LiveRecordView } from '@/domain/records'
+
+type EventStatusKey = 'ongoing' | 'ended' | 'interrupted' | 'upcoming' | 'late'
+type DotStatusKey = 'ongoing' | 'ended' | 'upcoming'
+
+const STATUS_META: Record<
+  number,
+  {
+    status: EventStatusKey
+    label: string
+    dot: DotStatusKey
+    tone: { color: string; glow: string }
+  }
+> = {
+  0: {
+    status: 'ongoing',
+    label: '直播中',
+    dot: 'ongoing',
+    tone: {
+      color: 'var(--status-ongoing)',
+      glow: 'rgb(var(--status-ongoing-rgb) / 0.3)',
+    },
+  },
+  1: {
+    status: 'ended',
+    label: '已结束',
+    dot: 'ended',
+    tone: {
+      color: 'var(--status-ended)',
+      glow: 'rgb(var(--status-ended-rgb) / 0.3)',
+    },
+  },
+  2: {
+    status: 'interrupted',
+    label: '中断',
+    dot: 'upcoming',
+    tone: {
+      color: 'var(--status-interrupted)',
+      glow: 'rgb(var(--status-interrupted-rgb) / 0.3)',
+    },
+  },
+  3: {
+    status: 'upcoming',
+    label: '未开始',
+    dot: 'upcoming',
+    tone: {
+      color: 'var(--status-upcoming)',
+      glow: 'rgb(var(--sky-rgb) / 0.3)',
+    },
+  },
+  4: {
+    status: 'late',
+    label: '迟到',
+    dot: 'upcoming',
+    tone: {
+      color: 'var(--status-late)',
+      glow: 'rgb(var(--status-late-rgb) / 0.3)',
+    },
+  },
+}
+
+const DEFAULT_STATUS = {
+  status: 'upcoming' as EventStatusKey,
+  label: '',
+  dot: 'upcoming' as DotStatusKey,
+  tone: {
+    color: 'var(--status-upcoming)',
+    glow: 'rgb(var(--sky-rgb) / 0.3)',
+  },
+}
+
+const FALLBACK_TAG_META: TagMeta = {
+  id: 0,
+  kind: 'member',
+  label: 'Unknown',
+  color: 'var(--outline)',
+  tint: 'var(--surface-base)',
+}
 
 const props = defineProps<{
   event: LiveRecordView
@@ -9,7 +86,7 @@ const props = defineProps<{
   typeTags: TypeTag[]
 }>()
 
-const isExpanded = ref(false)
+const isExpanded = shallowRef(false)
 
 const avatarInitials = computed(() => {
   const words = props.event.record.title.split(' ')
@@ -26,81 +103,42 @@ const primaryTag = computed<TagType>(() => {
   return props.event.tagKeys[0] ?? props.event.memberTags[0]
 })
 
+const primaryMeta = computed(() => (
+  props.tagMeta[primaryTag.value] ?? FALLBACK_TAG_META
+))
+
 // 获取类型标签
 const typeTag = computed(() => {
   return props.event.typeTag
 })
+
+const typeTagSet = computed(() => new Set(props.typeTags))
+
+const isTypeTag = (tag: TagType): tag is TypeTag => typeTagSet.value.has(tag as TypeTag)
 
 const typeIcon = computed(() => {
   if (!typeTag.value) return '📝'
   return props.tagMeta[typeTag.value]?.icon ?? '📝'
 })
 
-// 使用后端提供的状态
-const eventStatus = computed(() => {
-  switch (props.event.record.status) {
-    case 0: return 'ongoing' // 直播中
-    case 1: return 'ended' // 已结束
-    case 2: return 'interrupted' // 中断
-    case 3: return 'upcoming' // 未开始
-    case 4: return 'late' // 迟到
-    default: return 'upcoming'
-  }
-})
+const statusMeta = computed(() => (
+  STATUS_META[props.event.record.status] ?? DEFAULT_STATUS
+))
 
-const dotStatus = computed(() => {
-  if (eventStatus.value === 'ongoing') return 'ongoing'
-  if (eventStatus.value === 'ended') return 'ended'
-  return 'upcoming'
-})
+// 使用后端提供的状态
+const eventStatus = computed(() => statusMeta.value.status)
+
+const dotStatus = computed(() => statusMeta.value.dot)
 
 // 获取状态标签
-const statusLabel = computed(() => {
-  switch (props.event.record.status) {
-    case 0: return '直播中'
-    case 1: return '已结束'
-    case 2: return '中断'
-    case 3: return '未开始'
-    case 4: return '迟到'
-    default: return ''
-  }
-})
+const statusLabel = computed(() => statusMeta.value.label)
 
 // 获取状态颜色
-const statusTone = computed(() => {
-  switch (props.event.record.status) {
-    case 0:
-      return {
-        color: 'var(--status-ongoing)',
-        glow: 'rgb(var(--status-ongoing-rgb) / 0.3)'
-      }
-    case 1:
-      return {
-        color: 'var(--status-ended)',
-        glow: 'rgb(var(--status-ended-rgb) / 0.3)'
-      }
-    case 2:
-      return {
-        color: 'var(--status-interrupted)',
-        glow: 'rgb(var(--status-interrupted-rgb) / 0.3)'
-      }
-    case 3:
-      return {
-        color: 'var(--status-upcoming)',
-        glow: 'rgb(var(--sky-rgb) / 0.3)'
-      }
-    case 4:
-      return {
-        color: 'var(--status-late)',
-        glow: 'rgb(var(--status-late-rgb) / 0.3)'
-      }
-    default:
-      return {
-        color: 'var(--status-upcoming)',
-        glow: 'rgb(var(--sky-rgb) / 0.3)'
-      }
-  }
-})
+const statusTone = computed(() => statusMeta.value.tone)
+
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value
+}
 
 const formatIsoTime = (value: string) => {
   const date = new Date(value)
@@ -146,8 +184,8 @@ const guestNames = computed(() => {
     'event--ended': eventStatus === 'ended',
     'event--expanded': isExpanded
   }" :style="{
-      '--primary-color': tagMeta[primaryTag].color
-    }" @click="isExpanded = !isExpanded">
+      '--primary-color': primaryMeta.color
+    }" @click="toggleExpanded">
     <!-- 进度条 -->
     <div v-if="eventStatus === 'ongoing'" class="event__progress-bar">
       <div class="event__progress-fill" :style="{
@@ -175,7 +213,7 @@ const guestNames = computed(() => {
             <span
               class="dot"
               :class="`dot--${dotStatus}`"
-              :style="{ backgroundColor: tagMeta[primaryTag].color, color: statusTone.color }"
+              :style="{ backgroundColor: primaryMeta.color, color: statusTone.color }"
             ></span>
             <div class="event__title-content">
               <div class="event__name">{{ event.record.title }}</div>
@@ -185,14 +223,14 @@ const guestNames = computed(() => {
         </div>
       </div>
       <div class="avatar" :style="{
-        backgroundColor: tagMeta[primaryTag].tint,
-        color: tagMeta[primaryTag].color,
-        borderColor: tagMeta[primaryTag].color,
-        backgroundImage: tagMeta[primaryTag].avatar ? `url(${tagMeta[primaryTag].avatar})` : undefined,
+        backgroundColor: primaryMeta.tint,
+        color: primaryMeta.color,
+        borderColor: primaryMeta.color,
+        backgroundImage: primaryMeta.avatar ? `url(${primaryMeta.avatar})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }">
-        <span v-if="!tagMeta[primaryTag].avatar">{{ avatarInitials }}</span>
+        <span v-if="!primaryMeta.avatar">{{ avatarInitials }}</span>
       </div>
     </div>
 
@@ -204,13 +242,17 @@ const guestNames = computed(() => {
 
     <!-- 标签独立成行，占满整个宽度 -->
     <div class="event__tags">
-      <span v-for="tag in event.tagKeys" :key="tag" class="chip" :class="{ 'chip--type': props.typeTags.includes(tag as TypeTag) }"
+      <span
+        v-for="tag in event.tagKeys"
+        :key="tag"
+        class="chip"
+        :class="{ 'chip--type': isTypeTag(tag) }"
         :style="{
           borderColor: tagMeta[tag].color,
           color: tagMeta[tag].color,
           backgroundColor: tagMeta[tag].tint,
         }">
-        <span v-if="props.typeTags.includes(tag as any)" class="chip__icon">
+        <span v-if="isTypeTag(tag)" class="chip__icon">
           {{ typeIcon }}
         </span>
         {{ tagMeta[tag].label }}

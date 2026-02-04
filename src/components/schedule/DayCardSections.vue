@@ -14,7 +14,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="sections" :class="{ 'sections--modal': variant === 'modal' }">
+  <div class="day-card-sections" :class="{ 'day-card-sections--modal': variant === 'modal' }">
     <DayCardSection
       period="morning"
       title="上午"
@@ -24,10 +24,13 @@ defineProps<{
       :type-tags="typeTags"
     />
 
-    <div class="divider" :class="{ 'divider--collapsible': collapsibleDivider }">
-      <div class="divider__line"></div>
-      <div class="divider__badge">12:00</div>
-      <div class="divider__line"></div>
+    <div
+      class="day-card-sections__divider"
+      :class="{ 'day-card-sections__divider--collapsible': collapsibleDivider }"
+    >
+      <div class="day-card-sections__line"></div>
+      <div class="day-card-sections__badge">12:00</div>
+      <div class="day-card-sections__line"></div>
     </div>
 
     <DayCardSection
@@ -42,7 +45,7 @@ defineProps<{
 </template>
 
 <style scoped>
-.sections {
+.day-card-sections {
   display: flex;
   flex-direction: column;
   gap: var(--sections-gap, 14px);
@@ -52,12 +55,12 @@ defineProps<{
   position: relative;
 }
 
-.sections--modal {
+.day-card-sections--modal {
   --sections-gap: 16px;
   flex: initial;
 }
 
-.divider {
+.day-card-sections__divider {
   display: flex;
   align-items: center;
   gap: var(--divider-gap, 10px);
@@ -66,12 +69,12 @@ defineProps<{
 }
 
 @media (max-height: 800px) {
-  .divider--collapsible {
+  .day-card-sections__divider--collapsible {
     display: none;
   }
 }
 
-.divider__line {
+.day-card-sections__line {
   flex: 1;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--coral) 20%, var(--coral) 80%, transparent);
@@ -80,7 +83,7 @@ defineProps<{
   overflow: hidden;
 }
 
-.divider__line::after {
+.day-card-sections__line::after {
   content: '';
   position: absolute;
   top: 0;
@@ -100,7 +103,7 @@ defineProps<{
   }
 }
 
-.divider__badge {
+.day-card-sections__badge {
   font-size: 11px;
   font-weight: 800;
   color: var(--text-on-accent);
@@ -117,7 +120,7 @@ defineProps<{
   border: 2px solid var(--outline);
 }
 
-.divider__badge::before {
+.day-card-sections__badge::before {
   content: '';
   position: absolute;
   top: 0;

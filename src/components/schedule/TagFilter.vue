@@ -14,33 +14,49 @@ const emit = defineEmits<{
   'update:selectedTags': [tags: TagType[]]
 }>()
 
+const selectedTagSet = computed(() => new Set(props.selectedTags))
+
+const buildTagStats = (tags: TagType[]) => {
+  return tags
+    .map(tag => ({
+      tag,
+      label: props.tagMeta[tag]?.label,
+      color: props.tagMeta[tag]?.color,
+      tint: props.tagMeta[tag]?.tint,
+      count: props.tagCounts[tag] || 0,
+      selected: selectedTagSet.value.has(tag)
+    }))
+    .sort((a, b) => b.count - a.count)
+}
+
 // 成员标签统计
 const memberTagStats = computed(() => {
-  return props.memberTags.map(tag => ({
-    tag,
-    label: props.tagMeta[tag]?.label,
-    color: props.tagMeta[tag]?.color,
-    tint: props.tagMeta[tag]?.tint,
-    count: props.tagCounts[tag] || 0,
-    selected: props.selectedTags.includes(tag)
-  })).sort((a, b) => b.count - a.count)
+  return buildTagStats(props.memberTags)
 })
 
 // 类型标签统计
 const typeTagStats = computed(() => {
-  return props.typeTags.map(tag => ({
-    tag,
-    label: props.tagMeta[tag]?.label,
-    color: props.tagMeta[tag]?.color,
-    tint: props.tagMeta[tag]?.tint,
-    count: props.tagCounts[tag] || 0,
-    selected: props.selectedTags.includes(tag)
-  })).sort((a, b) => b.count - a.count)
+  return buildTagStats(props.typeTags)
 })
+
+const tagSections = computed(() => ([
+  {
+    key: 'member',
+    title: '成员',
+    icon: '👥',
+    stats: memberTagStats.value,
+  },
+  {
+    key: 'type',
+    title: '类型',
+    icon: '📝',
+    stats: typeTagStats.value,
+  },
+]))
 
 // 切换标签选择
 const toggleTag = (tag: TagType) => {
-  const newSelected = props.selectedTags.includes(tag)
+  const newSelected = selectedTagSet.value.has(tag)
     ? props.selectedTags.filter(t => t !== tag)
     : [...props.selectedTags, tag]
   emit('update:selectedTags', newSelected)
@@ -72,41 +88,14 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
       </button>
     </div>
 
-    <!-- 成员标签 -->
-    <div class="tag-filter__section">
+    <div v-for="section in tagSections" :key="section.key" class="tag-filter__section">
       <div class="tag-filter__section-title">
-        <span class="tag-filter__section-icon">👥</span>
-        成员
+        <span class="tag-filter__section-icon">{{ section.icon }}</span>
+        {{ section.title }}
       </div>
       <div class="tag-filter__grid">
         <button
-          v-for="stat in memberTagStats"
-          :key="stat.tag"
-          class="tag-chip"
-          :class="{ 'tag-chip--selected': stat.selected, 'tag-chip--disabled': stat.count === 0 }"
-          :style="{
-            '--tag-color': stat.color,
-            '--tag-tint': stat.tint
-          }"
-          @click="toggleTag(stat.tag)"
-          :disabled="stat.count === 0"
-        >
-          <span class="tag-chip__dot" :style="{ backgroundColor: stat.color }" />
-          <span class="tag-chip__label">{{ stat.label }}</span>
-          <span class="tag-chip__count">{{ stat.count }}</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- 类型标签 -->
-    <div class="tag-filter__section">
-      <div class="tag-filter__section-title">
-        <span class="tag-filter__section-icon">📝</span>
-        类型
-      </div>
-      <div class="tag-filter__grid">
-        <button
-          v-for="stat in typeTagStats"
+          v-for="stat in section.stats"
           :key="stat.tag"
           class="tag-chip"
           :class="{ 'tag-chip--selected': stat.selected, 'tag-chip--disabled': stat.count === 0 }"
@@ -363,4 +352,3 @@ const hasFilters = computed(() => props.selectedTags.length > 0)
   }
 }
 </style>
-
