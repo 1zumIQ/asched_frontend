@@ -144,7 +144,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/live_tag": {
+    "/api/v1/live_tag/all": {
         parameters: {
             query?: never;
             header?: never;
@@ -164,7 +164,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/live_tag_meta": {
+    "/api/v1/live_tag_meta/all": {
         parameters: {
             query?: never;
             header?: never;
@@ -176,6 +176,46 @@ export interface paths {
          * @description 获取全部直播标签元信息
          */
         get: operations["get_all_live_tag_meta"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/llm/validate/{mid}/{year}/{week}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 使用两个模型交叉验证指定周日程表解析结果。
+         * @description 使用 Gemini 与 Kimi 交叉验证指定周日程表解析结果
+         */
+        get: operations["transform_schedule_to_live_records_with_validate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/llm/{mid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 使用 LLM 将最新日程表转换为直播记录。
+         * @description 使用 LLM 将最新日程表转换为直播记录
+         */
+        get: operations["transform_latest_schedule_to_live_records"];
         put?: never;
         post?: never;
         delete?: never;
@@ -196,6 +236,26 @@ export interface paths {
          * @description 获取所有预约记录
          */
         get: operations["get_all_reservation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedule/available_weeks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 获取所有有日程表的 ISO 周列表。
+         * @description 获取所有有日程表的 ISO 周列表
+         */
+        get: operations["get_schedule_available_weeks_all"];
         put?: never;
         post?: never;
         delete?: never;
@@ -252,7 +312,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 获取所有VUP。
+         * 获取所有 VUP。
          * @description 获取全部VUP信息
          */
         get: operations["get_all_vup"];
@@ -284,35 +344,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/test/{mid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 使用 LLM 将最新日程表转换为直播记录。
-         * @description 使用 LLM 将最新日程表转换为直播记录
-         */
-        get: operations["transform_latest_schedule_to_live_records"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /** @description 直播归档刷新返回结构。 */
         ArchivesRefreshResponse: {
-            /** @description 结果提示信息。 */
+            /** @description 结果提示信息（用于日志/前端展示的非结构化文本）。 */
             message: string;
-            /** @description 是否刷新成功。 */
+            /** @description 是否刷新成功（`true` 表示本次刷新已完成且无错误）。 */
             success: boolean;
         };
         /** @description ISO 周信息 */
@@ -322,81 +362,201 @@ export interface components {
             /** Format: int32 */
             year: number;
         };
+        LiveRecordDiff: {
+            only_in_model1: components["schemas"]["NormalizedLiveRecordItem"][];
+            only_in_model2: components["schemas"]["NormalizedLiveRecordItem"][];
+        };
+        /** @description 直播记录响应结构。 */
         LiveRecordDto: {
+            /** @description 直播封面 URL（可选）。 */
             cover_url?: string | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description 直播时长（秒，可选）。
+             */
             duration_seconds?: number | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 下播时间（可选，带时区）。
+             */
             end_time?: string | null;
+            /** @description 嘉宾 mid 列表。 */
             guest_mids: number[];
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description 直播记录 ID。
+             */
             id: string;
+            /** @description 是否为预约转换的记录（可选）。 */
             is_reservation?: boolean | null;
+            /** @description B 站直播 ID（可选）。 */
             live_id_bili?: string | null;
+            /**
+             * Format: int32
+             * @description 直播类型（枚举值）。
+             */
+            live_type: number;
+            /**
+             * Format: int64
+             * @description 关联 VUP 的 mid。
+             */
+            mid: number;
+            /**
+             * Format: int64
+             * @description 直播间房间号（可选）。
+             */
+            room_id?: number | null;
+            /**
+             * Format: date-time
+             * @description 开播时间（带时区）。
+             */
+            start_time: string;
+            /**
+             * Format: int32
+             * @description 直播状态。
+             */
+            status: number;
+            /** @description 直播标题。 */
+            title: string;
+        };
+        /** @description 直播标签响应结构。 */
+        LiveTagDto: {
+            /** @description 是否启用（可选）。 */
+            is_active?: boolean | null;
+            /** @description 标签名称。 */
+            name: string;
+            /**
+             * Format: int32
+             * @description 排序权重（可选）。
+             */
+            sort_order?: number | null;
+            /**
+             * Format: int64
+             * @description 标签 ID。
+             */
+            tag_id: number;
+        };
+        /** @description 直播标签元信息响应结构。 */
+        LiveTagMetaDto: {
+            /** @description UI 主题色（可选）。 */
+            color?: string | null;
+            /**
+             * Format: int32
+             * @description 配置版本（用于客户端缓存/刷新判断）。
+             */
+            config_version?: number | null;
+            /** @description 图标 URL（可选）。 */
+            icon?: string | null;
+            /**
+             * Format: int64
+             * @description 标签 ID。
+             */
+            tag_id: number;
+        };
+        /** @description LLM 交叉验证返回结构。 */
+        LlmValidateResponse: {
+            diff?: null | components["schemas"]["LiveRecordDiff"];
+            /** @description 两个模型输出是否一致。 */
+            matched: boolean;
+            /**
+             * Format: uuid
+             * @description 一致时持久化返回的记录 ID（可能为空）。
+             */
+            persisted_id?: string | null;
+        };
+        NormalizedLiveRecordItem: {
+            guest_mids: number[];
             /** Format: int32 */
             live_type: number;
             /** Format: int64 */
             mid: number;
-            /** Format: int64 */
-            room_id?: number | null;
             /** Format: date-time */
             start_time: string;
-            /** Format: int32 */
-            status: number;
             title: string;
         };
-        LiveTagDto: {
-            is_active?: boolean | null;
-            name: string;
-            /** Format: int32 */
-            sort_order?: number | null;
-            /** Format: int64 */
-            tag_id: number;
-        };
-        LiveTagMetaDto: {
-            color?: string | null;
-            /** Format: int32 */
-            config_version?: number | null;
-            icon?: string | null;
-            /** Format: int64 */
-            tag_id: number;
-        };
+        /** @description 日程表响应结构。 */
         ScheduleDto: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description 日程表记录 ID。
+             */
             id: string;
+            /** @description 原始/可读的 ID 字符串。 */
             id_str: string;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description ISO 周序号。
+             */
             iso_week: number;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description ISO 年份。
+             */
             iso_year: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description 关联 VUP 的 mid。
+             */
             mid: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description 日程表发布时间（带时区）。
+             */
             published_at: string;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description 日程表覆盖结束日期。
+             */
             schedule_end: string;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description 日程表覆盖开始日期。
+             */
             schedule_start: string;
+            /** @description 日程表图片 URL。 */
             schedule_url: string;
+            /** @description 可选摘要信息。 */
             summary?: string | null;
         };
+        /** @description VUP 基础信息响应结构。 */
         VupDto: {
+            /** @description B 站头像 URL。 */
             face_url_bili: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description VUP 的 mid。
+             */
             mid: number;
+            /** @description VUP 的正式名称。 */
             name: string;
+            /** @description B 站昵称。 */
             nick_name_bili: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description 直播间房间号。
+             */
             room_id: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description 绑定的内部 sid（可选）。
+             */
             sid?: number | null;
+            /** @description 个性签名/简介。 */
             sign: string;
         };
+        /** @description VUP 元信息响应结构。 */
         VupMetaDto: {
+            /** @description UI 主题色（可选）。 */
             color?: string | null;
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description 配置版本（用于客户端缓存/刷新判断）。
+             */
             config_version?: number | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description VUP 的 mid。
+             */
             mid: number;
         };
     };
@@ -606,6 +766,92 @@ export interface operations {
             };
         };
     };
+    transform_schedule_to_live_records_with_validate: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Model name for model1 (optional; defaults to `gemini-3-pro-preview`).
+                 * @example gemini-3-pro-preview
+                 */
+                model1?: string;
+                /**
+                 * @description Model name for model2 (optional; defaults to `kimi-k2.5`).
+                 * @example kimi-k2.5
+                 */
+                model2?: string;
+            };
+            header?: never;
+            path: {
+                /** @description VUP 的 mid */
+                mid: number;
+                /** @description 年 */
+                year: number;
+                /** @description 周序号（ISO） */
+                week: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 交叉验证结果 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LlmValidateResponse"];
+                };
+            };
+            /** @description 服务器内部错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    transform_latest_schedule_to_live_records: {
+        parameters: {
+            query?: {
+                /**
+                 * @description 模型名称（可选，未提供时默认使用 `kimi-k2.5`）。
+                 * @example kimi-k2.5
+                 */
+                model?: string;
+                /**
+                 * @description 图片解析模式（可选，默认 `view`，可选值：`original` / `view` / `slice`）。
+                 * @example view
+                 */
+                image_mode?: string;
+            };
+            header?: never;
+            path: {
+                /** @description VUP 的 mid */
+                mid: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 转换并持久化后的记录 ID */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string | null;
+                };
+            };
+            /** @description 服务器内部错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     get_all_reservation: {
         parameters: {
             query?: never;
@@ -622,6 +868,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LiveRecordDto"][];
+                };
+            };
+        };
+    };
+    get_schedule_available_weeks_all: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 所有有日程表的 ISO 周列表 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IsoWeekTz"][];
                 };
             };
         };
@@ -713,42 +979,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["VupMetaDto"][];
                 };
-            };
-        };
-    };
-    transform_latest_schedule_to_live_records: {
-        parameters: {
-            query?: {
-                /**
-                 * @description 模型名称（可选）。
-                 * @example kimi-k2.5
-                 */
-                model?: string;
-            };
-            header?: never;
-            path: {
-                /** @description VUP 的 mid */
-                mid: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 转换并持久化后的记录 ID */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string | null;
-                };
-            };
-            /** @description 服务器内部错误 */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };

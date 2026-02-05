@@ -41,11 +41,11 @@ export const handlers = [
 
     return HttpResponse.json(recordsForWeek)
   }),
-  http.get('/api/v1/live_tag', async () => {
+  http.get('/api/v1/live_tag/all', async () => {
     await new Promise(resolve => setTimeout(resolve, 80))
     return HttpResponse.json(mockLiveTags)
   }),
-  http.get('/api/v1/live_tag_meta', async () => {
+  http.get('/api/v1/live_tag_meta/all', async () => {
     await new Promise(resolve => setTimeout(resolve, 80))
     return HttpResponse.json(mockLiveTagMeta)
   }),

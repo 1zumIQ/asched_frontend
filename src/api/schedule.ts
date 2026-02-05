@@ -44,7 +44,7 @@ export async function getVupMeta(): Promise<ApiVupMeta[]> {
 export async function getLiveTags(): Promise<ApiLiveTag[]> {
   if (!liveTagsCache) {
     liveTagsCache = apiClient
-      .GET('/api/v1/live_tag')
+      .GET('/api/v1/live_tag/all')
       .then(({ data, error }) => {
         if (error) {
           throw new Error('Failed to fetch live tags')
@@ -58,7 +58,7 @@ export async function getLiveTags(): Promise<ApiLiveTag[]> {
 export async function getLiveTagMeta(): Promise<ApiLiveTagMeta[]> {
   if (!liveTagMetaCache) {
     liveTagMetaCache = apiClient
-      .GET('/api/v1/live_tag_meta')
+      .GET('/api/v1/live_tag_meta/all')
       .then(({ data, error }) => {
         if (error) {
           throw new Error('Failed to fetch live tag meta')
