@@ -311,6 +311,16 @@ const updateTheme = (value: ThemeName) => {
   border-radius: var(--radius-md);
   background: var(--glass-85);
   box-shadow: 2px 2px 0 var(--shadow);
+  transition: all 400ms var(--ease-out-back);
+}
+
+.stat:hover {
+  transform: translateY(-4px) scale(1.02) rotate(-1deg);
+  box-shadow:
+    4px 4px 0 var(--shadow-strong),
+    0 8px 16px var(--shadow-ambient-1);
+  background: var(--surface-base);
+  z-index: 1;
 }
 
 .stat__label {

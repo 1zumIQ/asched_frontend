@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, type ComponentPublicInstance } from 'vue'
 import { storeToRefs } from 'pinia'
 import type { DayCard, TagMeta, TagType, TypeTag, ThemeName } from '@/types/ui'
 import { getAvailableWeeks, getLiveRecordsByWeek } from '@/api/schedule'
@@ -7,7 +7,7 @@ import type { ApiLiveRecord } from '@/api/schedule'
 import { buildLiveRecordView, isSameDay, type LiveRecordView } from '@/domain/records'
 import type { IsoWeek } from '@/utils/isoWeek'
 import { getCurrentIsoWeek, getIsoWeekRangeLabel, getIsoWeekStartDate } from '@/utils/isoWeek'
-import { ScheduleHero, WeekGrid } from '@/components/schedule'
+import { ScheduleHero, WeekGrid, FloatingControls } from '@/components/schedule'
 import { parseTagKey } from '@/domain/tagKeys'
 import { useScheduleMetaStore } from '@/stores/scheduleMeta'
 
@@ -29,6 +29,8 @@ const weeklyRecords = ref<ApiLiveRecord[]>([])
 // 加载状态
 const isLoading = ref(false)
 const theme = ref<ThemeName>('light')
+const showFloatingControls = ref(false)
+const heroRef = ref<ComponentPublicInstance | null>(null)
 
 // 选中的标签（用于筛选）
 const selectedTags = ref<TagType[]>([])
@@ -86,6 +88,23 @@ onMounted(async () => {
   await loadTagData()
   await loadAvailableWeeks()
   await loadWeekData(currentWeek.value)
+
+  // Setup Intersection Observer for Floating Controls
+  // Wait for DOM to be ready and hero to be potentially rendered
+  setTimeout(() => {
+    if (heroRef.value?.$el) {
+      const observer = new IntersectionObserver((entries) => {
+        // Show floating controls when hero is NOT intersecting (scrolled out or hidden)
+        if (entries[0]) {
+          showFloatingControls.value = !entries[0].isIntersecting
+        }
+      }, {
+        threshold: 0,
+        rootMargin: '-10px 0px 0px 0px' // Slight offset
+      })
+      observer.observe(heroRef.value.$el)
+    }
+  }, 1000) // Delay to ensure loading finished or at least initial render
 })
 
 watch(theme, (value) => {
@@ -254,6 +273,7 @@ const tagCounts = computed(() => {
 <template>
   <main class="page">
     <ScheduleHero v-if="isTagDataReady"
+      ref="heroRef"
       v-model:current-week="currentWeek"
       v-model:selected-tags="selectedTags"
       v-model:theme="theme"
@@ -266,6 +286,16 @@ const tagCounts = computed(() => {
       :tag-counts="tagCounts"
       :is-loading="isLoading || isMetaLoading"
     />
+
+    <FloatingControls
+      :visible="showFloatingControls"
+      v-model:current-week="currentWeek"
+      v-model:theme="theme"
+      :available-weeks="availableWeeks"
+      :tag-meta="effectiveTagMeta"
+      :member-tags="memberTags"
+    />
+
     <!-- <ScheduleLegend :tag-meta="tagMeta" :member-tags="memberTags" /> -->
     <WeekGrid v-if="isTagDataReady && !isLoading" :day-cards="dayCards" :tag-meta="effectiveTagMeta" :member-tags="memberTags" :type-tags="effectiveTypeTags" />
     <div v-else class="loading">
@@ -404,6 +434,11 @@ const tagCounts = computed(() => {
   --radius-lg: 26px 18px 30px 16px;
   --radius-md: 18px 14px 22px 12px;
   --radius-sm: 14px 10px 16px 8px;
+
+  /* Animation Easings - Lively and Bouncy */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Standard Back/Bounce */
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);     /* Smoother Spring */
+  --ease-squish: cubic-bezier(0.25, 1, 0.5, 1);          /* Quick response */
 
   /* Cute theme specific */
   --sparkle-color: #ffeb3b;
@@ -638,6 +673,12 @@ input,
 select,
 textarea {
   font-family: var(--font-body);
+}
+
+/* Global lively micro-interactions */
+button:active {
+  transform: scale(0.95);
+  transition: transform 100ms var(--ease-squish);
 }
 
 h1,

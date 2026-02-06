@@ -11,13 +11,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * 刷新所有 VUP 的直播归档（默认拉取最近分页）。
          * @description 刷新所有 VUP 的直播归档（默认拉取最近分页）
          */
-        get: operations["refresh_all_live_archives"];
-        put?: never;
-        post?: never;
+        post: operations["refresh_all_live_archives"];
         delete?: never;
         options?: never;
         head?: never;
@@ -31,13 +31,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * 刷新指定 VUP 的直播归档（默认拉取最近分页）。
          * @description 刷新指定 VUP 的直播归档（默认拉取最近分页）
          */
-        get: operations["refresh_live_archives"];
-        put?: never;
-        post?: never;
+        post: operations["refresh_live_archives"];
         delete?: never;
         options?: never;
         head?: never;
@@ -51,13 +51,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * 刷新所有 VUP 的全部直播归档。
          * @description 刷新所有 VUP 的全部直播归档
          */
-        get: operations["refresh_all_live_archives_full"];
-        put?: never;
-        post?: never;
+        post: operations["refresh_all_live_archives_full"];
         delete?: never;
         options?: never;
         head?: never;
@@ -71,13 +71,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * 刷新指定 VUP 的全部直播归档。
          * @description 刷新指定 VUP 的全部直播归档
          */
-        get: operations["refresh_live_archives_full"];
-        put?: never;
-        post?: never;
+        post: operations["refresh_live_archives_full"];
         delete?: never;
         options?: never;
         head?: never;
@@ -191,13 +191,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * 使用两个模型交叉验证指定周日程表解析结果。
-         * @description 使用 Gemini 与 Kimi 交叉验证指定周日程表解析结果
+         * @description 使用 LLM 交叉验证指定周日程表解析结果
          */
-        get: operations["transform_schedule_to_live_records_with_validate"];
-        put?: never;
-        post?: never;
+        post: operations["transform_schedule_to_live_records_with_validate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -211,13 +211,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        get?: never;
+        put?: never;
         /**
          * 使用 LLM 将最新日程表转换为直播记录。
          * @description 使用 LLM 将最新日程表转换为直播记录
          */
-        get: operations["transform_latest_schedule_to_live_records"];
-        put?: never;
-        post?: never;
+        post: operations["transform_latest_schedule_to_live_records"];
         delete?: never;
         options?: never;
         head?: never;
@@ -348,6 +348,19 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description 直播归档刷新请求体。 */
+        ArchivesRefreshRequest: {
+            /**
+             * Format: int32
+             * @description 最大页数（可选；不传则使用默认值）。
+             */
+            max_pages?: number | null;
+            /**
+             * Format: int32
+             * @description 每页数量（可选；不传则使用默认值）。
+             */
+            page_size?: number | null;
+        };
         /** @description 直播归档刷新返回结构。 */
         ArchivesRefreshResponse: {
             /** @description 结果提示信息（用于日志/前端展示的非结构化文本）。 */
@@ -575,7 +588,12 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        /** @description 刷新归档记录请求Body */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArchivesRefreshRequest"];
+            };
+        };
         responses: {
             /** @description 刷新结果 */
             200: {
@@ -598,7 +616,12 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        /** @description 刷新归档记录请求Body */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArchivesRefreshRequest"];
+            };
+        };
         responses: {
             /** @description 刷新结果 */
             200: {
@@ -618,7 +641,12 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        /** @description 刷新归档记录请求Body */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArchivesRefreshRequest"];
+            };
+        };
         responses: {
             /** @description 刷新结果 */
             200: {
@@ -641,7 +669,12 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        /** @description 刷新归档记录请求Body */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArchivesRefreshRequest"];
+            };
+        };
         responses: {
             /** @description 刷新结果 */
             200: {
@@ -779,6 +812,11 @@ export interface operations {
                  * @example kimi-k2.5
                  */
                 model2?: string;
+                /**
+                 * @description Image parsing mode (optional; defaults to `view`): `original` / `view` / `view_compatibility` / `slice`.
+                 * @example view
+                 */
+                image_mode?: string;
             };
             header?: never;
             path: {
@@ -820,7 +858,7 @@ export interface operations {
                  */
                 model?: string;
                 /**
-                 * @description 图片解析模式（可选，默认 `view`，可选值：`original` / `view` / `slice`）。
+                 * @description 图片解析模式（可选，默认 `view`，可选值：`original` / `view` / `view_compatibility` / `slice`）。
                  * @example view
                  */
                 image_mode?: string;

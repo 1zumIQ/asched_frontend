@@ -203,8 +203,8 @@ const eventDensity = computed(() => {
     4px 4px 0 var(--shadow-strong),
     0 16px 26px var(--card-shadow);
   transition:
-    transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 400ms var(--ease-out-back),
+    box-shadow 400ms var(--ease-out-back),
     border-color 200ms ease;
   position: relative;
   display: flex;
@@ -235,10 +235,16 @@ const eventDensity = computed(() => {
 }
 
 .day-card:hover {
-  transform: translate(-4px, -4px) rotate(-0.4deg);
+  transform: translateY(-8px) scale(1.02) rotate(-1deg);
   box-shadow:
-    6px 6px 0 var(--shadow-strong),
-    0 20px 36px var(--shadow-ambient-2);
+    8px 8px 0 var(--shadow-strong),
+    0 24px 40px var(--shadow-ambient-2);
+  z-index: 2;
+}
+
+.day-card:active {
+  transform: scale(0.98);
+  transition: transform 100ms var(--ease-squish);
 }
 
 .day-card--today {

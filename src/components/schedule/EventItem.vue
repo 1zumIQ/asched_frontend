@@ -303,7 +303,7 @@ const guestNames = computed(() => {
     3px 3px 0 var(--shadow-strong),
     0 8px 14px rgb(var(--ink-deep-rgb) / 0.14);
   transition:
-    all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    all 400ms var(--ease-out-back);
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -338,15 +338,17 @@ const guestNames = computed(() => {
 }
 
 .event:hover {
-  transform: translate(-2px, -2px) rotate(-0.4deg) scale(1.01);
+  transform: translateY(-3px) scale(1.02) rotate(0.5deg);
   background: var(--event-surface-hover);
   box-shadow:
-    4px 4px 0 var(--shadow-strong),
-    0 12px 18px rgb(var(--ink-deep-rgb) / 0.18);
+    5px 5px 0 var(--shadow-strong),
+    0 14px 20px rgb(var(--ink-deep-rgb) / 0.18);
+  z-index: 2;
 }
 
 .event:active {
-  transform: translate(0, 0) scale(0.99);
+  transform: scale(0.96);
+  transition: transform 100ms var(--ease-squish);
 }
 
 /* 状态样式 */
@@ -921,9 +923,10 @@ const guestNames = computed(() => {
 }
 
 :root[data-theme='dark'] .event:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.01);
   box-shadow:
     var(--shadow-strong),
+    0 4px 12px rgb(0 0 0 / 0.2),
     0 0 0 1px var(--outline);
 }
 

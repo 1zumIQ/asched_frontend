@@ -236,7 +236,7 @@ onUnmounted(() => {
 
 .grid > * {
   scroll-snap-align: start;
-  animation: card-rise 600ms ease-out both;
+  animation: card-rise 800ms var(--ease-out-back) both;
 }
 
 .grid > *:nth-child(1) {
@@ -270,9 +270,11 @@ onUnmounted(() => {
 @keyframes card-rise {
   from {
     opacity: 0;
+    transform: translateY(60px) scale(0.9);
   }
   to {
     opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -340,7 +342,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 400ms var(--ease-out-back);
   box-shadow:
     4px 4px 0 var(--shadow-strong),
     0 12px 18px rgb(var(--ink-deep-rgb) / 0.18);

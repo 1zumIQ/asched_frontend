@@ -63,7 +63,7 @@ const setTheme = (value: ThemeName) => {
   gap: 10px;
   text-align: left;
   cursor: pointer;
-  transition: all 200ms ease;
+  transition: all 400ms var(--ease-out-back);
   box-shadow: 2px 2px 0 var(--shadow);
   position: relative;
   overflow: hidden;
@@ -80,8 +80,14 @@ const setTheme = (value: ThemeName) => {
 }
 
 .theme-toggle__button:hover {
-  transform: translate(-1px, -1px);
+  transform: translate(-1px, -1px) scale(1.02);
   box-shadow: 3px 3px 0 var(--shadow-strong);
+  z-index: 2;
+}
+
+.theme-toggle__button:active {
+  transform: scale(0.95);
+  transition: transform 100ms var(--ease-squish);
 }
 
 /* Light theme active - bouncy cute effect */
