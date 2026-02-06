@@ -240,28 +240,6 @@ const openLink = (url: string) => {
         <span v-if="!primaryMeta.avatar">{{ avatarInitials }}</span>
       </div>
 
-      <!-- 快捷跳转操作区 -->
-      <div class="event__actions">
-        <!-- 个人空间跳转 -->
-        <button class="action-btn action-btn--space" @click.stop="openLink(spaceUrl)" title="访问个人空间">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-          </svg>
-        </button>
-
-        <!-- 直播间跳转 (仅直播中显示) -->
-        <button
-          v-if="eventStatus === 'ongoing' && liveUrl"
-          class="action-btn action-btn--live"
-          @click.stop="openLink(liveUrl)"
-          title="跳转直播间"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 7l-7 5 7 5V7z" />
-            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-          </svg>
-        </button>
-      </div>
     </div>
 
     <!-- 展开时显示嘉宾信息 -->
@@ -287,6 +265,29 @@ const openLink = (url: string) => {
         </span>
         {{ tagMeta[tag]?.label }}
       </span>
+
+      <!-- 快捷跳转操作区 - 移动至此以对齐 -->
+      <div class="event__actions">
+        <!-- 个人空间跳转 -->
+        <button class="action-btn action-btn--space" @click.stop="openLink(spaceUrl)" title="访问个人空间">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
+
+        <!-- 直播间跳转 (仅直播中显示) -->
+        <button
+          v-if="eventStatus === 'ongoing' && liveUrl"
+          class="action-btn action-btn--live"
+          @click.stop="openLink(liveUrl)"
+          title="跳转直播间"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 7l-7 5 7 5V7z" />
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- 展开指示器 -->
@@ -303,13 +304,11 @@ const openLink = (url: string) => {
 <style scoped>
 /* Actions Area */
 .event__actions {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
   display: flex;
   flex-direction: row-reverse;
   gap: 8px;
-  z-index: 5;
+  margin-left: auto; /* Push to right */
+  align-items: center;
 }
 
 .action-btn {
@@ -340,16 +339,26 @@ const openLink = (url: string) => {
 
 /* Specific button styles */
 .action-btn--space {
-  color: var(--schedule-accent-cool);
-  background: rgb(var(--schedule-accent-cool-rgb) / 0.1);
-  border-color: rgb(var(--schedule-accent-cool-rgb) / 0.3);
+  color: var(--ink-soft);
+  background: transparent;
+  border-color: var(--outline);
 }
 
 .action-btn--space:hover {
-  background: var(--schedule-accent-cool);
-  color: white;
-  border-color: var(--schedule-accent-cool);
+  background: var(--primary-color);
+  color: white; /* High contrast on brand color */
+  border-color: var(--primary-color);
   transform: translateY(-2px) scale(1.1) rotate(-5deg);
+  box-shadow:
+    3px 3px 0 var(--shadow-strong),
+    0 4px 10px rgb(var(--ink-deep-rgb) / 0.15);
+}
+
+.action-btn--space:active {
+  transform: scale(0.95);
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  filter: brightness(0.9);
 }
 
 .action-btn--live {
