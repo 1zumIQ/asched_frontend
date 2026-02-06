@@ -90,10 +90,36 @@ const canScrollRight = computed(() => {
   return scrollPosition.value < gridRef.value.scrollWidth - gridRef.value.clientWidth - 10
 })
 
+const scrollToToday = () => {
+  if (!gridRef.value) return
+
+  // 这里的 class 需要匹配 DayCard 内部的样式或通过 ref 获取，
+  // 由于 DayCard 是组件，可以直接查找子元素中有 day-card--today class 的元素
+  // 但因为 DayCard 是封装组件，我们需要确保 DOM 已渲染。
+  // 简单方式：遍历查找
+  const todayCard = gridRef.value.querySelector('.day-card--today')
+  if (todayCard) {
+    // 手机端居中显示
+    const container = gridRef.value
+    // 让今天居中：cardLeft - containerWidth/2 + cardWidth/2
+    const cardLeft = (todayCard as HTMLElement).offsetLeft
+    const cardWidth = (todayCard as HTMLElement).offsetWidth
+    const containerWidth = container.clientWidth
+
+    // 仅在内容宽度超过容器时滚动
+    if (container.scrollWidth > containerWidth) {
+      const targetScroll = cardLeft - containerWidth / 2 + cardWidth / 2
+      container.scrollTo({ left: targetScroll, behavior: 'smooth' })
+    }
+  }
+}
+
 onMounted(() => {
   nextTick(() => {
     checkScrollNeeded()
     calculateCardHeight()
+    // 初始加载自动滚动到今天
+    setTimeout(scrollToToday, 100)
   })
   window.addEventListener('resize', handleResize)
   if (!gridRef.value) return
