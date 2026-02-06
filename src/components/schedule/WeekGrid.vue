@@ -313,10 +313,12 @@ onUnmounted(() => {
 }
 
 /* 430px以下：减少最小宽度和间距 */
+/* 430px以下：减少最小宽度和间距 */
 @media (max-width: 430px) {
   .grid {
     grid-template-columns: repeat(7, minmax(100%, 1fr));
-    gap: 8px;
+    /* 增加 gap 防止前一天的阴影在左侧露出 (box-shadow extends ~4-6px) */
+    gap: 20px;
     padding: 12px 8px 16px;
     scroll-padding: 0 8px;
   }
