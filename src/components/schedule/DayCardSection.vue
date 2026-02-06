@@ -30,11 +30,12 @@ const hasEvents = computed(() => props.events.length > 0)
     <div class="section__body">
       <div v-if="hasEvents" class="stack">
         <EventItem
-          v-for="event in events"
+          v-for="(event, index) in events"
           :key="event.record.id"
           :event="event"
           :tag-meta="tagMeta"
           :type-tags="typeTags"
+          :style="{ animationDelay: `${index * 80}ms` }"
         />
       </div>
       <div v-else class="section__empty">暂无安排</div>

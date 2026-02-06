@@ -173,6 +173,16 @@ const guestNames = computed(() => {
     .slice(1)
     .map(tag => props.tagMeta[tag]?.label ?? tag)
 })
+
+const spaceUrl = computed(() => `https://space.bilibili.com/${props.event.record.mid}`)
+const liveUrl = computed(() => {
+  if (!props.event.record.room_id) return ''
+  return `https://live.bilibili.com/${props.event.record.room_id}`
+})
+
+const openLink = (url: string) => {
+  window.open(url, '_blank')
+}
 </script>
 
 <template>
@@ -229,6 +239,29 @@ const guestNames = computed(() => {
       }">
         <span v-if="!primaryMeta.avatar">{{ avatarInitials }}</span>
       </div>
+
+      <!-- 快捷跳转操作区 -->
+      <div class="event__actions">
+        <!-- 个人空间跳转 -->
+        <button class="action-btn action-btn--space" @click.stop="openLink(spaceUrl)" title="访问个人空间">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
+
+        <!-- 直播间跳转 (仅直播中显示) -->
+        <button
+          v-if="eventStatus === 'ongoing' && liveUrl"
+          class="action-btn action-btn--live"
+          @click.stop="openLink(liveUrl)"
+          title="跳转直播间"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 7l-7 5 7 5V7z" />
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- 展开时显示嘉宾信息 -->
@@ -268,6 +301,105 @@ const guestNames = computed(() => {
 </template>
 
 <style scoped>
+/* Actions Area */
+.event__actions {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 8px;
+  z-index: 5;
+}
+
+.action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 12px; /* Enforce rounded squircle */
+  border: 2px solid var(--outline);
+  background: var(--surface-base);
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 400ms var(--ease-out-back);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px) scale(1.1) rotate(5deg);
+  box-shadow:
+    3px 3px 0 var(--shadow-strong),
+    0 4px 8px rgb(var(--ink-deep-rgb) / 0.1);
+  background: var(--surface-sunlight);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  border-radius: 50%; /* Morphs to circle on hover */
+}
+
+/* Specific button styles */
+.action-btn--space {
+  color: var(--schedule-accent-cool);
+  background: rgb(var(--schedule-accent-cool-rgb) / 0.1);
+  border-color: rgb(var(--schedule-accent-cool-rgb) / 0.3);
+}
+
+.action-btn--space:hover {
+  background: var(--schedule-accent-cool);
+  color: white;
+  border-color: var(--schedule-accent-cool);
+  transform: translateY(-2px) scale(1.1) rotate(-5deg);
+}
+
+.action-btn--live {
+  color: var(--status-ongoing);
+  background: rgb(var(--status-ongoing-rgb) / 0.1);
+  border-color: var(--status-ongoing);
+  animation: pulse-action 2s infinite;
+}
+
+.action-btn--live:hover {
+  background: var(--status-ongoing);
+  color: white;
+  border-color: var(--status-ongoing);
+  animation: none;
+  transform: translateY(-2px) scale(1.1);
+}
+
+@keyframes pulse-action {
+  0% { box-shadow: 0 0 0 0 rgb(var(--status-ongoing-rgb) / 0.4); border-radius: 12px; }
+  50% { border-radius: 10px; }
+  70% { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; border-radius: 12px; }
+}
+
+/* Dark Mode Overrides for Actions */
+:root[data-theme='dark'] .action-btn {
+  background: var(--surface-warm);
+  border-color: var(--outline);
+  box-shadow: var(--shadow);
+  border-radius: 50%; /* Keep circular in dark mode */
+}
+
+:root[data-theme='dark'] .action-btn:hover {
+  background: var(--surface-warm-strong);
+  border-color: var(--ink-soft);
+  color: var(--ink);
+  transform: scale(1.1);
+  border-radius: 50%;
+}
+
+:root[data-theme='dark'] .action-btn--live {
+  background: rgb(var(--status-ongoing-rgb) / 0.15);
+  border-color: var(--status-ongoing);
+}
+
+:root[data-theme='dark'] .action-btn--live:hover {
+  background: var(--status-ongoing);
+  color: black; /* High contrast on bright green */
+}
+
 .event {
   padding: 14px;
   border-radius: var(--radius-md);
@@ -307,6 +439,18 @@ const guestNames = computed(() => {
   position: relative;
   overflow: hidden;
   cursor: pointer;
+  animation: event-enter 500ms var(--ease-out-back) backwards;
+}
+
+@keyframes event-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* 高度受限时减少内边距 */
