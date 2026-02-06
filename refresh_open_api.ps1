@@ -1,0 +1,1 @@
+npx openapi-typescript http://127.0.0.1:3000/api-docs/openapi.json -o .\src\types\schema.d.ts
