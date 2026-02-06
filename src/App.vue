@@ -284,27 +284,42 @@ const tagCounts = computed(() => {
 
 :root:not([data-theme]),
 :root[data-theme='light'] {
+  /* ========== CUTE HAND-DRAWN STYLE ========== */
   --font-display: 'Fredoka', 'Noto Sans SC', sans-serif;
   --font-body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --ink: #2f2721;
-  --ink-soft: #61564d;
-  --ink-rgb: 47 39 33;
-  --ink-deep-rgb: 31 27 22;
-  --outline: #5a4d43;
-  --outline-rgb: 90 77 67;
-  --paper: #fff2b3;
-  --paper-2: #fff9db;
-  --sun: #ffd166;
-  --sun-rgb: 255 209 102;
-  --coral: #ff6b6b;
-  --coral-rgb: 255 107 107;
-  --mint: #06d6a0;
-  --mint-rgb: 6 214 160;
-  --sky: #4d96ff;
-  --sky-rgb: 77 150 255;
-  --berry: #ff4fa3;
-  --berry-rgb: 255 79 163;
-  --leaf: #9ee65c;
+
+  /* Soft pastel ink colors */
+  --ink: #4a3f36;
+  --ink-soft: #7a6b5f;
+  --ink-rgb: 74 63 54;
+  --ink-deep-rgb: 45 38 32;
+
+  /* Hand-drawn outline - slightly softer */
+  --outline: #6b5a4d;
+  --outline-rgb: 107 90 77;
+
+  /* Warm paper tones */
+  --paper: #fff8e7;
+  --paper-2: #fffbf0;
+
+  /* Cheerful accent colors */
+  --sun: #ffdb70;
+  --sun-rgb: 255 219 112;
+  --coral: #ff8a8a;
+  --coral-rgb: 255 138 138;
+  --mint: #5ee9c5;
+  --mint-rgb: 94 233 197;
+  --sky: #7ab8ff;
+  --sky-rgb: 122 184 255;
+  --berry: #ff7eb8;
+  --berry-rgb: 255 126 184;
+  --leaf: #a8ed6c;
+  --peach: #ffb5a0;
+  --peach-rgb: 255 181 160;
+  --lavender: #c9b8ff;
+  --lavender-rgb: 201 184 255;
+
+  /* Schedule accent mappings */
   --schedule-accent-warm: var(--sun);
   --schedule-accent-warm-rgb: var(--sun-rgb);
   --schedule-accent-hot: var(--coral);
@@ -316,87 +331,127 @@ const tagCounts = computed(() => {
   --schedule-accent-berry: var(--berry);
   --schedule-accent-berry-rgb: var(--berry-rgb);
   --schedule-accent-leaf: var(--leaf);
-  --schedule-accent-leaf-rgb: 158 230 92;
+  --schedule-accent-leaf-rgb: 168 237 108;
   --schedule-rainbow-1: var(--rainbow-1);
   --schedule-rainbow-2: var(--rainbow-2);
   --schedule-rainbow-3: var(--rainbow-3);
   --schedule-rainbow-4: var(--rainbow-4);
   --schedule-rainbow-5: var(--rainbow-5);
-  --surface-base: #ffffff;
-  --surface-warm: #fff7d6;
-  --surface-warm-strong: #fff4b8;
-  --surface-warm-deep: #ffe4a5;
-  --surface-warm-soft: #fff3c7;
-  --surface-sun: #fff2b3;
-  --surface-sun-strong: #ffe59a;
-  --surface-cool: #dff1ff;
-  --surface-cool-soft: #e5f7ff;
-  --surface-rose: #ffd1ef;
-  --surface-rose-soft: #ffe3f2;
-  --surface-mint-soft: #dffaf0;
-  --surface-mint-bright: #eafdf6;
-  --surface-sunlight: #fff5c2;
-  --page-bg-warm: #fff1a6;
-  --page-bg-cool: #b9f3ff;
-  --page-bg-rose: #ffd1e8;
+
+  /* Soft creamy surfaces */
+  --surface-base: #fffefa;
+  --surface-warm: #fff9e8;
+  --surface-warm-strong: #fff5d6;
+  --surface-warm-deep: #ffedbe;
+  --surface-warm-soft: #fffbef;
+  --surface-sun: #fff7d9;
+  --surface-sun-strong: #ffefb8;
+  --surface-cool: #e8f5ff;
+  --surface-cool-soft: #f0f9ff;
+  --surface-rose: #ffe8f5;
+  --surface-rose-soft: #fff0f8;
+  --surface-mint-soft: #e8fff7;
+  --surface-mint-bright: #f0fff9;
+  --surface-sunlight: #fffae0;
+
+  /* Dreamy pastel backgrounds */
+  --page-bg-warm: #fff5d4;
+  --page-bg-cool: #d4f4ff;
+  --page-bg-rose: #ffe8f2;
+
   --white-rgb: 255 255 255;
-  --shadow: rgb(var(--ink-deep-rgb) / 0.25);
-  --shadow-strong: rgb(var(--ink-deep-rgb) / 0.38);
-  --shadow-ambient-1: rgb(var(--ink-deep-rgb) / 0.16);
-  --shadow-ambient-2: rgb(var(--ink-deep-rgb) / 0.2);
-  --shadow-ambient-3: rgb(var(--ink-deep-rgb) / 0.22);
-  --shadow-ambient-4: rgb(var(--ink-deep-rgb) / 0.28);
-  --overlay: rgb(var(--ink-deep-rgb) / 0.5);
-  --glass-60: rgb(var(--white-rgb) / 0.6);
-  --glass-65: rgb(var(--white-rgb) / 0.65);
-  --glass-70: rgb(var(--white-rgb) / 0.7);
-  --glass-80: rgb(var(--white-rgb) / 0.8);
-  --glass-85: rgb(var(--white-rgb) / 0.85);
-  --glass-90: rgb(var(--white-rgb) / 0.9);
+
+  /* Soft shadows for cute feel */
+  --shadow: rgb(var(--ink-deep-rgb) / 0.18);
+  --shadow-strong: rgb(var(--ink-deep-rgb) / 0.28);
+  --shadow-ambient-1: rgb(var(--ink-deep-rgb) / 0.12);
+  --shadow-ambient-2: rgb(var(--ink-deep-rgb) / 0.15);
+  --shadow-ambient-3: rgb(var(--ink-deep-rgb) / 0.18);
+  --shadow-ambient-4: rgb(var(--ink-deep-rgb) / 0.22);
+  --overlay: rgb(var(--ink-deep-rgb) / 0.4);
+
+  /* Frosted glass effects */
+  --glass-60: rgb(var(--white-rgb) / 0.65);
+  --glass-65: rgb(var(--white-rgb) / 0.7);
+  --glass-70: rgb(var(--white-rgb) / 0.75);
+  --glass-80: rgb(var(--white-rgb) / 0.85);
+  --glass-85: rgb(var(--white-rgb) / 0.88);
+  --glass-90: rgb(var(--white-rgb) / 0.92);
+
   --text-on-accent: #fff;
-  --status-ongoing: #10b981;
-  --status-ended: #94a3b8;
-  --status-interrupted: #ef4444;
+
+  /* Status colors - cheerful */
+  --status-ongoing: #2dd4a0;
+  --status-ended: #a8b4c2;
+  --status-interrupted: #ff7b7b;
   --status-upcoming: var(--schedule-accent-cool);
-  --status-late: #f59e0b;
-  --status-ongoing-rgb: 16 185 129;
-  --status-ended-rgb: 148 163 184;
-  --status-interrupted-rgb: 239 68 68;
+  --status-late: #ffb347;
+  --status-ongoing-rgb: 45 212 160;
+  --status-ended-rgb: 168 180 194;
+  --status-interrupted-rgb: 255 123 123;
   --status-upcoming-rgb: var(--schedule-accent-cool-rgb);
-  --status-late-rgb: 245 158 11;
-  --rainbow-1: #ff6b6b;
-  --rainbow-2: #ffd93d;
-  --rainbow-3: #6bcb77;
-  --rainbow-4: #4d96ff;
-  --rainbow-5: #845ef7;
-  --radius-xl: 28px 20px 32px 18px;
-  --radius-lg: 22px 16px 26px 14px;
-  --radius-md: 16px 12px 18px 10px;
-  --radius-sm: 12px 10px 14px 8px;
+  --status-late-rgb: 255 179 71;
+
+  /* Rainbow palette - soft pastel */
+  --rainbow-1: #ff8a8a;
+  --rainbow-2: #ffdb70;
+  --rainbow-3: #7cd992;
+  --rainbow-4: #7ab8ff;
+  --rainbow-5: #b088f9;
+
+  /* Organic hand-drawn border radii */
+  --radius-xl: 32px 24px 36px 20px;
+  --radius-lg: 26px 18px 30px 16px;
+  --radius-md: 18px 14px 22px 12px;
+  --radius-sm: 14px 10px 16px 8px;
+
+  /* Cute theme specific */
+  --sparkle-color: #ffeb3b;
+  --blush-color: rgb(255 180 180 / 0.4);
+  --doodle-opacity: 0.08;
+  --wiggle-intensity: 2deg;
+  --bounce-scale: 1.05;
 }
 
 :root[data-theme='dark'] {
+  /* ========== SHADCN/UI MINIMALIST STYLE (ZINC - OPTIMIZED) ========== */
   --font-display: 'Fredoka', 'Noto Sans SC', sans-serif;
   --font-body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --ink: #d7dde7;
-  --ink-soft: #8d98aa;
-  --ink-rgb: 215 221 231;
-  --ink-deep-rgb: 3 7 14;
-  --outline: #202a3a;
-  --outline-rgb: 32 42 58;
-  --paper: #05070c;
-  --paper-2: #0a0f17;
-  --sun: #b45309;
-  --sun-rgb: 180 83 9;
-  --coral: #b91c1c;
-  --coral-rgb: 185 28 28;
-  --mint: #0f766e;
-  --mint-rgb: 15 118 110;
-  --sky: #1d4ed8;
-  --sky-rgb: 29 78 216;
-  --berry: #6d28d9;
-  --berry-rgb: 109 40 217;
-  --leaf: #3f6212;
+
+  /* High contrast text */
+  --ink: #f4f4f5;         /* Zinc 100 - Slightly softer white */
+  --ink-soft: #a1a1aa;    /* Zinc 400 */
+  --ink-rgb: 244 244 245;
+  --ink-deep-rgb: 12 12 16; /* Deep charcoal */
+
+  /* Subtle high-contrast borders */
+  --outline: #27272a;     /* Zinc 800 */
+  --outline-rgb: 39 39 42;
+
+  /* Clean dark backgrounds - LIFTED from pure black */
+  --paper: #0c0c10;       /* Custom darker gray, not pure black */
+  --paper-2: #18181b;     /* Zinc 900 */
+
+  /* Muted accents for minimalist feel */
+  --sun: #fbbf24;         /* Amber 400 */
+  --sun-rgb: 251 191 36;
+  --coral: #f43f5e;       /* Rose 500 */
+  --coral-rgb: 244 63 94;
+  --mint: #10b981;        /* Emerald 500 */
+  --mint-rgb: 16 185 129;
+  --sky: #38bdf8;         /* Sky 400 */
+  --sky-rgb: 56 189 248;
+  --berry: #a78bfa;       /* Violet 400 */
+  --berry-rgb: 167 139 250;
+  --leaf: #a3e635;        /* Lime 400 */
+  --blood: #e11d48;       /* Rose 600 */
+  --blood-rgb: 225 29 72;
+  --ghostblue: #94a3b8;   /* Slate 400 */
+  --ghostblue-rgb: 148 163 184;
+  --toxic: #84cc16;       /* Lime 500 */
+  --toxic-rgb: 132 204 22;
+
+  /* Schedule accent mappings */
   --schedule-accent-warm: var(--sun);
   --schedule-accent-warm-rgb: var(--sun-rgb);
   --schedule-accent-hot: var(--coral);
@@ -408,63 +463,79 @@ const tagCounts = computed(() => {
   --schedule-accent-berry: var(--berry);
   --schedule-accent-berry-rgb: var(--berry-rgb);
   --schedule-accent-leaf: var(--leaf);
-  --schedule-accent-leaf-rgb: 77 124 15;
-  --schedule-rainbow-1: var(--rainbow-1);
-  --schedule-rainbow-2: var(--rainbow-2);
-  --schedule-rainbow-3: var(--rainbow-3);
-  --schedule-rainbow-4: var(--rainbow-4);
-  --schedule-rainbow-5: var(--rainbow-5);
-  --surface-base: #0b1118;
-  --surface-warm: #101722;
-  --surface-warm-strong: #182131;
-  --surface-warm-deep: #1f2a3a;
-  --surface-warm-soft: #070c13;
-  --surface-sun: #111a28;
-  --surface-sun-strong: #1a2434;
-  --surface-cool: #0b1526;
-  --surface-cool-soft: #0f1a2e;
-  --surface-rose: #1a1424;
-  --surface-rose-soft: #12101c;
-  --surface-mint-soft: #0b1917;
-  --surface-mint-bright: #0f2723;
-  --surface-sunlight: #0f1826;
-  --page-bg-warm: #03050a;
-  --page-bg-cool: #060b16;
-  --page-bg-rose: #0b0714;
+  --schedule-accent-leaf-rgb: 163 230 53;
+  --schedule-rainbow-1: #fda4af;
+  --schedule-rainbow-2: #fdba74;
+  --schedule-rainbow-3: #86efac;
+  --schedule-rainbow-4: #93c5fd;
+  --schedule-rainbow-5: #c4b5fd;
+
+  /* Zinc surfaces - INCREASED BRIGHTNESS for depth */
+  --surface-base: #131316;      /* Slightly lighter than bg */
+  --surface-warm: #18181b;      /* Zinc 900 */
+  --surface-warm-strong: #27272a; /* Zinc 800 */
+  --surface-warm-deep: #18181b; /* Zinc 900 */
+  --surface-warm-soft: #131316;
+  --surface-sun: #18181b;
+  --surface-sun-strong: #27272a;
+  --surface-cool: #131316;
+  --surface-cool-soft: #18181b;
+  --surface-rose: #131316;
+  --surface-rose-soft: #18181b;
+  --surface-mint-soft: #131316;
+  --surface-mint-bright: #18181b;
+  --surface-sunlight: #131316;
+
+  /* Clean background gradients (subtle) */
+  --page-bg-warm: #0c0c10;
+  --page-bg-cool: #131316;
+  --page-bg-rose: #0c0c10;
+
   --white-rgb: 255 255 255;
-  --shadow: rgb(var(--ink-deep-rgb) / 0.25);
-  --shadow-strong: rgb(var(--ink-deep-rgb) / 0.38);
-  --shadow-ambient-1: rgb(var(--ink-deep-rgb) / 0.16);
-  --shadow-ambient-2: rgb(var(--ink-deep-rgb) / 0.2);
-  --shadow-ambient-3: rgb(var(--ink-deep-rgb) / 0.22);
-  --shadow-ambient-4: rgb(var(--ink-deep-rgb) / 0.28);
-  --overlay: rgb(var(--ink-deep-rgb) / 0.7);
-  --glass-60: rgb(255 255 255 / 0.04);
-  --glass-65: rgb(255 255 255 / 0.06);
-  --glass-70: rgb(255 255 255 / 0.08);
-  --glass-80: rgb(255 255 255 / 0.12);
-  --glass-85: rgb(255 255 255 / 0.14);
-  --glass-90: rgb(255 255 255 / 0.18);
-  --text-on-accent: #fff;
+
+  /* Enhanced shadows for better separation on dark */
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --shadow-strong: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-ambient-1: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+  --shadow-ambient-2: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+  --shadow-ambient-3: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+  --shadow-ambient-4: var(--shadow-ambient-3);
+  --overlay: rgb(0 0 0 / 0.7);
+
+  /* Clearer glass */
+  --glass-60: rgb(24 24 27 / 0.6);
+  --glass-65: rgb(24 24 27 / 0.65);
+  --glass-70: rgb(24 24 27 / 0.7);
+  --glass-80: rgb(24 24 27 / 0.8);
+  --glass-85: rgb(24 24 27 / 0.85);
+  --glass-90: rgb(24 24 27 / 0.9);
+
+  --text-on-accent: #ffffff;
+
+  /* Status colors */
   --status-ongoing: #10b981;
-  --status-ended: #94a3b8;
+  --status-ended: #71717a;
   --status-interrupted: #ef4444;
-  --status-upcoming: var(--schedule-accent-cool);
+  --status-upcoming: #3b82f6;
   --status-late: #f59e0b;
   --status-ongoing-rgb: 16 185 129;
-  --status-ended-rgb: 148 163 184;
+  --status-ended-rgb: 113 113 122;
   --status-interrupted-rgb: 239 68 68;
-  --status-upcoming-rgb: var(--schedule-accent-cool-rgb);
+  --status-upcoming-rgb: 59 130 246;
   --status-late-rgb: 245 158 11;
-  --rainbow-1: #b91c1c;
-  --rainbow-2: #b45309;
-  --rainbow-3: #15803d;
-  --rainbow-4: #1d4ed8;
-  --rainbow-5: #6d28d9;
-  --radius-xl: 28px 20px 32px 18px;
-  --radius-lg: 22px 16px 26px 14px;
-  --radius-md: 16px 12px 18px 10px;
-  --radius-sm: 12px 10px 14px 8px;
+
+  /* Standard borders */
+  --radius-xl: 12px;
+  --radius-lg: 8px;
+  --radius-md: 6px;
+  --radius-sm: 4px;
+
+  /* Removed horror variables */
+  --eerie-glow: transparent;
+  --fog-opacity: 0;
+  --flicker-intensity: 0;
+  --shake-intensity: 0;
+  --crack-opacity: 0;
 }
 
 
@@ -485,14 +556,22 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
   background-color: var(--paper);
+  /* Clean background for both themes, texture only in light */
+  background-image: none;
+  background-size: auto;
+  background-attachment: fixed;
+}
+
+/* Light mode texture restoration */
+:root[data-theme='light'] body {
   background-image:
     radial-gradient(circle at 12px 12px, rgb(var(--ink-deep-rgb) / 0.08) 1px, transparent 1px),
     radial-gradient(circle at 6px 6px, var(--glass-60) 1px, transparent 1px),
     linear-gradient(135deg, var(--page-bg-warm) 0%, var(--page-bg-cool) 48%, var(--page-bg-rose) 100%);
   background-size: 24px 24px, 18px 18px, cover;
-  background-attachment: fixed;
 }
 
+/* Clean up body::before/after for dark mode */
 body::before {
   content: '';
   position: fixed;
@@ -512,6 +591,11 @@ body::before {
   opacity: 0.8;
   pointer-events: none;
   z-index: 0;
+}
+
+/* Hide colorful blobs in dark mode */
+:root[data-theme='dark'] body::before {
+  display: none;
 }
 
 body::after {
@@ -538,24 +622,9 @@ body::after {
   z-index: 0;
 }
 
-:root[data-theme='dark'] body::before {
-  background:
-    radial-gradient(circle at 16% 20%, rgb(var(--ink-rgb) / 0.08) 0%, transparent 55%),
-    radial-gradient(
-      circle at 78% 12%,
-      rgb(var(--schedule-accent-mint-rgb) / 0.18) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      circle at 82% 78%,
-      rgb(var(--schedule-accent-berry-rgb) / 0.2) 0%,
-      transparent 60%
-    );
-  opacity: 0.6;
-}
-
+/* Hide texture grid in dark mode */
 :root[data-theme='dark'] body::after {
-  opacity: 0.45;
+  display: none;
 }
 
 #app {
@@ -632,25 +701,10 @@ h4 {
   z-index: -1;
 }
 
-:root[data-theme='dark'] .page::before {
-  background: radial-gradient(circle, rgb(var(--ink-rgb) / 0.12) 0%, transparent 70%);
-  filter: blur(6px);
-  opacity: 0.35;
-}
-
+/* Dark mode - Clean page, no eerie decorations */
+:root[data-theme='dark'] .page::before,
 :root[data-theme='dark'] .page::after {
-  background:
-    radial-gradient(
-      circle at 30% 30%,
-      rgb(var(--schedule-accent-mint-rgb) / 0.18),
-      transparent 55%
-    ),
-    radial-gradient(
-      circle at 70% 70%,
-      rgb(var(--schedule-accent-berry-rgb) / 0.2),
-      transparent 55%
-    );
-  opacity: 0.4;
+  display: none;
 }
 
 /* 移动端减少 padding */

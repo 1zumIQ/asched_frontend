@@ -360,5 +360,63 @@ const updateTheme = (value: ThemeName) => {
   box-shadow: 2px 2px 0 var(--shadow);
   transform: rotate(-2deg);
 }
+
+/* ========== SHADCN/UI MINIMALIST DARK OVERRIDES ========== */
+:root[data-theme='dark'] .hero {
+  background: var(--surface-warm);
+  box-shadow:
+    var(--shadow-strong),
+    0 0 0 1px var(--outline);
+}
+
+:root[data-theme='dark'] .hero::before {
+  /* Subtle gradient overlay */
+  background-image: linear-gradient(
+    135deg,
+    var(--surface-warm-strong),
+    transparent 60%
+  );
+  opacity: 0.5;
+}
+
+:root[data-theme='dark'] .hero::after {
+  /* Clean decorative circle */
+  border-color: var(--outline);
+  background: transparent;
+  animation: float-calm 8s ease-in-out infinite;
+}
+
+@keyframes float-calm {
+  0%, 100% { transform: rotate(-8deg) translateY(0); }
+  50% { transform: rotate(-8deg) translateY(-4px); }
+}
+
+:root[data-theme='dark'] .hero-title::before {
+  background: var(--surface-warm-strong);
+  opacity: 1;
+}
+
+:root[data-theme='dark'] .hero-title::after {
+  background: linear-gradient(90deg, var(--schedule-accent-cool), transparent);
+  box-shadow: none;
+  height: 2px;
+  bottom: -4px;
+}
+
+:root[data-theme='dark'] .hero-title__spark {
+  background: var(--surface-warm-strong);
+  color: var(--schedule-accent-cool);
+  box-shadow: var(--shadow);
+  border-color: var(--outline);
+  animation: none;
+}
+
+:root[data-theme='dark'] .pill {
+  background: var(--surface-warm-strong);
+  border-color: var(--outline);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
 </style>
+
 

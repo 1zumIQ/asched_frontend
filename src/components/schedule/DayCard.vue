@@ -442,4 +442,76 @@ const eventDensity = computed(() => {
   transform: translate(-1px, -1px) scale(1.05) rotate(8deg);
   box-shadow: 4px 4px 0 var(--shadow-strong);
 }
+
+/* ========== SHADCN/UI MINIMALIST DARK OVERRIDES ========== */
+:root[data-theme='dark'] .day-card {
+  --card-surface: var(--surface-warm);
+  border-color: var(--outline);
+  box-shadow: var(--shadow);
+}
+
+:root[data-theme='dark'] .day-card::before {
+  /* Subtle clean accent line */
+  background: linear-gradient(
+    90deg,
+    var(--schedule-accent-hot),
+    var(--schedule-accent-cool)
+  );
+  opacity: 0.8;
+  box-shadow: none;
+}
+
+:root[data-theme='dark'] .day-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--ink-soft);
+  box-shadow: var(--shadow-strong);
+}
+
+:root[data-theme='dark'] .day-card--today {
+  border-color: var(--schedule-accent-cool);
+  --card-surface: var(--surface-warm-strong);
+  box-shadow: 0 0 0 1px var(--schedule-accent-cool), var(--shadow-strong);
+}
+
+:root[data-theme='dark'] .day-card--heavy::after {
+  background: var(--schedule-accent-hot);
+  box-shadow: none;
+  border-color: var(--surface-base);
+  animation: none;
+}
+
+:root[data-theme='dark'] .hamburger-button {
+  background: var(--surface-warm-strong);
+  border-color: var(--outline);
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .hamburger-button:hover {
+  background: var(--surface-warm-deep);
+  border-color: var(--ink-soft);
+  color: var(--ink);
+  transform: translate(-50%, -2px);
+}
+
+:root[data-theme='dark'] .modal-overlay {
+  background: rgb(0 0 0 / 0.8);
+  backdrop-filter: blur(4px);
+}
+
+:root[data-theme='dark'] .modal-content {
+  box-shadow: var(--shadow-strong), 0 0 0 1px var(--outline);
+  animation: modal-slide-up 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme='dark'] .modal-close {
+  border-color: var(--outline);
+  background: var(--surface-warm-strong);
+}
+
+:root[data-theme='dark'] .modal-close:hover {
+  background: var(--surface-warm-deep);
+  border-color: var(--ink-soft);
+  color: var(--ink);
+  transform: scale(1.05);
+}
 </style>

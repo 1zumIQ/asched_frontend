@@ -379,4 +379,30 @@ onUnmounted(() => {
     transform: translateX(5px) scale(1.2);
   }
 }
+
+/* ========== SHADCN/UI MINIMALIST DARK OVERRIDES ========== */
+:root[data-theme='dark'] .week-grid-container::before {
+  border-color: var(--outline);
+  background: transparent;
+  box-shadow: none;
+  animation: none;
+  opacity: 0.1;
+  background-image: radial-gradient(var(--ink-soft) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+:root[data-theme='dark'] .scroll-button {
+  background: var(--surface-warm);
+  border-color: var(--outline);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+:root[data-theme='dark'] .scroll-button:hover {
+  background: var(--surface-warm-strong);
+  border-color: var(--ink-soft);
+  color: var(--ink);
+  box-shadow: var(--shadow-strong);
+  transform: translateY(-50%) scale(1.05);
+}
 </style>

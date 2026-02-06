@@ -900,4 +900,81 @@ const guestNames = computed(() => {
     padding: 3px 8px;
   }
 }
+
+/* ========== SHADCN/UI MINIMALIST DARK OVERRIDES ========== */
+:root[data-theme='dark'] .event {
+  --event-surface: var(--surface-warm);
+  --event-surface-hover: var(--surface-warm-strong);
+  --event-surface-ongoing: var(--surface-warm-strong);
+  --event-time-bg: var(--surface-warm-strong);
+  --event-time-bg-hover: var(--surface-warm-deep);
+  --event-guests-bg: var(--school-surface-warm-strong);
+  --event-expand-bg: var(--overlay);
+  --event-expand-bg-hover: var(--surface-warm-deep);
+}
+
+:root[data-theme='dark'] .event::before {
+  /* Subtle clean accent line */
+  background: var(--primary-color, var(--ink-soft));
+  opacity: 1;
+  width: 4px;
+}
+
+:root[data-theme='dark'] .event:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    var(--shadow-strong),
+    0 0 0 1px var(--outline);
+}
+
+:root[data-theme='dark'] .event--ongoing {
+  animation: none;
+  border-color: var(--status-ongoing);
+  box-shadow: 0 0 0 1px var(--status-ongoing), var(--shadow);
+}
+
+:root[data-theme='dark'] .avatar {
+  box-shadow: var(--shadow);
+  border-color: var(--outline);
+}
+
+:root[data-theme='dark'] .event:hover .avatar {
+  box-shadow: var(--shadow-strong);
+}
+
+:root[data-theme='dark'] .dot--ongoing {
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  animation: none;
+}
+
+:root[data-theme='dark'] .dot--ongoing::after {
+  animation: pulse-ring-minimal 2s infinite;
+  border-color: var(--status-ongoing);
+}
+
+@keyframes pulse-ring-minimal {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+:root[data-theme='dark'] .chip {
+  box-shadow: var(--shadow);
+  border-color: var(--outline);
+}
+
+:root[data-theme='dark'] .chip:hover {
+  box-shadow: var(--shadow-strong);
+  transform: translateY(-1px);
+}
+
+:root[data-theme='dark'] .event__expand-indicator {
+  border-color: var(--outline);
+  background: var(--surface-warm-strong);
+}
+
+:root[data-theme='dark'] .event:hover .event__expand-indicator {
+  background: var(--surface-warm-deep);
+  border-color: var(--ink-soft);
+  color: var(--ink);
+}
 </style>
