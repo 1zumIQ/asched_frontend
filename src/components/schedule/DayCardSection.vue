@@ -35,7 +35,7 @@ const hasEvents = computed(() => props.events.length > 0)
           :event="event"
           :tag-meta="tagMeta"
           :type-tags="typeTags"
-          :style="{ animationDelay: `${index * 80}ms` }"
+          :style="{ animationDelay: `${Math.min(index * 30, 300)}ms` }"
         />
       </div>
       <div v-else class="section__empty">暂无安排</div>

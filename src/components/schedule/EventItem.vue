@@ -446,21 +446,27 @@ const openLink = (url: string) => {
     3px 3px 0 var(--shadow-strong),
     0 8px 14px rgb(var(--ink-deep-rgb) / 0.14);
   transition:
-    all 400ms var(--ease-out-back);
+    background 200ms ease,
+    transform 200ms var(--ease-out-back),
+    box-shadow 200ms var(--ease-out-back),
+    border-color 200ms ease;
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  animation: event-enter 500ms var(--ease-out-back) backwards;
+  /* Simplified enter animation */
+  animation: event-enter 300ms var(--ease-out-back) backwards;
+  /* Optimization hint */
+  will-change: transform;
 }
 
 @keyframes event-enter {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.95);
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
   }
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, shallowRef, type CSSProperties } from 'vue'
+import { computed, shallowRef } from 'vue'
 import type { DayCard, TagType, TagMeta, MemberTag, TypeTag } from '@/types/ui'
 import type { LiveRecordView } from '@/domain/records'
 import { useBodyScrollLock } from '@/composables/useBodyScrollLock'
@@ -12,7 +12,6 @@ const props = defineProps<{
   tagMeta: Record<TagType, TagMeta>
   memberTags: MemberTag[]
   typeTags: TypeTag[]
-  cardHeight?: number
 }>()
 
 const showModal = shallowRef(false)
@@ -28,18 +27,6 @@ const isEmpty = computed(() => totalEvents.value === 0)
 const showHamburgerButton = computed(() => (
   hasEvents.value && totalEvents.value >= HAMBURGER_THRESHOLD
 ))
-
-// 计算卡片样式
-const cardStyle = computed<CSSProperties>(() => {
-  if (props.cardHeight && props.cardHeight > 0) {
-    return {
-      height: `${props.cardHeight}px`,
-      minHeight: `${props.cardHeight}px`,
-      maxHeight: `${props.cardHeight}px`
-    }
-  }
-  return {}
-})
 
 // 打开/关闭模态框
 const toggleModal = () => {
@@ -89,7 +76,6 @@ const eventDensity = computed(() => {
       [`day-card--${eventDensity}`]: true,
       'day-card--has-hamburger': showHamburgerButton
     }"
-    :style="cardStyle"
   >
     <DayCardContent
       :day="day"
@@ -141,6 +127,7 @@ const eventDensity = computed(() => {
 
 <style scoped>
 .day-card,
+.day-card,
 .modal-content {
   --card-padding: 12px;
   --card-dot-size: 24px;
@@ -148,6 +135,10 @@ const eventDensity = computed(() => {
   --card-surface: linear-gradient(145deg, var(--surface-base) 0%, var(--surface-warm) 100%);
   --card-shadow: var(--shadow-ambient-1);
   --header-gap: 16px;
+  /* Ensure it fills the grid cell */
+  height: 100%;
+  overflow: hidden;
+
   --header-padding: 14px;
   --stats-padding: 12px;
   --stats-margin-bottom: 16px;

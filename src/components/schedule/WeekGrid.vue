@@ -21,25 +21,7 @@ defineProps<{
 const gridRef = useTemplateRef<HTMLElement>('grid')
 const scrollPosition = shallowRef(0)
 const showScrollControls = shallowRef(false)
-const cardHeight = shallowRef(0)
 let resizeObserver: ResizeObserver | null = null
-
-// 计算卡片可用高度
-const calculateCardHeight = () => {
-  if (!gridRef.value) return
-
-  const gridHeight = gridRef.value.clientHeight
-  const computedStyle = window.getComputedStyle(gridRef.value)
-  const gridPaddingTop = parseFloat(computedStyle.paddingTop)
-  const gridPaddingBottom = parseFloat(computedStyle.paddingBottom)
-  const bottomMargin = 12
-  // 为阴影与汉堡按钮留出空间
-
-  const calculatedHeight = gridHeight - gridPaddingTop - gridPaddingBottom - bottomMargin
-
-  // 确保高度为正数
-  cardHeight.value = Math.max(calculatedHeight, 200)
-}
 
 // 检测是否需要滚动控制
 const checkScrollNeeded = () => {
@@ -73,7 +55,6 @@ const updateScrollPosition = () => {
 
 const handleResize = () => {
   checkScrollNeeded()
-  calculateCardHeight()
 }
 
 const handleScroll = () => {
@@ -118,7 +99,6 @@ const scrollToToday = () => {
 onMounted(() => {
   nextTick(() => {
     checkScrollNeeded()
-    calculateCardHeight()
     // 初始加载自动滚动到今天
     setTimeout(scrollToToday, 100)
   })
@@ -132,7 +112,6 @@ onMounted(() => {
   resizeObserver = new ResizeObserver(() => {
     checkScrollNeeded()
     updateScrollPosition()
-    calculateCardHeight()
   })
   resizeObserver.observe(gridRef.value)
 })
@@ -170,7 +149,6 @@ onUnmounted(() => {
         :tag-meta="tagMeta"
         :member-tags="memberTags"
         :type-tags="typeTags"
-        :card-height="cardHeight"
       />
     </section>
 
@@ -198,6 +176,7 @@ onUnmounted(() => {
 
   /* 增加overflow: visible确保阴影不被裁剪 */
   overflow: visible;
+  min-height: 0; /* Critical for nested flex scrolling */
 }
 
 .week-grid-container::before {
@@ -218,6 +197,7 @@ onUnmounted(() => {
 .grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(320px, 1fr));
+  grid-template-rows: minmax(0, 1fr); /* Force rows to fit container */
   gap: 16px;
   overflow-x: auto;
   overflow-y: hidden;
@@ -233,45 +213,47 @@ onUnmounted(() => {
   align-items: stretch;
   position: relative;
   z-index: 1;
+  min-height: 0; /* Stop flex item from growing to content */
 }
 
 .grid > * {
   scroll-snap-align: start;
-  animation: card-rise 800ms var(--ease-out-back) both;
+  animation: card-rise 600ms var(--ease-out-back) both;
+  will-change: transform, opacity;
 }
 
 .grid > *:nth-child(1) {
-  animation-delay: 60ms;
+  animation-delay: 50ms;
 }
 
 .grid > *:nth-child(2) {
-  animation-delay: 120ms;
+  animation-delay: 100ms;
 }
 
 .grid > *:nth-child(3) {
-  animation-delay: 180ms;
+  animation-delay: 150ms;
 }
 
 .grid > *:nth-child(4) {
-  animation-delay: 240ms;
+  animation-delay: 200ms;
 }
 
 .grid > *:nth-child(5) {
-  animation-delay: 300ms;
+  animation-delay: 250ms;
 }
 
 .grid > *:nth-child(6) {
-  animation-delay: 360ms;
+  animation-delay: 300ms;
 }
 
 .grid > *:nth-child(7) {
-  animation-delay: 420ms;
+  animation-delay: 350ms;
 }
 
 @keyframes card-rise {
   from {
     opacity: 0;
-    transform: translateY(60px) scale(0.9);
+    transform: translateY(40px) scale(0.95);
   }
   to {
     opacity: 1;
