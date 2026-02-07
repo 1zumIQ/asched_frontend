@@ -152,9 +152,9 @@ const eventDensity = computed(() => {
   --stats-padding: 12px;
   --stats-margin-bottom: 16px;
   --section-padding: 10px;
-  --section-gap: 12px;
+  --section-gap: 8px;
   --section-body-gap: 12px;
-  --section-body-padding: 8px;
+  --section-body-padding: 12px 8px;
   --section-empty-padding: 6px 10px;
   --section-empty-gap: 4px;
   --section-empty-label-padding: 2px 8px;

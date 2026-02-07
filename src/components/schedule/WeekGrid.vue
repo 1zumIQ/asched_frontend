@@ -32,7 +32,8 @@ const calculateCardHeight = () => {
   const computedStyle = window.getComputedStyle(gridRef.value)
   const gridPaddingTop = parseFloat(computedStyle.paddingTop)
   const gridPaddingBottom = parseFloat(computedStyle.paddingBottom)
-  const bottomMargin = 28 // 为阴影与汉堡按钮留出空间
+  const bottomMargin = 12
+  // 为阴影与汉堡按钮留出空间
 
   const calculatedHeight = gridHeight - gridPaddingTop - gridPaddingBottom - bottomMargin
 
@@ -227,7 +228,7 @@ onUnmounted(() => {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   /* 增加padding防止hover时卡片阴影被裁剪，底部留出足够空间显示汉堡按钮和圆角 */
-  padding: 32px 18px 28px;
+  padding: 32px 18px 12px;
   scroll-padding: 0 18px;
   align-items: stretch;
   position: relative;

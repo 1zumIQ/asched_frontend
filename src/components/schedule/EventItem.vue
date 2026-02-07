@@ -268,6 +268,15 @@ const openLink = (url: string) => {
 
       <!-- 快捷跳转操作区 - 移动至此以对齐 -->
       <div class="event__actions">
+        <!-- 展开指示器 -->
+        <div class="event__expand-indicator">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+            :style="{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }">
+            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+
         <!-- 个人空间跳转 -->
         <button class="action-btn action-btn--space" @click.stop="openLink(spaceUrl)" title="访问个人空间">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -290,14 +299,7 @@ const openLink = (url: string) => {
       </div>
     </div>
 
-    <!-- 展开指示器 -->
-    <div class="event__expand-indicator">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-        :style="{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }">
-        <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round" />
-      </svg>
-    </div>
+
   </div>
 </template>
 
@@ -1009,10 +1011,7 @@ const openLink = (url: string) => {
 
 /* 展开指示器 */
 .event__expand-indicator {
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative; /* Changed from absolute */
   color: var(--ink-soft);
   transition: all 200ms ease;
   display: flex;
@@ -1022,8 +1021,9 @@ const openLink = (url: string) => {
   height: 24px;
   border-radius: 50%;
   background: var(--event-expand-bg);
-  border: 2px dashed rgb(var(--outline-rgb) / 0.3);
-
+  border: 1px dashed var(--outline); /* Thinner dashed border */
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .event__expand-indicator svg {

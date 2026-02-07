@@ -198,7 +198,7 @@ const hasEvents = computed(() => props.events.length > 0)
   display: flex;
   align-items: center;
   gap: var(--section-header-gap, 10px);
-  margin-bottom: 4px;
+  gap: var(--section-header-gap, 10px);
 }
 
 .section__line {
